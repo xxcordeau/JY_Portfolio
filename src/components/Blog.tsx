@@ -34,8 +34,13 @@ const BackButton = styled.button<{ $isDark: boolean }>`
   }
 
   @media (max-width: 768px) {
-    position: static;
-    margin: 20px;
+    position: fixed;
+    top: auto;
+    bottom: 24px;
+    left: 20px;
+    padding: 10px 18px;
+    font-size: 13px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   }
 `;
 

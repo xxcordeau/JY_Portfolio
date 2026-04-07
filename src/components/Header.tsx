@@ -345,8 +345,8 @@ export default function Header({
               {isDark ? <Sun /> : <Moon />}
             </IconButton>
             <LangButton $isDark={isDark} onClick={toggleLanguage}>{t.lang}</LangButton>
-            <HamburgerButton $isDark={isDark} onClick={() => setMobileMenuOpen(true)}>
-              <Menu />
+            <HamburgerButton $isDark={isDark} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X /> : <Menu />}
             </HamburgerButton>
           </ButtonGroup>
         </Nav>
@@ -355,9 +355,6 @@ export default function Header({
       {/* Mobile fullscreen menu */}
       <MobileMenuOverlay $isOpen={mobileMenuOpen} $isDark={isDark} onClick={() => setMobileMenuOpen(false)} />
       <MobileMenu $isOpen={mobileMenuOpen} $isDark={isDark}>
-        <MobileCloseButton $isDark={isDark} onClick={() => setMobileMenuOpen(false)}>
-          <X />
-        </MobileCloseButton>
         <MobileNavLink $isDark={isDark} onClick={() => scrollToSection('about')}>{t.about}</MobileNavLink>
         <MobileNavLink $isDark={isDark} onClick={() => scrollToSection('projects')}>{t.projects}</MobileNavLink>
         <MobileNavLink $isDark={isDark} onClick={handleOpenSourceClick}>{t.opensource}</MobileNavLink>

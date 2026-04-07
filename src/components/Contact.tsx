@@ -287,7 +287,8 @@ const translations = {
     sending: '전송 중...',
     successMessage: '메시지가 성공적으로 전송되었습니다!',
     errorMessage: '메시지 전송에 실패했습니다. 다시 시도해주세요.',
-    directEmail: 'Gmail로 직접 보내기',
+    directEmail: '이메일 앱으로 보내기',
+    directGmail: 'Gmail 웹에서 보내기',
     or: '또는'
   },
   en: {
@@ -303,7 +304,8 @@ const translations = {
     sending: 'Sending...',
     successMessage: 'Message sent successfully!',
     errorMessage: 'Failed to send message. Please try again.',
-    directEmail: 'Send via Gmail',
+    directEmail: 'Send via Email App',
+    directGmail: 'Send via Gmail Web',
     or: 'or'
   }
 };
@@ -459,13 +461,21 @@ export default function Contact({ language, isDark, isOpen = false, onOpenChange
               <span>{t.or}</span>
             </Divider>
 
-            <DirectEmailButton 
-              $isDark={isDark} 
-              href="https://mail.google.com/mail/?view=cm&fs=1&to=qazseeszaq3219@gmail.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
+            <DirectEmailButton
+              $isDark={isDark}
+              href="mailto:qazseeszaq3219@gmail.com"
             >
               {t.directEmail}
+            </DirectEmailButton>
+
+            <DirectEmailButton
+              $isDark={isDark}
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=qazseeszaq3219@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ marginTop: '8px' }}
+            >
+              {t.directGmail}
             </DirectEmailButton>
           </ModalBody>
         </ModalWindow>
