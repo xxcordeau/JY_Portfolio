@@ -407,22 +407,20 @@ const translations = {
   }
 };
 
-function CodeBlockComponent({ code, language, isDark, onCopy, copied }: { 
-  code: string; 
-  language: string; 
+function CodeBlockComponent({ code, language: codeLang, isDark, onCopy, copied }: {
+  code: string;
+  language: string;
   isDark: boolean;
   onCopy: () => void;
   copied: boolean;
 }) {
-  const t = translations[copied ? 'ko' : 'en']; // Simple translation for demo
-
   return (
     <CodeBlock $isDark={isDark}>
       <CodeHeader $isDark={isDark}>
-        <CodeLanguage>{language}</CodeLanguage>
+        <CodeLanguage>{codeLang}</CodeLanguage>
         <CopyButton $isDark={isDark} onClick={onCopy}>
           {copied ? <Check /> : <Copy />}
-          {copied ? translations.ko.copied : translations.ko.copy}
+          {copied ? '복사됨!' : '복사'}
         </CopyButton>
       </CodeHeader>
       <CodeContent $isDark={isDark}>

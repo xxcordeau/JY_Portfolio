@@ -345,7 +345,12 @@ export default function Header({
               {isDark ? <Sun /> : <Moon />}
             </IconButton>
             <LangButton $isDark={isDark} onClick={toggleLanguage}>{t.lang}</LangButton>
-            <HamburgerButton $isDark={isDark} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <HamburgerButton
+              $isDark={isDark}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+            >
               {mobileMenuOpen ? <X /> : <Menu />}
             </HamburgerButton>
           </ButtonGroup>

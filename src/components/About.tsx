@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { skills, education, experiences } from '../data/aboutData';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Briefcase, GraduationCap, Code2, User, Mail, Phone, Calendar } from 'lucide-react';
 
 const AboutSection = styled.section<{ $isDark: boolean }>`
@@ -449,9 +449,10 @@ export default function About({ language, isDark }: AboutProps) {
   const [animateSkills, setAnimateSkills] = useState(false);
 
   // Trigger animation on mount
-  useState(() => {
-    setTimeout(() => setAnimateSkills(true), 300);
-  });
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimateSkills(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const groupedSkills = skills.reduce((acc, skill) => {
     if (!acc[skill.category]) {

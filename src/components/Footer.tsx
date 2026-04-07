@@ -107,18 +107,18 @@ interface FooterProps {
 }
 
 const ContactButton = styled.button<{ $isDark: boolean }>`
-  color: ${props => props.$isDark ? '#a1a1a6' : '#86868b'};\
+  color: ${props => props.$isDark ? '#a1a1a6' : '#86868b'};
   background: transparent;
   border: none;
-  font-size: 14px;\
+  font-size: 14px;
   font-weight: 500;
-  cursor: pointer;\
+  cursor: pointer;
   transition: color 0.2s ease;
   letter-spacing: -0.2px;
   padding: 0;
 
   &:hover {
-    color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};\
+    color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   }
 
   @media (max-width: 768px) {
