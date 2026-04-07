@@ -20,6 +20,6 @@ export const tableComponentStructuring: BlogPost = {
     en: '7 min'
   },
   tags: ['Vue', 'Composable', 'Table UI', 'State Management'],
-  thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
+  thumbnail: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
   component: 'TableComponentPost'
 };

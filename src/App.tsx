@@ -274,16 +274,18 @@ function AdminPage({
 
 function AppContent() {
   const [language, setLanguage] = useState<'ko' | 'en'>('ko');
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('portfolio_dark_mode');
+    if (saved !== null) return saved === 'true';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // 시스템 다크모드 감지
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setIsDark(prefersDark);
-  }, []);
+    localStorage.setItem('portfolio_dark_mode', String(isDark));
+  }, [isDark]);
 
   // 페이지 변경 시 스크롤 최상단으로 이동
   useEffect(() => {

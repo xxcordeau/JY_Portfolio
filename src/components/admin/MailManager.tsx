@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Mail, Trash2, RefreshCw, Calendar, User as UserIcon, AtSign } from 'lucide-react';
-import { projectId, publicAnonKey } from '../../utils/supabase/info';
+// Supabase removed — mail feature disabled
 
 const Container = styled.div`
   width: 100%;
@@ -189,45 +189,13 @@ export default function MailManager({ isDark, language }: MailManagerProps) {
 
   const fetchMails = async () => {
     setLoading(true);
-    try {
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-a3d4d756/admin/mails`,
-        {
-          headers: {
-            'Authorization': `Bearer ${publicAnonKey}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setMails(data.mails || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch mails:', error);
-    } finally {
-      setLoading(false);
-    }
+    // Mail feature disabled — Supabase backend removed
+    setMails([]);
+    setLoading(false);
   };
 
   const deleteMail = async (key: string) => {
-    try {
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-a3d4d756/admin/mails/${key}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${publicAnonKey}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        setMails(mails.filter(mail => mail.key !== key));
-      }
-    } catch (error) {
-      console.error('Failed to delete mail:', error);
-    }
+    setMails(mails.filter(mail => mail.key !== key));
   };
 
   useEffect(() => {
