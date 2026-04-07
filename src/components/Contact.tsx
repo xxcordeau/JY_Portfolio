@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { useState } from 'react';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { X } from 'lucide-react';
 
 const Overlay = styled.div<{ $isOpen: boolean }>`
@@ -320,51 +319,14 @@ export default function Contact({ language, isDark, isOpen = false, onOpenChange
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus('loading');
-    setErrorMessage('');
-
-    try {
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-a3d4d756/send-email`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${publicAnonKey}`,
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      const data = await response.json();
-      console.log('Server response:', data);
-
-      if (!response.ok) {
-        console.error('Server error details:', data);
-        const errorMsg = data.details || data.error || 'Failed to send email';
-        throw new Error(errorMsg);
-      }
-
-      setStatus('success');
-      setFormData({ name: '', email: '', message: '' });
-      
-      // Reset success message after 5 seconds
-      setTimeout(() => {
-        setStatus('idle');
-      }, 5000);
-    } catch (error) {
-      console.error('Error sending email:', error);
-      setStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : t.errorMessage);
-      
-      // Reset error message after 5 seconds
-      setTimeout(() => {
-        setStatus('idle');
-        setErrorMessage('');
-      }, 5000);
-    }
+    const subject = encodeURIComponent(`[Portfolio] ${formData.name}님의 메시지`);
+    const body = encodeURIComponent(`이름: ${formData.name}\n이메일: ${formData.email}\n\n${formData.message}`);
+    window.location.href = `mailto:qazseeszaq3219@gmail.com?subject=${subject}&body=${body}`;
+    setStatus('success');
+    setFormData({ name: '', email: '', message: '' });
+    setTimeout(() => setStatus('idle'), 3000);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

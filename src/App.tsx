@@ -18,7 +18,6 @@ import Chatbot from './components/Chatbot';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
 import PackageDemo from './components/PackageDemo';
-import { projectId, publicAnonKey } from './utils/supabase/info';
 
 const GlobalStyle = createGlobalStyle`
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
@@ -241,31 +240,13 @@ function AdminPage({
   }, []);
 
   const handleLogin = async (password: string): Promise<boolean> => {
-    try {
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-a3d4d756/admin/login`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${publicAnonKey}`,
-          },
-          body: JSON.stringify({ password }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('admin_token', 'authenticated');
-        setIsAuthenticated(true);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Login error:', error);
-      return false;
+    // Simple client-side auth for portfolio admin
+    if (password === 'admin1234') {
+      localStorage.setItem('admin_token', 'authenticated');
+      setIsAuthenticated(true);
+      return true;
     }
+    return false;
   };
 
   const handleLogout = () => {
