@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { blogPosts } from '../data/blogData';
+import { useBlogPosts } from '../hooks/useBlogPosts';
 import { ArrowLeft, Copy, Check } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import Footer from './Footer';
@@ -433,6 +433,7 @@ function CodeBlockComponent({ code, language: codeLang, isDark, onCopy, copied }
 export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
+  const { posts: blogPosts } = useBlogPosts();
   const post = blogPosts.find(p => p.id === blogId);
   const t = translations[language];
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);

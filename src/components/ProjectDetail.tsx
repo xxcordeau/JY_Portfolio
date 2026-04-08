@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { projects } from '../data/projectsData';
+import { useProjects } from '../hooks/useProjects';
 import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import Footer from './Footer';
@@ -304,6 +304,7 @@ const categoryTranslations = {
 export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
+  const { projects } = useProjects();
   const project = projects.find(p => p.id === projectId);
   const t = translations[language];
   const ct = categoryTranslations[language];

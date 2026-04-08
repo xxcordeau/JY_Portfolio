@@ -1,195 +1,246 @@
 import { useState } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { Mail, User, FolderOpen, BookOpen, LogOut, Menu, X } from 'lucide-react';
-import MailManager from './MailManager';
-import AboutEditor from './AboutEditor';
-import ProjectEditor from './ProjectEditor';
-import BlogEditor from './BlogEditor';
+import {
+  Mail, User, FolderOpen, BookOpen, Github,
+  MessageSquare, FileText, Settings, LogOut,
+  Menu, X, ChevronRight
+} from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useLanguage } from '../../contexts/LanguageContext';
+
+// ============================================
+// Layout — winnticket admin style (styled-components)
+// Sidebar(240px) + Header(52px) + Content
+// ============================================
 
 const DashboardContainer = styled.div<{ $isDark: boolean }>`
   min-height: 100vh;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
+  display: flex;
+  background: ${p => p.$isDark ? '#0a0a0a' : '#f5f5f7'};
   transition: background 0.3s ease;
 `;
 
-const Header = styled.header<{ $isDark: boolean }>`
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(255, 255, 255, 0.8)'};
-  border-bottom: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
-  backdrop-filter: blur(20px);
-  padding: 20px 40px;
+// --- Sidebar ---
+
+const SidebarWrapper = styled.aside<{ $isDark: boolean; $isOpen: boolean }>`
+  width: 240px;
+  min-height: 100vh;
+  background: ${p => p.$isDark ? '#111' : '#ffffff'};
+  border-right: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  flex-shrink: 0;
   position: sticky;
   top: 0;
-  z-index: 100;
+  height: 100vh;
+  overflow-y: auto;
 
   @media (max-width: 768px) {
-    padding: 16px 20px;
+    position: fixed;
+    top: 0;
+    left: ${p => p.$isOpen ? '0' : '-280px'};
+    width: 280px;
+    z-index: 300;
+    transition: left 0.25s ease;
   }
 `;
 
-const Logo = styled.div<{ $isDark: boolean }>`
-  font-size: 22px;
-  font-weight: 600;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+const SidebarHeader = styled.div<{ $isDark: boolean }>`
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+`;
+
+const SidebarLogo = styled.div<{ $isDark: boolean }>`
+  font-size: 18px;
+  font-weight: 700;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   letter-spacing: -0.5px;
-
-  span {
-    background: ${props => props.$isDark 
-      ? 'linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%)' 
-      : 'linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%)'};
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-`;
-
-const LogoutButton = styled.button<{ $isDark: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'};
+
+  span {
+    color: #0c8ce9;
+  }
+`;
+
+const SidebarNav = styled.nav`
+  flex: 1;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const NavSection = styled.div`
+  margin-bottom: 8px;
+`;
+
+const NavSectionLabel = styled.div<{ $isDark: boolean }>`
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
+  padding: 12px 12px 6px;
+`;
+
+const NavItem = styled.button<{ $isDark: boolean; $active: boolean }>`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
   border-radius: 8px;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  font-size: 15px;
-  font-weight: 500;
+  border: none;
+  background: ${p => p.$active
+    ? p.$isDark ? 'rgba(12,140,233,0.15)' : 'rgba(12,140,233,0.08)'
+    : 'transparent'};
+  color: ${p => p.$active
+    ? '#0c8ce9'
+    : p.$isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.65)'};
+  font-size: 14px;
+  font-weight: ${p => p.$active ? '600' : '500'};
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  text-align: left;
 
   &:hover {
-    background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'};
+    background: ${p => p.$active
+      ? p.$isDark ? 'rgba(12,140,233,0.15)' : 'rgba(12,140,233,0.08)'
+      : p.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'};
   }
 
   svg {
     width: 18px;
     height: 18px;
-  }
-
-  @media (max-width: 768px) {
-    span {
-      display: none;
-    }
+    flex-shrink: 0;
   }
 `;
 
-const MainContent = styled.div`
+const SidebarFooter = styled.div<{ $isDark: boolean }>`
+  padding: 12px 8px;
+  border-top: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+`;
+
+// --- Main Area ---
+
+const MainArea = styled.div`
+  flex: 1;
   display: flex;
-  max-width: 1400px;
-  margin: 0 auto;
-  min-height: calc(100vh - 80px);
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+`;
+
+const TopBar = styled.header<{ $isDark: boolean }>`
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: ${p => p.$isDark ? '#111' : '#ffffff'};
+  border-bottom: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  position: sticky;
+  top: 0;
+  z-index: 50;
 
   @media (max-width: 768px) {
-    flex-direction: column;
+    padding: 0 16px;
   }
 `;
 
-const Sidebar = styled.aside<{ $isDark: boolean; $isOpen: boolean }>`
-  width: 280px;
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(255, 255, 255, 0.8)'};
-  border-right: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
-  padding: 32px 0;
-  backdrop-filter: blur(20px);
-
-  @media (max-width: 768px) {
-    position: fixed;
-    top: 0;
-    left: ${props => props.$isOpen ? '0' : '-100%'};
-    width: 80%;
-    max-width: 280px;
-    height: 100vh;
-    z-index: 200;
-    transition: left 0.3s ease;
-    padding-top: 80px;
-  }
+const TopBarLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
 `;
 
-const MobileMenuButton = styled.button<{ $isDark: boolean }>`
+const MobileMenuBtn = styled.button<{ $isDark: boolean }>`
   display: none;
-  padding: 8px;
+  padding: 6px;
   background: none;
   border: none;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   cursor: pointer;
+  border-radius: 6px;
 
-  svg {
-    width: 24px;
-    height: 24px;
+  &:hover {
+    background: ${p => p.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'};
   }
+
+  svg { width: 22px; height: 22px; }
 
   @media (max-width: 768px) {
     display: flex;
+    align-items: center;
+  }
+`;
+
+const Breadcrumb = styled.div<{ $isDark: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
+
+  span:last-child {
+    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+    font-weight: 500;
+  }
+
+  svg { width: 14px; height: 14px; }
+`;
+
+const ContentArea = styled.main`
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+
+  @media (max-width: 768px) {
+    padding: 16px;
   }
 `;
 
 const Overlay = styled.div<{ $isOpen: boolean }>`
   display: none;
-  
+
   @media (max-width: 768px) {
-    display: ${props => props.$isOpen ? 'block' : 'none'};
+    display: ${p => p.$isOpen ? 'block' : 'none'};
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 150;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 250;
   }
 `;
 
-const MenuList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-`;
+// ============================================
+// Menu configuration
+// ============================================
 
-const MenuItem = styled.li<{ $isDark: boolean; $active: boolean }>`
-  padding: 14px 32px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  color: ${props => {
-    if (props.$active) {
-      return props.$isDark ? '#4ECDC4' : '#007AFF';
-    }
-    return props.$isDark ? '#f5f5f7' : '#1d1d1f';
-  }};
-  background: ${props => props.$active 
-    ? props.$isDark ? 'rgba(78, 205, 196, 0.1)' : 'rgba(0, 122, 255, 0.1)'
-    : 'transparent'};
-  border-left: 3px solid ${props => props.$active 
-    ? props.$isDark ? '#4ECDC4' : '#007AFF'
-    : 'transparent'};
-  font-size: 16px;
-  font-weight: ${props => props.$active ? '600' : '500'};
-  transition: all 0.2s ease;
+interface MenuItem {
+  id: string;
+  path: string;
+  icon: React.ElementType;
+  label: string;
+  section: 'content' | 'system';
+}
 
-  &:hover {
-    background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'};
-  }
+const menuItems: MenuItem[] = [
+  { id: 'mail',          path: '/admin/mail',          icon: Mail,           label: '메일 관리',      section: 'content' },
+  { id: 'projects',      path: '/admin/projects',      icon: FolderOpen,     label: '프로젝트 관리',  section: 'content' },
+  { id: 'blog',          path: '/admin/blog',          icon: BookOpen,       label: '블로그 관리',    section: 'content' },
+  { id: 'about',         path: '/admin/about',         icon: User,           label: 'About 관리',     section: 'content' },
+  { id: 'opensource',    path: '/admin/opensource',    icon: Github,         label: '오픈소스 관리',  section: 'content' },
+  { id: 'presentations', path: '/admin/presentations', icon: FileText,       label: 'PT 자료 관리',   section: 'content' },
+  { id: 'chatbot',       path: '/admin/chatbot',       icon: MessageSquare,  label: '챗봇 관리',      section: 'system' },
+  { id: 'settings',      path: '/admin/settings',      icon: Settings,       label: '사이트 설정',    section: 'system' },
+];
 
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-`;
-
-const Content = styled.div`
-  flex: 1;
-  padding: 40px;
-
-  @media (max-width: 768px) {
-    padding: 24px 20px;
-  }
-`;
-
-type TabType = 'mail' | 'about' | 'projects' | 'blog';
+// ============================================
+// Component
+// ============================================
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -197,68 +248,101 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const { isDark } = useTheme();
-  const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<TabType>('mail');
+  const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleTabChange = (tab: TabType) => {
-    setActiveTab(tab);
+  const currentPath = location.pathname;
+  const activeItem = menuItems.find(item =>
+    currentPath === item.path || currentPath.startsWith(item.path + '/')
+  );
+  const activeLabel = activeItem?.label ?? '관리자';
+
+  const contentItems = menuItems.filter(m => m.section === 'content');
+  const systemItems = menuItems.filter(m => m.section === 'system');
+
+  const handleNav = (path: string) => {
+    navigate(path);
     setSidebarOpen(false);
   };
 
-  const menuItems = [
-    { id: 'mail' as TabType, icon: Mail, label: '메일 관리' },
-    { id: 'about' as TabType, icon: User, label: 'About 관리' },
-    { id: 'projects' as TabType, icon: FolderOpen, label: '프로젝트 관리' },
-    { id: 'blog' as TabType, icon: BookOpen, label: '블로그 관리' },
-  ];
+  const isActive = (item: MenuItem) =>
+    currentPath === item.path || currentPath.startsWith(item.path + '/');
 
   return (
     <DashboardContainer $isDark={isDark}>
-      <Header $isDark={isDark}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <MobileMenuButton 
-            $isDark={isDark}
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            {sidebarOpen ? <X /> : <Menu />}
-          </MobileMenuButton>
-          <Logo $isDark={isDark}>
-            관리자 <span>대시보드</span>
-          </Logo>
-        </div>
-        <LogoutButton $isDark={isDark} onClick={onLogout}>
-          <LogOut />
-          <span>로그아웃</span>
-        </LogoutButton>
-      </Header>
-
       <Overlay $isOpen={sidebarOpen} onClick={() => setSidebarOpen(false)} />
 
-      <MainContent>
-        <Sidebar $isDark={isDark} $isOpen={sidebarOpen}>
-          <MenuList>
-            {menuItems.map(item => (
-              <MenuItem
+      <SidebarWrapper $isDark={isDark} $isOpen={sidebarOpen}>
+        <SidebarHeader $isDark={isDark}>
+          <SidebarLogo $isDark={isDark}>
+            Portfolio <span>Admin</span>
+          </SidebarLogo>
+        </SidebarHeader>
+
+        <SidebarNav>
+          <NavSection>
+            <NavSectionLabel $isDark={isDark}>콘텐츠</NavSectionLabel>
+            {contentItems.map(item => (
+              <NavItem
                 key={item.id}
                 $isDark={isDark}
-                $active={activeTab === item.id}
-                onClick={() => handleTabChange(item.id)}
+                $active={isActive(item)}
+                onClick={() => handleNav(item.path)}
               >
                 <item.icon />
                 {item.label}
-              </MenuItem>
+              </NavItem>
             ))}
-          </MenuList>
-        </Sidebar>
+          </NavSection>
 
-        <Content>
-          {activeTab === 'mail' && <MailManager />}
-          {activeTab === 'about' && <AboutEditor />}
-          {activeTab === 'projects' && <ProjectEditor />}
-          {activeTab === 'blog' && <BlogEditor />}
-        </Content>
-      </MainContent>
+          <NavSection>
+            <NavSectionLabel $isDark={isDark}>시스템</NavSectionLabel>
+            {systemItems.map(item => (
+              <NavItem
+                key={item.id}
+                $isDark={isDark}
+                $active={isActive(item)}
+                onClick={() => handleNav(item.path)}
+              >
+                <item.icon />
+                {item.label}
+              </NavItem>
+            ))}
+          </NavSection>
+        </SidebarNav>
+
+        <SidebarFooter $isDark={isDark}>
+          <NavItem
+            $isDark={isDark}
+            $active={false}
+            onClick={onLogout}
+            style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)' }}
+          >
+            <LogOut />
+            로그아웃
+          </NavItem>
+        </SidebarFooter>
+      </SidebarWrapper>
+
+      <MainArea>
+        <TopBar $isDark={isDark}>
+          <TopBarLeft>
+            <MobileMenuBtn $isDark={isDark} onClick={() => setSidebarOpen(!sidebarOpen)}>
+              {sidebarOpen ? <X /> : <Menu />}
+            </MobileMenuBtn>
+            <Breadcrumb $isDark={isDark}>
+              <span>관리자</span>
+              <ChevronRight />
+              <span>{activeLabel}</span>
+            </Breadcrumb>
+          </TopBarLeft>
+        </TopBar>
+
+        <ContentArea>
+          <Outlet />
+        </ContentArea>
+      </MainArea>
     </DashboardContainer>
   );
 }

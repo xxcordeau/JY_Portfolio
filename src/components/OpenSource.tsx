@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { openSourceProjects } from '../data/openSourceData';
+import { useOpenSource } from '../hooks/useOpenSource';
 import { Github, Package, Star, Download, ArrowRight } from 'lucide-react';
 
 const OpenSourceContainer = styled.div<{ $isDark: boolean }>`
@@ -209,6 +209,7 @@ const translations = {
 export default function OpenSource({ onProjectClick }: OpenSourceProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
+  const { projects: openSourceProjects } = useOpenSource();
   const t = translations[language];
 
   return (

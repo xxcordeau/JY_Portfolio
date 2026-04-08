@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { blogPosts } from '../data/blogData';
+import { useBlogPosts } from '../hooks/useBlogPosts';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowRight } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -198,6 +198,7 @@ const translations = {
 export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
+  const { posts: blogPosts } = useBlogPosts();
   const t = translations[language];
   // 최신 6개 포스트만 표시
   const recentPosts = blogPosts.slice(0, 6);

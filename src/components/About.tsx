@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { skills, education, experiences } from '../data/aboutData';
+import { useAbout } from '../hooks/useAbout';
 import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -444,6 +444,7 @@ const categoryTranslations = {
 export default function About() {
   const { isDark } = useTheme();
   const { language } = useLanguage();
+  const { skills, education, experiences } = useAbout();
   const t = translations[language];
   const ct = categoryTranslations[language];
   const [animateSkills, setAnimateSkills] = useState(false);

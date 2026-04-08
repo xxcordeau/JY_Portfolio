@@ -1,0 +1,422 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { ArrowLeft, Upload, Save, Trash2 } from 'lucide-react';
+import { supabase } from '../../../lib/supabase';
+import { uploadFile } from '../../../lib/uploadFile';
+import { useTheme } from '../../../contexts/ThemeContext';
+import type { DbProject } from '../../../lib/types/database';
+import TagInput from '../../ui/TagInput';
+import {
+  Card, FormSection, SectionTitle, FormGroup, FormLabel,
+  FormInput, FormTextarea, FormRow,
+  PrimaryButton, SecondaryButton, DestructiveButton,
+  TabRow, Tab, ToggleWrapper, ToggleSwitch, ToggleLabel,
+  FileUploadArea, Badge
+} from '../AdminStyles';
+
+// ============================================
+// Page-level styles
+// ============================================
+
+const PageTop = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+`;
+
+const BackBtn = styled.button<{ $isDark: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'};
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 6px 0;
+
+  &:hover { color: #0c8ce9; }
+  svg { width: 18px; height: 18px; }
+`;
+
+const PageTitle = styled.h1<{ $isDark: boolean }>`
+  font-size: 22px;
+  font-weight: 700;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  letter-spacing: -0.5px;
+`;
+
+const FormActions = styled.div`
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(128,128,128,0.1);
+`;
+
+const ListItemRow = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+`;
+
+const ListItemInput = styled.textarea<{ $isDark: boolean }>`
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.05)' : '#f3f3f5'};
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
+  border-radius: 8px;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  font-family: inherit;
+  resize: vertical;
+  min-height: 40px;
+
+  &:focus { outline: none; border-color: #0c8ce9; }
+`;
+
+const RemoveBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(212,24,61,0.08);
+  color: #d4183d;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 4px;
+
+  &:hover { background: rgba(212,24,61,0.15); }
+  svg { width: 14px; height: 14px; }
+`;
+
+const AddItemBtn = styled.button<{ $isDark: boolean }>`
+  font-size: 13px;
+  color: #0c8ce9;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 0;
+
+  &:hover { text-decoration: underline; }
+`;
+
+const CoverPreview = styled.img`
+  width: 100%;
+  max-width: 300px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-top: 8px;
+`;
+
+// ============================================
+// Default empty project
+// ============================================
+
+const emptyProject: Omit<DbProject, 'created_at' | 'updated_at'> = {
+  id: '',
+  title_ko: '', title_en: '',
+  description_ko: '', description_en: '',
+  full_description_ko: '', full_description_en: '',
+  role_ko: '', role_en: '',
+  year: '',
+  tags: [],
+  cover_image_url: null,
+  tech_frontend: [], tech_backend: [], tech_design: [], tech_others: [],
+  highlights_ko: [], highlights_en: [],
+  challenge_ko: null, challenge_en: null,
+  solution_ko: null, solution_en: null,
+  link_github: null, link_demo: null, link_website: null,
+  is_featured: false,
+  sort_order: 0,
+};
+
+// ============================================
+// Component
+// ============================================
+
+export default function ProjectForm() {
+  const { isDark } = useTheme();
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const isEdit = !!id && id !== 'new';
+
+  const [form, setForm] = useState(emptyProject);
+  const [langTab, setLangTab] = useState<'ko' | 'en'>('ko');
+  const [saving, setSaving] = useState(false);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(isEdit);
+
+  useEffect(() => {
+    if (isEdit) {
+      supabase.from('projects').select('*').eq('id', id).single()
+        .then(({ data }) => {
+          if (data) setForm(data as DbProject);
+          setLoading(false);
+        });
+    }
+  }, [id, isEdit]);
+
+  const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
+    setForm(prev => ({ ...prev, [key]: value }));
+  };
+
+  const updateListItem = (field: 'highlights_ko' | 'highlights_en', index: number, value: string) => {
+    const list = [...form[field]];
+    list[index] = value;
+    set(field, list);
+  };
+
+  const addListItem = (field: 'highlights_ko' | 'highlights_en') => {
+    set(field, [...form[field], '']);
+  };
+
+  const removeListItem = (field: 'highlights_ko' | 'highlights_en', index: number) => {
+    set(field, form[field].filter((_, i) => i !== index));
+  };
+
+  const handleSave = async () => {
+    if (!form.id || !form.title_ko) return;
+    setSaving(true);
+
+    try {
+      let coverUrl = form.cover_image_url;
+      if (coverFile) {
+        const ext = coverFile.name.split('.').pop();
+        coverUrl = await uploadFile(
+          'project-images',
+          `covers/${form.id}.${ext}`,
+          coverFile
+        );
+      }
+
+      const payload = {
+        ...form,
+        cover_image_url: coverUrl,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (isEdit) {
+        await supabase.from('projects').update(payload).eq('id', form.id);
+      } else {
+        await supabase.from('projects').insert({ ...payload, created_at: new Date().toISOString() });
+      }
+
+      navigate('/admin/projects');
+    } catch (err) {
+      console.error('Save failed:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return <div style={{ padding: 40, color: '#86868b' }}>불러오는 중...</div>;
+  }
+
+  return (
+    <>
+      <PageTop>
+        <BackBtn $isDark={isDark} onClick={() => navigate('/admin/projects')}>
+          <ArrowLeft /> 목록으로
+        </BackBtn>
+      </PageTop>
+
+      <PageTitle $isDark={isDark} style={{ marginBottom: 24 }}>
+        {isEdit ? '프로젝트 수정' : '새 프로젝트'}
+      </PageTitle>
+
+      <Card $isDark={isDark}>
+        {/* === Basic Info === */}
+        <FormSection $isDark={isDark}>
+          <SectionTitle $isDark={isDark}>기본 정보</SectionTitle>
+          <FormRow>
+            <FormGroup>
+              <FormLabel $isDark={isDark}>프로젝트 ID (URL slug)</FormLabel>
+              <FormInput
+                $isDark={isDark}
+                value={form.id}
+                onChange={e => set('id', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                placeholder="my-project"
+                disabled={isEdit}
+              />
+            </FormGroup>
+            <FormGroup>
+              <FormLabel $isDark={isDark}>연도</FormLabel>
+              <FormInput $isDark={isDark} value={form.year} onChange={e => set('year', e.target.value)} placeholder="2024-2025" />
+            </FormGroup>
+          </FormRow>
+
+          <TabRow $isDark={isDark}>
+            <Tab $isDark={isDark} $active={langTab === 'ko'} onClick={() => setLangTab('ko')}>한국어</Tab>
+            <Tab $isDark={isDark} $active={langTab === 'en'} onClick={() => setLangTab('en')}>English</Tab>
+          </TabRow>
+
+          <FormRow>
+            <FormGroup>
+              <FormLabel $isDark={isDark}>제목 ({langTab.toUpperCase()})</FormLabel>
+              <FormInput
+                $isDark={isDark}
+                value={langTab === 'ko' ? form.title_ko : form.title_en}
+                onChange={e => set(langTab === 'ko' ? 'title_ko' : 'title_en', e.target.value)}
+              />
+            </FormGroup>
+            <FormGroup>
+              <FormLabel $isDark={isDark}>역할 ({langTab.toUpperCase()})</FormLabel>
+              <FormInput
+                $isDark={isDark}
+                value={langTab === 'ko' ? form.role_ko : form.role_en}
+                onChange={e => set(langTab === 'ko' ? 'role_ko' : 'role_en', e.target.value)}
+              />
+            </FormGroup>
+          </FormRow>
+
+          <FormGroup>
+            <FormLabel $isDark={isDark}>짧은 설명 ({langTab.toUpperCase()})</FormLabel>
+            <FormTextarea
+              $isDark={isDark}
+              value={langTab === 'ko' ? form.description_ko : form.description_en}
+              onChange={e => set(langTab === 'ko' ? 'description_ko' : 'description_en', e.target.value)}
+              style={{ minHeight: 80 }}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <FormLabel $isDark={isDark}>상세 설명 ({langTab.toUpperCase()})</FormLabel>
+            <FormTextarea
+              $isDark={isDark}
+              value={langTab === 'ko' ? form.full_description_ko : form.full_description_en}
+              onChange={e => set(langTab === 'ko' ? 'full_description_ko' : 'full_description_en', e.target.value)}
+              style={{ minHeight: 140 }}
+            />
+          </FormGroup>
+
+          <FormRow>
+            <FormGroup>
+              <ToggleWrapper onClick={() => set('is_featured', !form.is_featured)}>
+                <ToggleSwitch $on={form.is_featured} />
+                <ToggleLabel $isDark={isDark}>Featured 프로젝트</ToggleLabel>
+              </ToggleWrapper>
+            </FormGroup>
+            <FormGroup>
+              <FormLabel $isDark={isDark}>정렬 순서</FormLabel>
+              <FormInput $isDark={isDark} type="number" value={form.sort_order} onChange={e => set('sort_order', Number(e.target.value))} />
+            </FormGroup>
+          </FormRow>
+        </FormSection>
+
+        {/* === Challenge / Solution === */}
+        <FormSection $isDark={isDark}>
+          <SectionTitle $isDark={isDark}>Challenge & Solution</SectionTitle>
+          <Badge $variant="success">프로젝트에서 어떤 문제를 어떻게 해결했는지</Badge>
+
+          <FormGroup>
+            <FormLabel $isDark={isDark}>Challenge ({langTab.toUpperCase()})</FormLabel>
+            <FormTextarea
+              $isDark={isDark}
+              value={(langTab === 'ko' ? form.challenge_ko : form.challenge_en) ?? ''}
+              onChange={e => set(langTab === 'ko' ? 'challenge_ko' : 'challenge_en', e.target.value)}
+              placeholder="어떤 문제/과제가 있었나요?"
+              style={{ minHeight: 100 }}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <FormLabel $isDark={isDark}>Solution ({langTab.toUpperCase()})</FormLabel>
+            <FormTextarea
+              $isDark={isDark}
+              value={(langTab === 'ko' ? form.solution_ko : form.solution_en) ?? ''}
+              onChange={e => set(langTab === 'ko' ? 'solution_ko' : 'solution_en', e.target.value)}
+              placeholder="어떻게 해결했나요?"
+              style={{ minHeight: 100 }}
+            />
+          </FormGroup>
+        </FormSection>
+
+        {/* === Tech Stack === */}
+        <FormSection $isDark={isDark}>
+          <SectionTitle $isDark={isDark}>기술 스택</SectionTitle>
+          <TagInput label="Frontend" tags={form.tech_frontend} onChange={v => set('tech_frontend', v)} isDark={isDark} placeholder="React, TypeScript..." />
+          <TagInput label="Backend" tags={form.tech_backend} onChange={v => set('tech_backend', v)} isDark={isDark} placeholder="Node.js, PostgreSQL..." />
+          <TagInput label="Design" tags={form.tech_design} onChange={v => set('tech_design', v)} isDark={isDark} placeholder="Figma, Illustrator..." />
+          <TagInput label="Others" tags={form.tech_others} onChange={v => set('tech_others', v)} isDark={isDark} placeholder="Git, Docker..." />
+          <TagInput label="프로젝트 태그" tags={form.tags} onChange={v => set('tags', v)} isDark={isDark} placeholder="태그 추가" />
+        </FormSection>
+
+        {/* === Highlights === */}
+        <FormSection $isDark={isDark}>
+          <SectionTitle $isDark={isDark}>주요 성과 / Highlights ({langTab.toUpperCase()})</SectionTitle>
+          {(langTab === 'ko' ? form.highlights_ko : form.highlights_en).map((item, i) => (
+            <ListItemRow key={i}>
+              <ListItemInput
+                $isDark={isDark}
+                value={item}
+                onChange={e => updateListItem(langTab === 'ko' ? 'highlights_ko' : 'highlights_en', i, e.target.value)}
+                rows={1}
+              />
+              <RemoveBtn onClick={() => removeListItem(langTab === 'ko' ? 'highlights_ko' : 'highlights_en', i)}>
+                <Trash2 />
+              </RemoveBtn>
+            </ListItemRow>
+          ))}
+          <AddItemBtn $isDark={isDark} onClick={() => addListItem(langTab === 'ko' ? 'highlights_ko' : 'highlights_en')}>
+            + 항목 추가
+          </AddItemBtn>
+        </FormSection>
+
+        {/* === Links === */}
+        <FormSection $isDark={isDark}>
+          <SectionTitle $isDark={isDark}>링크</SectionTitle>
+          <FormRow>
+            <FormGroup>
+              <FormLabel $isDark={isDark}>GitHub</FormLabel>
+              <FormInput $isDark={isDark} value={form.link_github ?? ''} onChange={e => set('link_github', e.target.value || null)} placeholder="https://github.com/..." />
+            </FormGroup>
+            <FormGroup>
+              <FormLabel $isDark={isDark}>Demo</FormLabel>
+              <FormInput $isDark={isDark} value={form.link_demo ?? ''} onChange={e => set('link_demo', e.target.value || null)} placeholder="https://..." />
+            </FormGroup>
+          </FormRow>
+          <FormGroup>
+            <FormLabel $isDark={isDark}>Website</FormLabel>
+            <FormInput $isDark={isDark} value={form.link_website ?? ''} onChange={e => set('link_website', e.target.value || null)} placeholder="https://..." />
+          </FormGroup>
+        </FormSection>
+
+        {/* === Cover Image === */}
+        <FormSection $isDark={isDark}>
+          <SectionTitle $isDark={isDark}>커버 이미지</SectionTitle>
+          <FileUploadArea $isDark={isDark} $hasFile={!!coverFile || !!form.cover_image_url}>
+            <Upload />
+            <span>{coverFile ? coverFile.name : '이미지를 클릭하거나 드래그하세요'}</span>
+            <input type="file" accept="image/*" onChange={e => setCoverFile(e.target.files?.[0] ?? null)} />
+          </FileUploadArea>
+          {(coverFile || form.cover_image_url) && (
+            <CoverPreview
+              src={coverFile ? URL.createObjectURL(coverFile) : form.cover_image_url!}
+              alt="Cover preview"
+            />
+          )}
+        </FormSection>
+
+        {/* === Actions === */}
+        <FormActions>
+          <SecondaryButton $isDark={isDark} onClick={() => navigate('/admin/projects')}>
+            취소
+          </SecondaryButton>
+          <PrimaryButton onClick={handleSave} disabled={saving || !form.id || !form.title_ko}>
+            <Save /> {saving ? '저장 중...' : '저장'}
+          </PrimaryButton>
+        </FormActions>
+      </Card>
+    </>
+  );
+}

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { projects } from '../data/projectsData';
+import { useProjects } from '../hooks/useProjects';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 
 const GallerySection = styled.section<{ $isDark: boolean }>`
@@ -211,6 +211,7 @@ const translations = {
 export default function ProjectsGallery({ onProjectClick, onBack }: ProjectsGalleryProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
+  const { projects } = useProjects();
   const t = translations[language];
 
   return (

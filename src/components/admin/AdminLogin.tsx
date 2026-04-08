@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import { Lock, Eye, EyeOff } from 'lucide-react';
+import { Lock, Eye, EyeOff, Mail } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const LoginContainer = styled.div<{ $isDark: boolean }>`
@@ -31,8 +31,8 @@ const LoginCard = styled.div<{ $isDark: boolean }>`
 const IconWrapper = styled.div<{ $isDark: boolean }>`
   width: 64px;
   height: 64px;
-  background: ${props => props.$isDark 
-    ? 'linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%)' 
+  background: ${props => props.$isDark
+    ? 'linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%)'
     : 'linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%)'};
   border-radius: 16px;
   display: flex;
@@ -67,16 +67,31 @@ const Subtitle = styled.p`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 `;
 
 const InputWrapper = styled.div`
   position: relative;
 `;
 
-const Input = styled.input<{ $isDark: boolean }>`
+const InputIcon = styled.div`
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #86868b;
+  display: flex;
+  align-items: center;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+`;
+
+const Input = styled.input<{ $isDark: boolean; $hasLeftIcon?: boolean }>`
   width: 100%;
-  padding: 16px 48px 16px 16px;
+  padding: ${props => props.$hasLeftIcon ? '16px 48px 16px 44px' : '16px 48px 16px 16px'};
   font-size: 16px;
   background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'};
   border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'};
@@ -87,7 +102,7 @@ const Input = styled.input<{ $isDark: boolean }>`
 
   &:focus {
     outline: none;
-    border-color: ${props => props.$isDark ? '#4ECDC4' : '#007AFF'};
+    border-color: #0c8ce9;
     background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'};
   }
 
@@ -112,7 +127,7 @@ const ToggleButton = styled.button`
   transition: color 0.2s ease;
 
   &:hover {
-    color: #007AFF;
+    color: #0c8ce9;
   }
 
   svg {
@@ -127,8 +142,8 @@ const SubmitButton = styled.button<{ $isDark: boolean }>`
   font-size: 17px;
   font-weight: 600;
   color: white;
-  background: ${props => props.$isDark 
-    ? 'linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%)' 
+  background: ${props => props.$isDark
+    ? 'linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%)'
     : 'linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%)'};
   border: none;
   border-radius: 12px;
@@ -136,11 +151,12 @@ const SubmitButton = styled.button<{ $isDark: boolean }>`
   transition: all 0.3s ease;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   letter-spacing: -0.3px;
+  margin-top: 4px;
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px ${props => props.$isDark 
-      ? 'rgba(78, 205, 196, 0.3)' 
+    box-shadow: 0 8px 16px ${props => props.$isDark
+      ? 'rgba(78, 205, 196, 0.3)'
       : 'rgba(0, 122, 255, 0.3)'};
   }
 
@@ -158,15 +174,15 @@ const ErrorMessage = styled.div`
   color: #ff3b30;
   font-size: 14px;
   text-align: center;
-  margin-top: -8px;
 `;
 
 interface AdminLoginProps {
-  onLogin: (password: string) => Promise<boolean>;
+  onLogin: (email: string, password: string) => Promise<boolean>;
 }
 
 export default function AdminLogin({ onLogin }: AdminLoginProps) {
   const { isDark } = useTheme();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -178,12 +194,11 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
     setLoading(true);
 
     try {
-      const success = await onLogin(password);
+      const success = await onLogin(email, password);
       if (!success) {
-        setError('비밀번호가 올바르지 않습니다.');
-        setPassword('');
+        setError('이메일 또는 비밀번호가 올바르지 않습니다.');
       }
-    } catch (err) {
+    } catch {
       setError('로그인 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
@@ -198,16 +213,33 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
         </IconWrapper>
         <Title $isDark={isDark}>관리자 로그인</Title>
         <Subtitle>포트폴리오 관리자 페이지에 로그인하세요</Subtitle>
-        
+
         <Form onSubmit={handleSubmit}>
           <InputWrapper>
+            <InputIcon><Mail /></InputIcon>
+            <Input
+              type="email"
+              placeholder="이메일을 입력하세요"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              $isDark={isDark}
+              $hasLeftIcon
+              disabled={loading}
+              autoComplete="email"
+            />
+          </InputWrapper>
+
+          <InputWrapper>
+            <InputIcon><Lock /></InputIcon>
             <Input
               type={showPassword ? 'text' : 'password'}
               placeholder="비밀번호를 입력하세요"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               $isDark={isDark}
+              $hasLeftIcon
               disabled={loading}
+              autoComplete="current-password"
             />
             <ToggleButton
               type="button"
@@ -219,10 +251,10 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
 
           {error && <ErrorMessage>{error}</ErrorMessage>}
 
-          <SubmitButton 
-            type="submit" 
+          <SubmitButton
+            type="submit"
             $isDark={isDark}
-            disabled={loading || !password}
+            disabled={loading || !email || !password}
           >
             {loading ? '로그인 중...' : '로그인'}
           </SubmitButton>

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation } fro
 import styled, { createGlobalStyle } from 'styled-components';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { supabase } from './lib/supabase';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -20,6 +21,18 @@ const OpenSource = lazy(() => import('./components/OpenSource'));
 const OpenSourceDetail = lazy(() => import('./components/OpenSourceDetail'));
 const AdminLogin = lazy(() => import('./components/admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
+const AdminHome = lazy(() => import('./components/admin/AdminHome'));
+const MailManager = lazy(() => import('./components/admin/MailManager'));
+const AboutEditor = lazy(() => import('./components/admin/AboutEditor'));
+const ProjectList = lazy(() => import('./components/admin/projects/ProjectList'));
+const ProjectForm = lazy(() => import('./components/admin/projects/ProjectForm'));
+const BlogList = lazy(() => import('./components/admin/blog/BlogList'));
+const BlogForm = lazy(() => import('./components/admin/blog/BlogForm'));
+const OpenSourceEditor = lazy(() => import('./components/admin/OpenSourceEditor'));
+const ChatbotEditor = lazy(() => import('./components/admin/ChatbotEditor'));
+const SiteSettingsEditor = lazy(() => import('./components/admin/SiteSettingsEditor'));
+const PresentationsManager = lazy(() => import('./components/admin/PresentationsManager'));
+const Presentations = lazy(() => import('./components/Presentations'));
 const PackageDemo = lazy(() => import('./components/PackageDemo'));
 
 const GlobalStyle = createGlobalStyle`
@@ -165,28 +178,25 @@ function AdminPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const adminToken = localStorage.getItem('admin_token');
-    if (adminToken) {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+      setIsLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogin = async (password: string): Promise<boolean> => {
-    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
-    if (!adminPassword) {
-      return false;
-    }
-    if (password === adminPassword) {
-      localStorage.setItem('admin_token', btoa(`${Date.now()}_authenticated`));
-      setIsAuthenticated(true);
-      return true;
-    }
-    return false;
+  const handleLogin = async (email: string, password: string): Promise<boolean> => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    return !error;
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_token');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setIsAuthenticated(false);
     navigate('/');
   };
@@ -241,8 +251,23 @@ function AppContent() {
             <Route path="/blog/:id" element={<BlogDetailPage />} />
             <Route path="/opensource" element={<OpenSourcePage />} />
             <Route path="/opensource/:id" element={<OpenSourceDetailPage />} />
+            <Route path="/presentations" element={<Presentations />} />
             <Route path="/demo" element={<PackageDemo />} />
-            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin" element={<AdminPage />}>
+              <Route index element={<AdminHome />} />
+              <Route path="mail" element={<MailManager />} />
+              <Route path="about" element={<AboutEditor />} />
+              <Route path="projects" element={<ProjectList />} />
+              <Route path="projects/new" element={<ProjectForm />} />
+              <Route path="projects/:id" element={<ProjectForm />} />
+              <Route path="blog" element={<BlogList />} />
+              <Route path="blog/new" element={<BlogForm />} />
+              <Route path="blog/:id" element={<BlogForm />} />
+              <Route path="opensource" element={<OpenSourceEditor />} />
+              <Route path="chatbot" element={<ChatbotEditor />} />
+              <Route path="presentations" element={<PresentationsManager />} />
+              <Route path="settings" element={<SiteSettingsEditor />} />
+            </Route>
             <Route
               path="*"
               element={<HomePage onContactClick={() => setContactModalOpen(true)} />}

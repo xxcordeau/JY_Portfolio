@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { MessageCircle, X, ChevronLeft, Mail } from 'lucide-react';
-import { chatbotData, ChatCategory, ChatQuestion } from '../data/chatbotData';
+import { useChatbot } from '../hooks/useChatbot';
+import type { ChatCategory, ChatQuestion } from '../data/chatbotData';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -291,6 +292,7 @@ type ViewMode = 'categories' | 'questions' | 'answer';
 export default function Chatbot({ onContactClick }: ChatbotProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
+  const { categories: chatbotData } = useChatbot();
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('categories');
   const [selectedCategory, setSelectedCategory] = useState<ChatCategory | null>(null);

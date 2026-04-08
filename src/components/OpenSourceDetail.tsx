@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { openSourceProjects, OpenSourceProject } from '../data/openSourceData';
+import { useOpenSource } from '../hooks/useOpenSource';
+import type { OpenSourceProject } from '../data/types';
 import { Github, Package, Star, Download, ArrowLeft, ExternalLink, CheckCircle } from 'lucide-react';
 import LibraryDocDemo from './interactive/LibraryDocDemo';
 import DataUIKitGuide from './interactive/DataUIKitGuide';
@@ -336,6 +337,7 @@ export default function OpenSourceDetail({
 }: OpenSourceDetailProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
+  const { projects: openSourceProjects } = useOpenSource();
   const t = translations[language];
   const project = openSourceProjects.find(p => p.id === projectId);
 

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { projects } from '../data/projectsData';
+import { useProjects } from '../hooks/useProjects';
 import { ArrowRight } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -190,6 +190,7 @@ const translations = {
 export default function Projects({ onProjectClick, onViewAll, showAll = false }: ProjectsProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
+  const { projects } = useProjects();
   const t = translations[language];
   const displayProjects = showAll ? projects : projects.slice(0, 6);
   const hasMore = projects.length > 6;

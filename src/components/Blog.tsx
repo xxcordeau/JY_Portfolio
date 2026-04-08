@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { blogPosts } from '../data/blogData';
+import { useBlogPosts } from '../hooks/useBlogPosts';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import Footer from './Footer';
@@ -217,6 +217,7 @@ const translations = {
 export default function Blog({ onPostClick, onBack }: BlogProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
+  const { posts: blogPosts } = useBlogPosts();
   const t = translations[language];
 
   return (
