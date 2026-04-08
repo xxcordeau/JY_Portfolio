@@ -34,7 +34,8 @@ export async function uploadFile(
     .from(bucket)
     .getPublicUrl(path);
 
-  return data.publicUrl;
+  // 캐시 무효화를 위해 타임스탬프 쿼리 파라미터 추가
+  return `${data.publicUrl}?t=${Date.now()}`;
 }
 
 /**
