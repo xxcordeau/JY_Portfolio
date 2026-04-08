@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { DbOpenSourceProject } from '../lib/types/database';
 import type { OpenSourceProject } from '../data/types';
+import { openSourceProjects as localProjects } from '../data/openSourceData';
 
 function toOpenSource(row: DbOpenSourceProject): OpenSourceProject {
   return {
@@ -29,17 +30,20 @@ function toOpenSource(row: DbOpenSourceProject): OpenSourceProject {
 }
 
 export function useOpenSource() {
-  const [projects, setProjects] = useState<OpenSourceProject[]>([]);
+  const [projects, setProjects] = useState<OpenSourceProject[]>(localProjects);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase.from('open_source_projects').select('*')
       .eq('is_visible', true)
       .order('sort_order')
-      .then(({ data }) => {
-        if (data) setProjects((data as DbOpenSourceProject[]).map(toOpenSource));
+      .then(({ data, error }) => {
+        if (data && data.length > 0 && !error) {
+          setProjects((data as DbOpenSourceProject[]).map(toOpenSource));
+        }
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   return { projects, loading };

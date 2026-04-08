@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { DbSkill, DbEducation, DbExperience } from '../lib/types/database';
+import { skills as localSkills, education as localEducation, experiences as localExperiences } from '../data/aboutData';
 import type { Skill, Education, Experience } from '../data/aboutData';
 
 function toSkill(row: DbSkill): Skill {
@@ -28,9 +29,9 @@ function toExperience(row: DbExperience): Experience {
 }
 
 export function useAbout() {
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [education, setEducation] = useState<Education[]>([]);
-  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [skills, setSkills] = useState<Skill[]>(localSkills);
+  const [education, setEducation] = useState<Education[]>(localEducation);
+  const [experiences, setExperiences] = useState<Experience[]>(localExperiences);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,11 +40,14 @@ export function useAbout() {
       supabase.from('education').select('*').order('sort_order'),
       supabase.from('experiences').select('*').order('sort_order'),
     ]).then(([s, e, x]) => {
-      setSkills(((s.data as DbSkill[]) ?? []).map(toSkill));
-      setEducation(((e.data as DbEducation[]) ?? []).map(toEducation));
-      setExperiences(((x.data as DbExperience[]) ?? []).map(toExperience));
+      const skillsData = (s.data as DbSkill[]) ?? [];
+      const eduData = (e.data as DbEducation[]) ?? [];
+      const expData = (x.data as DbExperience[]) ?? [];
+      if (skillsData.length > 0) setSkills(skillsData.map(toSkill));
+      if (eduData.length > 0) setEducation(eduData.map(toEducation));
+      if (expData.length > 0) setExperiences(expData.map(toExperience));
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, []);
 
   return { skills, education, experiences, loading };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { DbBlogPost } from '../lib/types/database';
-import type { BlogPost } from '../data/blogData';
+import { blogPosts as localBlogPosts, type BlogPost } from '../data/blogData';
 
 function toBlogPost(row: DbBlogPost): BlogPost {
   return {
@@ -13,20 +13,26 @@ function toBlogPost(row: DbBlogPost): BlogPost {
     readTime: { ko: row.read_time_ko, en: row.read_time_en },
     tags: row.tags,
     thumbnail: row.thumbnail_url ?? '',
-    component: row.id, // used for component lookup fallback
+    component: row.component ?? row.id,
   };
 }
 
 export function useBlogPosts() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [posts, setPosts] = useState<BlogPost[]>(localBlogPosts);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase.from('blog_posts').select('*')
       .eq('status', 'published')
       .order('date', { ascending: false })
-      .then(({ data }) => {
-        if (data) setPosts((data as DbBlogPost[]).map(toBlogPost));
+      .then(({ data, error }) => {
+        if (data && data.length > 0 && !error) {
+          setPosts((data as DbBlogPost[]).map(toBlogPost));
+        }
+        // If Supabase fails or returns empty, keep local data
+        setLoading(false);
+      })
+      .catch(() => {
         setLoading(false);
       });
   }, []);

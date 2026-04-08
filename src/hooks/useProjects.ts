@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { DbProject } from '../lib/types/database';
-import type { Project } from '../data/projectsData';
+import { projects as localProjects, type Project } from '../data/projectsData';
 
 function toProject(row: DbProject): Project {
   return {
@@ -29,15 +29,18 @@ function toProject(row: DbProject): Project {
 }
 
 export function useProjects() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[]>(localProjects);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase.from('projects').select('*').order('sort_order')
-      .then(({ data }) => {
-        if (data) setProjects((data as DbProject[]).map(toProject));
+      .then(({ data, error }) => {
+        if (data && data.length > 0 && !error) {
+          setProjects((data as DbProject[]).map(toProject));
+        }
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   return { projects, loading };
