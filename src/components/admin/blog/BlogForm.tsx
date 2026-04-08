@@ -333,6 +333,16 @@ export default function BlogForm() {
 
   const currentContent = langTab === 'ko' ? form.content_ko : form.content_en;
 
+  // 코드 컴포넌트로 관리되는 기존 글 목록
+  const COMPONENT_BASED_IDS = [
+    'common-utils-composable', 'dashboard-widget-system', 'view-state-standardization',
+    'role-permission-system', 'table-component-structuring', 'filter-system-implementation',
+    'tree-structure-management', 'icon-system-implementation', 'react-page-refactoring',
+    'dynamic-static-import', 'css-print-layer-conflict', 'hidden-div-react-rendering',
+    'api-mismatch-usememo-crash',
+  ];
+  const isComponentBased = isEdit && COMPONENT_BASED_IDS.includes(form.id) && !currentContent.trim();
+
   return (
     <>
       <PageTop>
@@ -428,7 +438,23 @@ export default function BlogForm() {
         {/* === Content === */}
         <FormSection $isDark={isDark}>
           <SectionTitle $isDark={isDark}>콘텐츠 ({langTab.toUpperCase()})</SectionTitle>
-          <Badge $variant="success">마크다운 형식으로 작성</Badge>
+          {isComponentBased ? (
+            <div style={{
+              padding: '12px 16px',
+              background: isDark ? 'rgba(255,200,0,0.08)' : 'rgba(255,200,0,0.12)',
+              border: `1px solid ${isDark ? 'rgba(255,200,0,0.2)' : 'rgba(200,150,0,0.3)'}`,
+              borderRadius: 8,
+              color: isDark ? '#ffd60a' : '#a07800',
+              fontSize: 13,
+              lineHeight: 1.6,
+              marginBottom: 12,
+            }}>
+              📌 이 글의 내용은 현재 <strong>코드 파일</strong>로 관리되고 있습니다.<br />
+              마크다운을 작성하고 저장하면, 이후부터는 여기 입력한 내용이 우선 표시됩니다.
+            </div>
+          ) : (
+            <Badge $variant="success">마크다운 형식으로 작성</Badge>
+          )}
 
           <EditorTabRow $isDark={isDark}>
             <EditorTab $isDark={isDark} $active={editorTab === 'edit'} onClick={() => setEditorTab('edit')}>

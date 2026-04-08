@@ -1,11 +1,14 @@
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { useBlogPosts } from '../hooks/useBlogPosts';
-import { ArrowLeft, Copy, Check } from 'lucide-react';
+import { useBlogPosts, useBlogPost } from '../hooks/useBlogPosts';
+import { ArrowLeft } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import Footer from './Footer';
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { TreeManagementPost, FilterSystemPost, TableComponentPost, RolePermissionPost, ViewStatePost, DashboardWidgetPost, CommonUtilsPost, IconSystemPost, ReactPageRefactoringPost, DynamicStaticImportPost, CssPrintLayerPost, HiddenDivPost, ApiMismatchMemoPost } from './blog/posts';
 
 const DetailContainer = styled.div<{ $isDark: boolean }>`
@@ -339,8 +342,14 @@ const CopyButton = styled.button<{ $isDark: boolean }>`
 `;
 
 const CodeContent = styled.pre<{ $isDark: boolean }>`
+  /* Content styled-component의 pre 규칙이 캐스케이드되지 않도록 높은 specificity로 리셋 */
+  && {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    margin: 0;
+  }
   padding: 24px;
-  margin: 0;
   overflow-x: auto;
   font-family: 'SF Mono', Monaco, Consolas, monospace;
   font-size: 14px;
@@ -407,25 +416,58 @@ const translations = {
   }
 };
 
-function CodeBlockComponent({ code, language: codeLang, isDark, onCopy, copied }: {
-  code: string;
-  language: string;
+// 언어 명시가 없을 때 코드 내용으로 언어 추측
+function detectLanguage(code: string, hint: string): string {
+  if (hint) return hint;
+  // JSX/TSX: import/export + JSX 태그
+  if (/import\s+.+\s+from\s+['"]|export\s+(default|const|function)|<[A-Z][a-zA-Z]*\s|className=/.test(code)) return 'tsx';
+  // JS/TS: 주요 키워드
+  if (/const\s+|let\s+|var\s+|function\s+|=>\s*\{|async\s+|await\s+/.test(code)) return 'typescript';
+  // CSS
+  if (/[.#][a-zA-Z-]+\s*\{|:\s*[a-zA-Z]+;|@media|@layer/.test(code)) return 'css';
+  // SQL
+  if (/SELECT\s+|INSERT\s+|CREATE\s+TABLE|ALTER\s+TABLE/i.test(code)) return 'sql';
+  // Shell/파일구조 (파일명 패턴만 있고 JS 키워드 없음)
+  return 'text';
+}
+
+function MarkdownCodeBlock({ children, className, isDark, onCopy, copyIndex, copiedIndex }: {
+  children: string;
+  className?: string;
   isDark: boolean;
-  onCopy: () => void;
-  copied: boolean;
+  onCopy: (code: string, idx: number) => void;
+  copyIndex: number;
+  copiedIndex: number | null;
 }) {
+  const rawLang = className?.replace('language-', '') ?? '';
+  const lang = detectLanguage(children, rawLang);
+  const isCopied = copiedIndex === copyIndex;
   return (
     <CodeBlock $isDark={isDark}>
       <CodeHeader $isDark={isDark}>
-        <CodeLanguage>{codeLang}</CodeLanguage>
-        <CopyButton $isDark={isDark} onClick={onCopy}>
-          {copied ? <Check /> : <Copy />}
-          {copied ? '복사됨!' : '복사'}
+        <CodeLanguage>{rawLang || lang || 'code'}</CodeLanguage>
+        <CopyButton $isDark={isDark} onClick={() => onCopy(children, copyIndex)}>
+          {isCopied ? '복사됨!' : '복사'}
         </CopyButton>
       </CodeHeader>
-      <CodeContent $isDark={isDark}>
-        <code>{code}</code>
-      </CodeContent>
+      <SyntaxHighlighter
+        language={lang}
+        style={isDark ? atomOneDark : atomOneLight}
+        customStyle={{
+          margin: 0,
+          padding: '24px',
+          background: 'transparent',
+          fontSize: '14px',
+          lineHeight: '1.7',
+          fontFamily: "'SF Mono', Monaco, Consolas, monospace",
+          border: 'none',
+          borderRadius: 0,
+          overflowX: 'auto',
+        }}
+        codeTagProps={{ style: { fontFamily: 'inherit' } }}
+      >
+        {children}
+      </SyntaxHighlighter>
     </CodeBlock>
   );
 }
@@ -435,6 +477,7 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
   const { language } = useLanguage();
   const { posts: blogPosts } = useBlogPosts();
   const post = blogPosts.find(p => p.id === blogId);
+  const { post: dbPost } = useBlogPost(blogId); // DB에서 full content 가져오기
   const t = translations[language];
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
@@ -448,8 +491,59 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  // Render the appropriate post component
+  // DB에 content가 있으면 react-markdown으로 렌더링, 없으면 React 컴포넌트 fallback
+  let codeBlockCounter = 0;
+
   const renderPostContent = () => {
+    const dbContent = language === 'ko' ? dbPost?.content_ko : dbPost?.content_en;
+    if (dbContent && dbContent.trim().length > 0) {
+      codeBlockCounter = 0;
+      return (
+        <ReactMarkdown
+          components={{
+            // pre를 그대로 통과시켜 code 컴포넌트가 직접 블록을 렌더링하게 함
+            pre({ children }) {
+              return <>{children}</>;
+            },
+            code({ className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || '');
+              const codeStr = String(children).replace(/\n$/, '');
+              // fenced code blocks: has language class or multiline
+              if (match || codeStr.includes('\n')) {
+                const idx = codeBlockCounter++;
+                return (
+                  <MarkdownCodeBlock
+                    isDark={isDark}
+                    className={className}
+                    onCopy={handleCopy}
+                    copyIndex={idx}
+                    copiedIndex={copiedIndex}
+                  >
+                    {codeStr}
+                  </MarkdownCodeBlock>
+                );
+              }
+              // inline code
+              return <InlineCode $isDark={isDark}>{children}</InlineCode>;
+            },
+            img({ src, alt }) {
+              if (!src) return null;
+              return (
+                <img
+                  src={src}
+                  alt={alt ?? ''}
+                  style={{ maxWidth: '100%', borderRadius: 12, margin: '24px 0', display: 'block' }}
+                />
+              );
+            },
+          }}
+        >
+          {dbContent}
+        </ReactMarkdown>
+      );
+    }
+
+    // fallback: 로컬 React 컴포넌트
     switch(post.component) {
       case 'TreeManagementPost':
         return <TreeManagementPost language={language} />;
@@ -480,85 +574,6 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
       default:
         return <div>Content not found</div>;
     }
-  };
-
-  // Legacy parse content function (keeping for backwards compatibility)
-  const parseContent = (text: string) => {
-    const lines = text.split('\n');
-    const elements: JSX.Element[] = [];
-    let inCodeBlock = false;
-    let codeContent = '';
-    let codeLanguage = '';
-    let currentText: string[] = [];
-    let codeBlockIndex = 0;
-
-    const flushText = () => {
-      if (currentText.length > 0) {
-        const textContent = currentText.join('\n');
-        textContent.split('\n').forEach((line, index) => {
-          if (line.startsWith('# ')) {
-            elements.push(<h1 key={`h1-${elements.length}-${index}`}>{line.slice(2)}</h1>);
-          } else if (line.startsWith('## ')) {
-            elements.push(<h2 key={`h2-${elements.length}-${index}`}>{line.slice(3)}</h2>);
-          } else if (line.startsWith('### ')) {
-            elements.push(<h3 key={`h3-${elements.length}-${index}`}>{line.slice(4)}</h3>);
-          } else if (line.trim() === '') {
-            elements.push(<br key={`br-${elements.length}-${index}`} />);
-          } else if (line.startsWith('- ')) {
-            // List items - we'll handle them simply for now
-            elements.push(<p key={`p-${elements.length}-${index}`}>{line}</p>);
-          } else {
-            // Check for inline code
-            const parts = line.split('`');
-            if (parts.length > 1) {
-              const formatted = parts.map((part, i) => 
-                i % 2 === 0 ? part : <InlineCode key={`code-${i}`} $isDark={isDark}>{part}</InlineCode>
-              );
-              elements.push(<p key={`p-${elements.length}-${index}`}>{formatted}</p>);
-            } else {
-              elements.push(<p key={`p-${elements.length}-${index}`}>{line}</p>);
-            }
-          }
-        });
-        currentText = [];
-      }
-    };
-
-    lines.forEach((line, index) => {
-      if (line.startsWith('```')) {
-        if (!inCodeBlock) {
-          // Start of code block
-          flushText();
-          inCodeBlock = true;
-          codeLanguage = line.slice(3) || 'plaintext';
-          codeContent = '';
-        } else {
-          // End of code block
-          elements.push(
-            <CodeBlockComponent
-              key={`code-${codeBlockIndex}`}
-              code={codeContent}
-              language={codeLanguage}
-              isDark={isDark}
-              onCopy={() => handleCopy(codeContent, codeBlockIndex)}
-              copied={copiedIndex === codeBlockIndex}
-            />
-          );
-          codeBlockIndex++;
-          inCodeBlock = false;
-          codeContent = '';
-          codeLanguage = '';
-        }
-      } else if (inCodeBlock) {
-        codeContent += (codeContent ? '\n' : '') + line;
-      } else {
-        currentText.push(line);
-      }
-    });
-
-    flushText();
-
-    return elements;
   };
 
   return (

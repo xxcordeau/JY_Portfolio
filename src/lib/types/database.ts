@@ -96,7 +96,7 @@ export interface DbOpenSourceProject {
 export interface DbSkill {
   id: string;
   name: string;
-  level: number;
+  level?: number; // DB 호환용, UI에서는 미사용
   category: 'frontend' | 'backend' | 'design' | 'other';
   sort_order: number;
 }

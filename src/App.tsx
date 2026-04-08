@@ -47,6 +47,18 @@ const GlobalStyle = createGlobalStyle`
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* 관리자 페이지가 아닐 때: 텍스트 선택·이미지 드래그 저장 방지 */
+  body:not(.admin-page) {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  body:not(.admin-page) img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
 `;
 
 const AppContainer = styled.div<{ $isDark: boolean }>`
@@ -223,6 +235,48 @@ function AppContent() {
   }, [location.pathname]);
 
   const isAdminPage = location.pathname.startsWith('/admin');
+
+  // body 클래스로 CSS 보호 토글
+  useEffect(() => {
+    if (isAdminPage) {
+      document.body.classList.add('admin-page');
+    } else {
+      document.body.classList.remove('admin-page');
+    }
+    return () => document.body.classList.remove('admin-page');
+  }, [isAdminPage]);
+
+  // 포트폴리오 페이지에서 복사/우클릭/드래그 저장 방지
+  useEffect(() => {
+    if (isAdminPage) return;
+
+    const block = (e: Event) => e.preventDefault();
+
+    const blockKeys = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + C, X, A, S, P (복사·저장·프린트)
+      if ((e.ctrlKey || e.metaKey) && ['c', 'x', 'a', 's', 'p', 'u'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+      }
+      // F12 개발자도구
+      if (e.key === 'F12') e.preventDefault();
+    };
+
+    document.addEventListener('contextmenu', block);   // 우클릭 메뉴
+    document.addEventListener('selectstart', block);   // 텍스트 선택
+    document.addEventListener('copy', block);          // 복사
+    document.addEventListener('cut', block);           // 잘라내기
+    document.addEventListener('dragstart', block);     // 이미지 드래그 저장
+    document.addEventListener('keydown', blockKeys);
+
+    return () => {
+      document.removeEventListener('contextmenu', block);
+      document.removeEventListener('selectstart', block);
+      document.removeEventListener('copy', block);
+      document.removeEventListener('cut', block);
+      document.removeEventListener('dragstart', block);
+      document.removeEventListener('keydown', blockKeys);
+    };
+  }, [isAdminPage]);
 
   return (
     <>

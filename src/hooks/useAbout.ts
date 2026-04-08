@@ -5,7 +5,7 @@ import { skills as localSkills, education as localEducation, experiences as loca
 import type { Skill, Education, Experience } from '../data/aboutData';
 
 function toSkill(row: DbSkill): Skill {
-  return { name: row.name, level: row.level, category: row.category };
+  return { name: row.name, category: row.category };
 }
 
 function toEducation(row: DbEducation): Education {

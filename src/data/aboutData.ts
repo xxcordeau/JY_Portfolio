@@ -1,6 +1,5 @@
 export interface Skill {
   name: string;
-  level: number; // 0-100
   category: "frontend" | "backend" | "design" | "other";
 }
 
@@ -46,26 +45,26 @@ export interface Experience {
 
 export const skills: Skill[] = [
   // Frontend
-  { name: "Vue 3", level: 95, category: "frontend" },
-  { name: "React", level: 85, category: "frontend" },
-  { name: "TypeScript", level: 85, category: "frontend" },
-  { name: "JavaScript", level: 90, category: "frontend" },
-  { name: "Redux", level: 80, category: "frontend" },
+  { name: "Vue 3", category: "frontend" },
+  { name: "React", category: "frontend" },
+  { name: "TypeScript", category: "frontend" },
+  { name: "JavaScript", category: "frontend" },
+  { name: "Redux", category: "frontend" },
 
   // Backend
-  { name: "Node.js", level: 80, category: "backend" },
-  { name: "Nest.js", level: 80, category: "backend" },
-  { name: "PostgreSQL", level: 75, category: "backend" },
+  { name: "Node.js", category: "backend" },
+  { name: "Nest.js", category: "backend" },
+  { name: "PostgreSQL", category: "backend" },
 
   // Design
-  { name: "Figma", level: 95, category: "design" },
-  { name: "Illustrator", level: 90, category: "design" },
-  { name: "Photoshop", level: 90, category: "design" },
+  { name: "Figma", category: "design" },
+  { name: "Illustrator", category: "design" },
+  { name: "Photoshop", category: "design" },
 
   // Other
-  { name: "Git", level: 80, category: "other" },
-  { name: "Swagger / Postman", level: 85, category: "other" },
-  { name: "Jira / Notion / Slack", level: 80, category: "other" },
+  { name: "Git", category: "other" },
+  { name: "Swagger / Postman", category: "other" },
+  { name: "Jira / Notion / Slack", category: "other" },
 ];
 
 export const education: Education[] = [

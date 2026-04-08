@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { useAbout } from '../hooks/useAbout';
-import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Briefcase, GraduationCap, Code2, User, Mail, Phone, Calendar } from 'lucide-react';
@@ -194,83 +193,55 @@ const BlockTitle = styled.h3<{ $isDark: boolean }>`
 const SkillCategories = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 48px;
+  gap: 40px;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 32px;
   }
 `;
 
 const SkillCategory = styled.div``;
 
 const CategoryTitle = styled.h4<{ $isDark: boolean }>`
-  font-size: 20px;
+  font-size: 13px;
   font-weight: 600;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 20px 0;
-  letter-spacing: -0.3px;
-  transition: color 0.3s ease;
-
-  @media (max-width: 768px) {
-    font-size: 17px;
-    margin-bottom: 16px;
-  }
+  color: ${props => props.$isDark ? '#a1a1a6' : '#86868b'};
+  margin: 0 0 14px 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 `;
 
-const SkillsList = styled.div`
+const BadgeList = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 8px;
 `;
 
-const SkillItem = styled.div``;
+const CATEGORY_COLORS = {
+  frontend: { bg: 'rgba(0, 122, 255, 0.1)', border: 'rgba(0, 122, 255, 0.25)', text: '#007AFF' },
+  backend:  { bg: 'rgba(52, 199, 89, 0.1)',  border: 'rgba(52, 199, 89, 0.25)',  text: '#34C759' },
+  design:   { bg: 'rgba(255, 45, 85, 0.1)',  border: 'rgba(255, 45, 85, 0.25)',  text: '#FF2D55' },
+  other:    { bg: 'rgba(88, 86, 214, 0.1)',  border: 'rgba(88, 86, 214, 0.25)', text: '#5856D6' },
+} as const;
 
-const SkillHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
+const SkillBadge = styled.span<{ $category: keyof typeof CATEGORY_COLORS }>`
+  display: inline-flex;
   align-items: center;
-  margin-bottom: 8px;
-`;
-
-const SkillName = styled.span<{ $isDark: boolean }>`
-  font-size: 17px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
   font-weight: 500;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  transition: color 0.3s ease;
+  letter-spacing: -0.1px;
+  background: ${p => CATEGORY_COLORS[p.$category].bg};
+  border: 1px solid ${p => CATEGORY_COLORS[p.$category].border};
+  color: ${p => CATEGORY_COLORS[p.$category].text};
+  transition: all 0.2s ease;
 
   @media (max-width: 768px) {
-    font-size: 15px;
+    font-size: 13px;
+    padding: 5px 12px;
   }
-`;
-
-const SkillLevel = styled.span`
-  font-size: 15px;
-  font-weight: 600;
-  color: #86868b;
-
-  @media (max-width: 768px) {
-    font-size: 14px;
-  }
-`;
-
-const ProgressBar = styled.div<{ $isDark: boolean }>`
-  width: 100%;
-  height: 6px;
-  background: ${props => props.$isDark ? '#1d1d1f' : '#e5e5e7'};
-  border-radius: 3px;
-  overflow: hidden;
-  transition: background 0.3s ease;
-`;
-
-const ProgressFill = styled.div<{ $level: number; $isDark: boolean }>`
-  height: 100%;
-  width: ${props => props.$level}%;
-  background: ${props => props.$isDark 
-    ? 'linear-gradient(90deg, #4ECDC4 0%, #45B7D1 100%)' 
-    : 'linear-gradient(90deg, #007AFF 0%, #5AC8FA 100%)'};
-  border-radius: 3px;
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 const CardsContainer = styled.div`
@@ -447,13 +418,6 @@ export default function About() {
   const { skills, education, experiences } = useAbout();
   const t = translations[language];
   const ct = categoryTranslations[language];
-  const [animateSkills, setAnimateSkills] = useState(false);
-
-  // Trigger animation on mount
-  useEffect(() => {
-    const timer = setTimeout(() => setAnimateSkills(true), 300);
-    return () => clearTimeout(timer);
-  }, []);
 
   const groupedSkills = skills.reduce((acc, skill) => {
     if (!acc[skill.category]) {
@@ -530,22 +494,13 @@ export default function About() {
                   <CategoryTitle $isDark={isDark}>
                     {ct[category as keyof typeof ct]}
                   </CategoryTitle>
-                  <SkillsList>
+                  <BadgeList>
                     {categorySkills.map((skill, index) => (
-                      <SkillItem key={index}>
-                        <SkillHeader>
-                          <SkillName $isDark={isDark}>{skill.name}</SkillName>
-                          <SkillLevel>{skill.level}%</SkillLevel>
-                        </SkillHeader>
-                        <ProgressBar $isDark={isDark}>
-                          <ProgressFill 
-                            $level={animateSkills ? skill.level : 0} 
-                            $isDark={isDark}
-                          />
-                        </ProgressBar>
-                      </SkillItem>
+                      <SkillBadge key={index} $category={skill.category}>
+                        {skill.name}
+                      </SkillBadge>
                     ))}
-                  </SkillsList>
+                  </BadgeList>
                 </SkillCategory>
               ))}
             </SkillCategories>

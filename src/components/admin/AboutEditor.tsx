@@ -21,19 +21,65 @@ const ItemCard = styled.div<{ $isDark: boolean }>`
   gap: 12px;
 `;
 
-const SkillBar = styled.div<{ $isDark: boolean }>`
-  height: 6px;
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'};
-  border-radius: 3px;
-  overflow: hidden;
+const CategorySection = styled.div<{ $isDark: boolean }>`
+  padding: 16px;
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'};
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 `;
 
-const SkillFill = styled.div<{ $level: number }>`
-  height: 100%;
-  width: ${p => p.$level}%;
-  background: #0c8ce9;
-  border-radius: 3px;
-  transition: width 0.3s ease;
+const CategoryLabel = styled.div<{ $isDark: boolean }>`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${p => p.$isDark ? '#a1a1a6' : '#86868b'};
+  text-transform: uppercase;
+  letter-spacing: 1px;
+`;
+
+const BadgeRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 32px;
+`;
+
+const BADGE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
+  frontend: { bg: 'rgba(0,122,255,0.12)',   border: 'rgba(0,122,255,0.3)',   text: '#007AFF' },
+  backend:  { bg: 'rgba(52,199,89,0.12)',   border: 'rgba(52,199,89,0.3)',   text: '#34C759' },
+  design:   { bg: 'rgba(255,45,85,0.12)',   border: 'rgba(255,45,85,0.3)',   text: '#FF2D55' },
+  other:    { bg: 'rgba(88,86,214,0.12)',   border: 'rgba(88,86,214,0.3)',   text: '#5856D6' },
+};
+
+const Badge = styled.span<{ $cat: string }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  background: ${p => BADGE_COLORS[p.$cat]?.bg ?? 'rgba(128,128,128,0.1)'};
+  border: 1px solid ${p => BADGE_COLORS[p.$cat]?.border ?? 'rgba(128,128,128,0.2)'};
+  color: ${p => BADGE_COLORS[p.$cat]?.text ?? '#86868b'};
+`;
+
+const BadgeRemove = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.6;
+  color: inherit;
+  &:hover { opacity: 1; }
+`;
+
+const AddSkillRow = styled.div`
+  display: flex;
+  gap: 8px;
 `;
 
 type ActiveTab = 'skills' | 'education' | 'experience';
@@ -63,23 +109,37 @@ export default function AboutEditor() {
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
   // === Skills ===
+  const [newSkillName, setNewSkillName] = useState('');
+  const [newSkillCat, setNewSkillCat] = useState<DbSkill['category']>('frontend');
+
   const addSkill = () => {
+    const name = newSkillName.trim();
+    if (!name) return;
     setSkills(prev => [...prev, {
       id: crypto.randomUUID(),
-      name: '',
-      level: 50,
-      category: 'frontend',
+      name,
+      category: newSkillCat,
       sort_order: prev.length,
     }]);
+    setNewSkillName('');
   };
 
-  const updateSkill = (index: number, field: keyof DbSkill, value: string | number) => {
-    setSkills(prev => prev.map((s, i) => i === index ? { ...s, [field]: value } : s));
+  const removeSkill = (id: string) => {
+    setSkills(prev => prev.filter(s => s.id !== id));
   };
 
-  const removeSkill = (index: number) => {
-    setSkills(prev => prev.filter((_, i) => i !== index));
+  const CATEGORIES: DbSkill['category'][] = ['frontend', 'backend', 'design', 'other'];
+  const CATEGORY_LABELS: Record<DbSkill['category'], string> = {
+    frontend: 'Frontend',
+    backend: 'Backend',
+    design: 'Design',
+    other: 'Other',
   };
+
+  const groupedSkills = CATEGORIES.reduce((acc, cat) => {
+    acc[cat] = skills.filter(s => s.category === cat);
+    return acc;
+  }, {} as Record<DbSkill['category'], DbSkill[]>);
 
   // === Education ===
   const addEducation = () => {
@@ -175,46 +235,51 @@ export default function AboutEditor() {
         {/* === Skills Tab === */}
         {tab === 'skills' && (
           <FormSection $isDark={isDark}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <SectionTitle $isDark={isDark}>스킬 목록</SectionTitle>
-              <SecondaryButton $isDark={isDark} onClick={addSkill}><Plus /> 추가</SecondaryButton>
-            </div>
-            {skills.map((skill, i) => (
-              <ItemCard key={skill.id} $isDark={isDark}>
-                <FormRow>
-                  <FormGroup>
-                    <FormLabel $isDark={isDark}>이름</FormLabel>
-                    <FormInput $isDark={isDark} value={skill.name}
-                      onChange={e => updateSkill(i, 'name', e.target.value)} placeholder="React" />
-                  </FormGroup>
-                  <FormGroup>
-                    <FormLabel $isDark={isDark}>카테고리</FormLabel>
-                    <FormSelect $isDark={isDark} value={skill.category}
-                      onChange={e => updateSkill(i, 'category', e.target.value)}>
-                      <option value="frontend">Frontend</option>
-                      <option value="backend">Backend</option>
-                      <option value="design">Design</option>
-                      <option value="other">Other</option>
-                    </FormSelect>
-                  </FormGroup>
-                </FormRow>
-                <FormGroup>
-                  <FormLabel $isDark={isDark}>레벨: {skill.level}%</FormLabel>
-                  <input type="range" min={0} max={100} value={skill.level}
-                    onChange={e => updateSkill(i, 'level', Number(e.target.value))} />
-                  <SkillBar $isDark={isDark}><SkillFill $level={skill.level} /></SkillBar>
-                </FormGroup>
-                <FormGroup>
-                  <FormLabel $isDark={isDark}>정렬 순서</FormLabel>
-                  <FormInput $isDark={isDark} type="number" value={skill.sort_order}
-                    onChange={e => updateSkill(i, 'sort_order', Number(e.target.value))} />
-                </FormGroup>
-                <GhostButton $isDark={isDark} onClick={() => removeSkill(i)} style={{ color: '#d4183d', alignSelf: 'flex-end' }}>
-                  <Trash2 />
-                </GhostButton>
-              </ItemCard>
+            <SectionTitle $isDark={isDark}>기술 스택 뱃지</SectionTitle>
+
+            {/* 뱃지 추가 */}
+            <AddSkillRow>
+              <FormInput
+                $isDark={isDark}
+                value={newSkillName}
+                onChange={e => setNewSkillName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addSkill()}
+                placeholder="기술명 입력 (예: React)"
+                style={{ flex: 1 }}
+              />
+              <FormSelect
+                $isDark={isDark}
+                value={newSkillCat}
+                onChange={e => setNewSkillCat(e.target.value as DbSkill['category'])}
+                style={{ width: 130 }}
+              >
+                <option value="frontend">Frontend</option>
+                <option value="backend">Backend</option>
+                <option value="design">Design</option>
+                <option value="other">Other</option>
+              </FormSelect>
+              <SecondaryButton $isDark={isDark} onClick={addSkill}>
+                <Plus /> 추가
+              </SecondaryButton>
+            </AddSkillRow>
+
+            {/* 카테고리별 뱃지 목록 */}
+            {CATEGORIES.map(cat => (
+              <CategorySection key={cat} $isDark={isDark}>
+                <CategoryLabel $isDark={isDark}>{CATEGORY_LABELS[cat]}</CategoryLabel>
+                <BadgeRow>
+                  {groupedSkills[cat].length === 0
+                    ? <span style={{ fontSize: 13, color: '#86868b' }}>뱃지 없음</span>
+                    : groupedSkills[cat].map(skill => (
+                        <Badge key={skill.id} $cat={skill.category}>
+                          {skill.name}
+                          <BadgeRemove onClick={() => removeSkill(skill.id)} title="삭제">×</BadgeRemove>
+                        </Badge>
+                      ))
+                  }
+                </BadgeRow>
+              </CategorySection>
             ))}
-            {skills.length === 0 && <EmptyState $isDark={isDark}>스킬이 없습니다</EmptyState>}
           </FormSection>
         )}
 
