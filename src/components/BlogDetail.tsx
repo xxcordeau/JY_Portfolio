@@ -6,7 +6,7 @@ import { ArrowLeft, Copy, Check } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import Footer from './Footer';
 import { useState } from 'react';
-import { TreeManagementPost, FilterSystemPost, TableComponentPost, RolePermissionPost, ViewStatePost, DashboardWidgetPost, CommonUtilsPost, IconSystemPost, ReactPageRefactoringPost, DynamicStaticImportPost } from './blog/posts';
+import { TreeManagementPost, FilterSystemPost, TableComponentPost, RolePermissionPost, ViewStatePost, DashboardWidgetPost, CommonUtilsPost, IconSystemPost, ReactPageRefactoringPost, DynamicStaticImportPost, CssPrintLayerPost, HiddenDivPost, ApiMismatchMemoPost } from './blog/posts';
 
 const DetailContainer = styled.div<{ $isDark: boolean }>`
   min-height: 100vh;
@@ -470,6 +470,12 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
         return <ReactPageRefactoringPost language={language} />;
       case 'DynamicStaticImportPost':
         return <DynamicStaticImportPost language={language} />;
+      case 'CssPrintLayerPost':
+        return <CssPrintLayerPost language={language} />;
+      case 'HiddenDivPost':
+        return <HiddenDivPost language={language} />;
+      case 'ApiMismatchMemoPost':
+        return <ApiMismatchMemoPost language={language} />;
       default:
         return <div>Content not found</div>;
     }

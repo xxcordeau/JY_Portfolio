@@ -8,6 +8,9 @@ import { treeStructureManagement } from './blog/tree-structure-management';
 import { iconSystemImplementation } from './blog/icon-system-implementation';
 import { reactPageRefactoring } from './blog/react-page-refactoring';
 import { dynamicStaticImport } from './blog/dynamic-static-import';
+import { cssPrintLayerConflict } from './blog/css-print-layer-conflict';
+import { hiddenDivReactRendering } from './blog/hidden-div-react-rendering';
+import { apiMismatchUsememoCrash } from './blog/api-mismatch-usememo-crash';
 
 export interface BlogPost {
   id: string;
@@ -43,5 +46,8 @@ export const blogPosts: BlogPost[] = [
   treeStructureManagement,
   iconSystemImplementation,
   reactPageRefactoring,
-  dynamicStaticImport
+  dynamicStaticImport,
+  cssPrintLayerConflict,
+  hiddenDivReactRendering,
+  apiMismatchUsememoCrash
 ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
