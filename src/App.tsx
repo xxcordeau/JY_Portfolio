@@ -1,33 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
 import Projects from './components/Projects';
-import ProjectsGallery from './components/ProjectsGallery';
 import BlogPreview from './components/BlogPreview';
-import ProjectDetail from './components/ProjectDetail';
-import Blog from './components/Blog';
-import BlogDetail from './components/BlogDetail';
-import OpenSource from './components/OpenSource';
-import OpenSourceDetail from './components/OpenSourceDetail';
-import Contact from './components/Contact';
 import Footer from './components/Footer';
+import Contact from './components/Contact';
 import Chatbot from './components/Chatbot';
-import AdminLogin from './components/admin/AdminLogin';
-import AdminDashboard from './components/admin/AdminDashboard';
-import PackageDemo from './components/PackageDemo';
+
+const ProjectsGallery = lazy(() => import('./components/ProjectsGallery'));
+const ProjectDetail = lazy(() => import('./components/ProjectDetail'));
+const Blog = lazy(() => import('./components/Blog'));
+const BlogDetail = lazy(() => import('./components/BlogDetail'));
+const OpenSource = lazy(() => import('./components/OpenSource'));
+const OpenSourceDetail = lazy(() => import('./components/OpenSourceDetail'));
+const AdminLogin = lazy(() => import('./components/admin/AdminLogin'));
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
+const PackageDemo = lazy(() => import('./components/PackageDemo'));
 
 const GlobalStyle = createGlobalStyle`
-  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
-  
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
   }
-  
+
   body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -44,76 +45,48 @@ const AppContainer = styled.div<{ $isDark: boolean }>`
   overflow-x: hidden;
 `;
 
-function HomePage({ 
-  language, 
-  isDark, 
-  onContactClick 
-}: { 
-  language: 'ko' | 'en'; 
-  isDark: boolean;
-  onContactClick: () => void;
-}) {
+const LoadingFallback = styled.div<{ $isDark: boolean }>`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${props => props.$isDark ? '#000000' : '#ffffff'};
+  color: ${props => props.$isDark ? '#86868b' : '#86868b'};
+  font-size: 16px;
+`;
+
+function HomePage({ onContactClick }: { onContactClick: () => void }) {
   const navigate = useNavigate();
-
-  const navigateToProject = (projectId: string) => {
-    navigate(`/projects/${projectId}`);
-  };
-
-  const navigateToBlogPost = (blogId: string) => {
-    navigate(`/blog/${blogId}`);
-  };
 
   return (
     <>
-      <Hero language={language} isDark={isDark} />
-      <About language={language} isDark={isDark} />
-      <Projects 
-        language={language} 
-        isDark={isDark}
-        onProjectClick={navigateToProject}
+      <Hero />
+      <About />
+      <Projects
+        onProjectClick={(id) => navigate(`/projects/${id}`)}
         onViewAll={() => navigate('/projects')}
       />
-      <BlogPreview 
-        language={language} 
-        isDark={isDark}
-        onPostClick={navigateToBlogPost}
+      <BlogPreview
+        onPostClick={(id) => navigate(`/blog/${id}`)}
         onViewAll={() => navigate('/blog')}
       />
-      <Footer 
-        language={language} 
-        isDark={isDark}
-        onContactClick={onContactClick}
-      />
+      <Footer onContactClick={onContactClick} />
     </>
   );
 }
 
-function ProjectsPage({ 
-  language, 
-  isDark 
-}: { 
-  language: 'ko' | 'en'; 
-  isDark: boolean;
-}) {
+function ProjectsPage() {
   const navigate = useNavigate();
 
   return (
     <ProjectsGallery
-      language={language}
-      isDark={isDark}
       onProjectClick={(id) => navigate(`/projects/${id}`)}
       onBack={() => navigate('/')}
     />
   );
 }
 
-function ProjectDetailPage({ 
-  language, 
-  isDark 
-}: { 
-  language: 'ko' | 'en'; 
-  isDark: boolean;
-}) {
+function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -123,41 +96,25 @@ function ProjectDetailPage({
   }
 
   return (
-    <ProjectDetail 
+    <ProjectDetail
       projectId={id}
-      language={language}
-      isDark={isDark}
       onBack={() => navigate('/projects')}
     />
   );
 }
 
-function BlogPage({ 
-  language, 
-  isDark 
-}: { 
-  language: 'ko' | 'en'; 
-  isDark: boolean;
-}) {
+function BlogPage() {
   const navigate = useNavigate();
 
   return (
-    <Blog 
-      language={language}
-      isDark={isDark}
+    <Blog
       onPostClick={(id) => navigate(`/blog/${id}`)}
       onBack={() => navigate('/')}
     />
   );
 }
 
-function BlogDetailPage({ 
-  language, 
-  isDark 
-}: { 
-  language: 'ko' | 'en'; 
-  isDark: boolean;
-}) {
+function BlogDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -167,40 +124,24 @@ function BlogDetailPage({
   }
 
   return (
-    <BlogDetail 
+    <BlogDetail
       blogId={id}
-      language={language}
-      isDark={isDark}
       onBack={() => navigate('/blog')}
     />
   );
 }
 
-function OpenSourcePage({ 
-  language, 
-  isDark 
-}: { 
-  language: 'ko' | 'en'; 
-  isDark: boolean;
-}) {
+function OpenSourcePage() {
   const navigate = useNavigate();
 
   return (
     <OpenSource
-      language={language}
-      isDark={isDark}
       onProjectClick={(id) => navigate(`/opensource/${id}`)}
     />
   );
 }
 
-function OpenSourceDetailPage({ 
-  language, 
-  isDark 
-}: { 
-  language: 'ko' | 'en'; 
-  isDark: boolean;
-}) {
+function OpenSourceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -210,28 +151,20 @@ function OpenSourceDetailPage({
   }
 
   return (
-    <OpenSourceDetail 
+    <OpenSourceDetail
       projectId={id}
-      language={language}
-      isDark={isDark}
       onBack={() => navigate('/opensource')}
     />
   );
 }
 
-function AdminPage({ 
-  language, 
-  isDark 
-}: { 
-  language: 'ko' | 'en'; 
-  isDark: boolean;
-}) {
+function AdminPage() {
+  const { isDark } = useTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if already logged in
     const adminToken = localStorage.getItem('admin_token');
     if (adminToken) {
       setIsAuthenticated(true);
@@ -240,9 +173,12 @@ function AdminPage({
   }, []);
 
   const handleLogin = async (password: string): Promise<boolean> => {
-    // Simple client-side auth for portfolio admin
-    if (password === 'admin1234') {
-      localStorage.setItem('admin_token', 'authenticated');
+    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+    if (!adminPassword) {
+      return false;
+    }
+    if (password === adminPassword) {
+      localStorage.setItem('admin_token', btoa(`${Date.now()}_authenticated`));
       setIsAuthenticated(true);
       return true;
     }
@@ -256,51 +192,26 @@ function AdminPage({
   };
 
   if (isLoading) {
-    return null;
+    return <LoadingFallback $isDark={isDark}>Loading...</LoadingFallback>;
   }
 
   if (!isAuthenticated) {
-    return <AdminLogin isDark={isDark} onLogin={handleLogin} />;
+    return <AdminLogin onLogin={handleLogin} />;
   }
 
-  return (
-    <AdminDashboard 
-      isDark={isDark} 
-      language={language}
-      onLogout={handleLogout}
-    />
-  );
+  return <AdminDashboard onLogout={handleLogout} />;
 }
 
 function AppContent() {
-  const [language, setLanguage] = useState<'ko' | 'en'>('ko');
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('portfolio_dark_mode');
-    if (saved !== null) return saved === 'true';
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
+  const { isDark } = useTheme();
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    localStorage.setItem('portfolio_dark_mode', String(isDark));
-  }, [isDark]);
-
-  // 페이지 변경 시 스크롤 최상단으로 이동
-  useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  const toggleLanguage = () => {
-    setLanguage(prev => prev === 'ko' ? 'en' : 'ko');
-  };
-
-  const toggleDarkMode = () => {
-    setIsDark(prev => !prev);
-  };
-
-  // Don't show header/footer/chatbot on admin page
   const isAdminPage = location.pathname.startsWith('/admin');
 
   return (
@@ -308,138 +219,45 @@ function AppContent() {
       <GlobalStyle />
       <AppContainer $isDark={isDark}>
         {!isAdminPage && (
-          <Header 
-            language={language} 
-            toggleLanguage={toggleLanguage}
-            isDark={isDark}
-            toggleDarkMode={toggleDarkMode}
+          <Header
             navigateToHome={() => navigate('/')}
-            navigateToBlog={() => navigate('/blog')}
-            currentPage="home"
             onContactClick={() => setContactModalOpen(true)}
           />
         )}
-        
-        <Routes>
-          <Route 
-            path="/" 
-            element={
-              <HomePage 
-                language={language} 
-                isDark={isDark}
-                onContactClick={() => setContactModalOpen(true)}
-              />
-            } 
-          />
-          <Route 
-            path="/preview_page.html" 
-            element={
-              <HomePage 
-                language={language} 
-                isDark={isDark}
-                onContactClick={() => setContactModalOpen(true)}
-              />
-            } 
-          />
-          <Route 
-            path="/projects" 
-            element={
-              <ProjectsPage 
-                language={language} 
-                isDark={isDark}
-              />
-            } 
-          />
-          <Route 
-            path="/projects/:id" 
-            element={
-              <ProjectDetailPage 
-                language={language} 
-                isDark={isDark}
-              />
-            } 
-          />
-          <Route 
-            path="/blog" 
-            element={
-              <BlogPage 
-                language={language} 
-                isDark={isDark}
-              />
-            } 
-          />
-          <Route 
-            path="/blog/:id" 
-            element={
-              <BlogDetailPage 
-                language={language} 
-                isDark={isDark}
-              />
-            } 
-          />
-          <Route 
-            path="/opensource" 
-            element={
-              <OpenSourcePage 
-                language={language} 
-                isDark={isDark}
-              />
-            } 
-          />
-          <Route 
-            path="/opensource/:id" 
-            element={
-              <OpenSourceDetailPage 
-                language={language} 
-                isDark={isDark}
-              />
-            } 
-          />
-          <Route
-            path="/demo"
-            element={
-              <PackageDemo
-                language={language}
-                isDark={isDark}
-              />
-            }
-          />
-          <Route
-            path="/admin" 
-            element={
-              <AdminPage 
-                language={language} 
-                isDark={isDark}
-              />
-            } 
-          />
-          <Route 
-            path="*" 
-            element={
-              <HomePage 
-                language={language} 
-                isDark={isDark}
-                onContactClick={() => setContactModalOpen(true)}
-              />
-            } 
-          />
-        </Routes>
+
+        <Suspense fallback={<LoadingFallback $isDark={isDark}>Loading...</LoadingFallback>}>
+          <Routes>
+            <Route
+              path="/"
+              element={<HomePage onContactClick={() => setContactModalOpen(true)} />}
+            />
+            <Route
+              path="/preview_page.html"
+              element={<HomePage onContactClick={() => setContactModalOpen(true)} />}
+            />
+            <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/projects/:id" element={<ProjectDetailPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:id" element={<BlogDetailPage />} />
+            <Route path="/opensource" element={<OpenSourcePage />} />
+            <Route path="/opensource/:id" element={<OpenSourceDetailPage />} />
+            <Route path="/demo" element={<PackageDemo />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route
+              path="*"
+              element={<HomePage onContactClick={() => setContactModalOpen(true)} />}
+            />
+          </Routes>
+        </Suspense>
       </AppContainer>
-      
+
       {!isAdminPage && (
         <>
-          <Contact 
-            language={language} 
-            isDark={isDark}
+          <Contact
             isOpen={contactModalOpen}
             onOpenChange={setContactModalOpen}
           />
-          
-          <Chatbot 
-            language={language} 
-            isDark={isDark}
-            onContactClick={() => setContactModalOpen(true)}
-          />
+          <Chatbot onContactClick={() => setContactModalOpen(true)} />
         </>
       )}
     </>
@@ -449,7 +267,11 @@ function AppContent() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+      <ThemeProvider>
+        <LanguageProvider>
+          <AppContent />
+        </LanguageProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Moon, Sun, Menu, X } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const HeaderContainer = styled.header<{ $scrolled: boolean; $isDark: boolean }>`
   position: fixed;
@@ -37,13 +39,17 @@ const Nav = styled.nav`
   gap: 20px;
 `;
 
-const Logo = styled.div<{ $isDark: boolean }>`
+const Logo = styled.button<{ $isDark: boolean }>`
   font-size: 20px;
   font-weight: 600;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   letter-spacing: -0.5px;
   cursor: pointer;
   transition: opacity 0.2s ease;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
 
   &:hover {
     opacity: 0.6;
@@ -60,14 +66,17 @@ const NavLinks = styled.div`
   }
 `;
 
-const NavLink = styled.a<{ $isDark: boolean }>`
+const NavButton = styled.button<{ $isDark: boolean }>`
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  text-decoration: none;
+  background: none;
+  border: none;
   font-size: 14px;
   font-weight: 400;
   cursor: pointer;
   transition: opacity 0.2s ease;
   letter-spacing: -0.2px;
+  padding: 0;
+  font-family: inherit;
 
   &:hover {
     opacity: 0.6;
@@ -125,7 +134,6 @@ const LangButton = styled.button<{ $isDark: boolean }>`
   }
 `;
 
-/* Mobile hamburger button */
 const HamburgerButton = styled.button<{ $isDark: boolean }>`
   display: none;
   background: transparent;
@@ -147,7 +155,6 @@ const HamburgerButton = styled.button<{ $isDark: boolean }>`
   }
 `;
 
-/* Mobile menu overlay */
 const MobileMenuOverlay = styled.div<{ $isOpen: boolean; $isDark: boolean }>`
   display: none;
 
@@ -189,33 +196,19 @@ const MobileMenu = styled.div<{ $isOpen: boolean; $isDark: boolean }>`
   }
 `;
 
-const MobileNavLink = styled.a<{ $isDark: boolean }>`
+const MobileNavButton = styled.button<{ $isDark: boolean }>`
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  text-decoration: none;
+  background: none;
+  border: none;
   font-size: 24px;
   font-weight: 500;
   cursor: pointer;
   transition: opacity 0.2s ease;
   letter-spacing: -0.5px;
+  font-family: inherit;
 
   &:hover {
     opacity: 0.6;
-  }
-`;
-
-const MobileCloseButton = styled.button<{ $isDark: boolean }>`
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  background: transparent;
-  border: none;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  cursor: pointer;
-  padding: 4px;
-
-  svg {
-    width: 28px;
-    height: 28px;
   }
 `;
 
@@ -227,13 +220,7 @@ const MobileButtonGroup = styled.div`
 `;
 
 interface HeaderProps {
-  language: 'ko' | 'en';
-  toggleLanguage: () => void;
-  isDark: boolean;
-  toggleDarkMode: () => void;
   navigateToHome: () => void;
-  navigateToBlog: () => void;
-  currentPage: string;
   onContactClick: () => void;
 }
 
@@ -256,16 +243,9 @@ const translations = {
   }
 };
 
-export default function Header({
-  language,
-  toggleLanguage,
-  isDark,
-  toggleDarkMode,
-  navigateToHome,
-  navigateToBlog,
-  currentPage,
-  onContactClick
-}: HeaderProps) {
+export default function Header({ navigateToHome, onContactClick }: HeaderProps) {
+  const { isDark, toggleDarkMode } = useTheme();
+  const { language, toggleLanguage } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -281,7 +261,6 @@ export default function Header({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -331,20 +310,22 @@ export default function Header({
   return (
     <>
       <HeaderContainer $scrolled={scrolled || mobileMenuOpen} $isDark={isDark}>
-        <Nav>
+        <Nav aria-label="Main navigation">
           <Logo $isDark={isDark} onClick={() => { setMobileMenuOpen(false); navigateToHome(); }}>Portfolio</Logo>
           <NavLinks>
-            <NavLink $isDark={isDark} onClick={() => scrollToSection('about')}>{t.about}</NavLink>
-            <NavLink $isDark={isDark} onClick={() => scrollToSection('projects')}>{t.projects}</NavLink>
-            <NavLink $isDark={isDark} onClick={handleOpenSourceClick}>{t.opensource}</NavLink>
-            <NavLink $isDark={isDark} onClick={handleBlogClick}>{t.blog}</NavLink>
-            <NavLink $isDark={isDark} onClick={() => scrollToSection('contact')}>{t.contact}</NavLink>
+            <NavButton $isDark={isDark} onClick={() => scrollToSection('about')}>{t.about}</NavButton>
+            <NavButton $isDark={isDark} onClick={() => scrollToSection('projects')}>{t.projects}</NavButton>
+            <NavButton $isDark={isDark} onClick={handleOpenSourceClick}>{t.opensource}</NavButton>
+            <NavButton $isDark={isDark} onClick={handleBlogClick}>{t.blog}</NavButton>
+            <NavButton $isDark={isDark} onClick={() => scrollToSection('contact')}>{t.contact}</NavButton>
           </NavLinks>
           <ButtonGroup>
-            <IconButton $isDark={isDark} onClick={toggleDarkMode}>
+            <IconButton $isDark={isDark} onClick={toggleDarkMode} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
               {isDark ? <Sun /> : <Moon />}
             </IconButton>
-            <LangButton $isDark={isDark} onClick={toggleLanguage}>{t.lang}</LangButton>
+            <LangButton $isDark={isDark} onClick={toggleLanguage} aria-label={language === 'ko' ? 'Switch to English' : '한국어로 전환'}>
+              {t.lang}
+            </LangButton>
             <HamburgerButton
               $isDark={isDark}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -357,19 +338,20 @@ export default function Header({
         </Nav>
       </HeaderContainer>
 
-      {/* Mobile fullscreen menu */}
       <MobileMenuOverlay $isOpen={mobileMenuOpen} $isDark={isDark} onClick={() => setMobileMenuOpen(false)} />
-      <MobileMenu $isOpen={mobileMenuOpen} $isDark={isDark}>
-        <MobileNavLink $isDark={isDark} onClick={() => scrollToSection('about')}>{t.about}</MobileNavLink>
-        <MobileNavLink $isDark={isDark} onClick={() => scrollToSection('projects')}>{t.projects}</MobileNavLink>
-        <MobileNavLink $isDark={isDark} onClick={handleOpenSourceClick}>{t.opensource}</MobileNavLink>
-        <MobileNavLink $isDark={isDark} onClick={handleBlogClick}>{t.blog}</MobileNavLink>
-        <MobileNavLink $isDark={isDark} onClick={() => scrollToSection('contact')}>{t.contact}</MobileNavLink>
+      <MobileMenu $isOpen={mobileMenuOpen} $isDark={isDark} role="dialog" aria-label="Navigation menu">
+        <MobileNavButton $isDark={isDark} onClick={() => scrollToSection('about')}>{t.about}</MobileNavButton>
+        <MobileNavButton $isDark={isDark} onClick={() => scrollToSection('projects')}>{t.projects}</MobileNavButton>
+        <MobileNavButton $isDark={isDark} onClick={handleOpenSourceClick}>{t.opensource}</MobileNavButton>
+        <MobileNavButton $isDark={isDark} onClick={handleBlogClick}>{t.blog}</MobileNavButton>
+        <MobileNavButton $isDark={isDark} onClick={() => scrollToSection('contact')}>{t.contact}</MobileNavButton>
         <MobileButtonGroup>
-          <IconButton $isDark={isDark} onClick={toggleDarkMode}>
+          <IconButton $isDark={isDark} onClick={toggleDarkMode} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
             {isDark ? <Sun /> : <Moon />}
           </IconButton>
-          <LangButton $isDark={isDark} onClick={toggleLanguage}>{t.lang}</LangButton>
+          <LangButton $isDark={isDark} onClick={toggleLanguage} aria-label={language === 'ko' ? 'Switch to English' : '한국어로 전환'}>
+            {t.lang}
+          </LangButton>
         </MobileButtonGroup>
       </MobileMenu>
     </>

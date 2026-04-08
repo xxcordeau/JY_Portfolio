@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const Container = styled.div`
   width: 100%;
@@ -47,12 +49,9 @@ const InfoText = styled.p<{ $isDark: boolean }>`
   }
 `;
 
-interface AboutEditorProps {
-  isDark: boolean;
-  language: 'ko' | 'en';
-}
-
-export default function AboutEditor({ isDark, language }: AboutEditorProps) {
+export default function AboutEditor() {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   return (
     <Container>
       <Title $isDark={isDark}>About 관리</Title>

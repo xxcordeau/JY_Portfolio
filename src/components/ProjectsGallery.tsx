@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { projects } from '../data/projectsData';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
@@ -189,8 +191,6 @@ const ProjectCount = styled.p<{ $isDark: boolean }>`
 `;
 
 interface ProjectsGalleryProps {
-  language: 'ko' | 'en';
-  isDark: boolean;
   onProjectClick: (projectId: string) => void;
   onBack: () => void;
 }
@@ -208,7 +208,9 @@ const translations = {
   }
 };
 
-export default function ProjectsGallery({ language, isDark, onProjectClick, onBack }: ProjectsGalleryProps) {
+export default function ProjectsGallery({ onProjectClick, onBack }: ProjectsGalleryProps) {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const t = translations[language];
 
   return (

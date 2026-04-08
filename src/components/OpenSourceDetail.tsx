@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { openSourceProjects, OpenSourceProject } from '../data/openSourceData';
 import { Github, Package, Star, Download, ArrowLeft, ExternalLink, CheckCircle } from 'lucide-react';
 import LibraryDocDemo from './interactive/LibraryDocDemo';
@@ -296,8 +298,6 @@ const DemoSection = styled.div<{ $isDark: boolean }>`
 
 interface OpenSourceDetailProps {
   projectId: string;
-  language: 'ko' | 'en';
-  isDark: boolean;
   onBack: () => void;
 }
 
@@ -330,12 +330,12 @@ const translations = {
   }
 };
 
-export default function OpenSourceDetail({ 
-  projectId, 
-  language, 
-  isDark,
-  onBack 
+export default function OpenSourceDetail({
+  projectId,
+  onBack
 }: OpenSourceDetailProps) {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const t = translations[language];
   const project = openSourceProjects.find(p => p.id === projectId);
 

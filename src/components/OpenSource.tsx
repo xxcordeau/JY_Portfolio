@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { openSourceProjects } from '../data/openSourceData';
 import { Github, Package, Star, Download, ArrowRight } from 'lucide-react';
 
@@ -188,8 +190,6 @@ const ViewMore = styled.div<{ $isDark: boolean }>`
 `;
 
 interface OpenSourceProps {
-  language: 'ko' | 'en';
-  isDark: boolean;
   onProjectClick: (id: string) => void;
 }
 
@@ -206,7 +206,9 @@ const translations = {
   }
 };
 
-export default function OpenSource({ language, isDark, onProjectClick }: OpenSourceProps) {
+export default function OpenSource({ onProjectClick }: OpenSourceProps) {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const t = translations[language];
 
   return (

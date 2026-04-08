@@ -5,6 +5,8 @@ import MailManager from './MailManager';
 import AboutEditor from './AboutEditor';
 import ProjectEditor from './ProjectEditor';
 import BlogEditor from './BlogEditor';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const DashboardContainer = styled.div<{ $isDark: boolean }>`
   min-height: 100vh;
@@ -190,12 +192,12 @@ const Content = styled.div`
 type TabType = 'mail' | 'about' | 'projects' | 'blog';
 
 interface AdminDashboardProps {
-  isDark: boolean;
-  language: 'ko' | 'en';
   onLogout: () => void;
 }
 
-export default function AdminDashboard({ isDark, language, onLogout }: AdminDashboardProps) {
+export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState<TabType>('mail');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -251,10 +253,10 @@ export default function AdminDashboard({ isDark, language, onLogout }: AdminDash
         </Sidebar>
 
         <Content>
-          {activeTab === 'mail' && <MailManager isDark={isDark} language={language} />}
-          {activeTab === 'about' && <AboutEditor isDark={isDark} language={language} />}
-          {activeTab === 'projects' && <ProjectEditor isDark={isDark} language={language} />}
-          {activeTab === 'blog' && <BlogEditor isDark={isDark} language={language} />}
+          {activeTab === 'mail' && <MailManager />}
+          {activeTab === 'about' && <AboutEditor />}
+          {activeTab === 'projects' && <ProjectEditor />}
+          {activeTab === 'blog' && <BlogEditor />}
         </Content>
       </MainContent>
     </DashboardContainer>

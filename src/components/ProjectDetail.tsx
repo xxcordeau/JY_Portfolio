@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { projects } from '../data/projectsData';
 import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -248,8 +250,6 @@ const TechItem = styled.div`
 
 interface ProjectDetailProps {
   projectId: string;
-  language: 'ko' | 'en';
-  isDark: boolean;
   onBack: () => void;
 }
 
@@ -301,7 +301,9 @@ const categoryTranslations = {
   }
 };
 
-export default function ProjectDetail({ projectId, language, isDark, onBack }: ProjectDetailProps) {
+export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const project = projects.find(p => p.id === projectId);
   const t = translations[language];
   const ct = categoryTranslations[language];

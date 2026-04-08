@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { projects } from '../data/projectsData';
 import { ArrowRight } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ProjectsSection = styled.section<{ $isDark: boolean }>`
   min-height: 100vh;
@@ -169,8 +171,6 @@ const ViewAllButton = styled.button<{ $isDark: boolean }>`
 `;
 
 interface ProjectsProps {
-  language: 'ko' | 'en';
-  isDark: boolean;
   onProjectClick: (projectId: string) => void;
   onViewAll?: () => void;
   showAll?: boolean;
@@ -187,7 +187,9 @@ const translations = {
   }
 };
 
-export default function Projects({ language, isDark, onProjectClick, onViewAll, showAll = false }: ProjectsProps) {
+export default function Projects({ onProjectClick, onViewAll, showAll = false }: ProjectsProps) {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const t = translations[language];
   const displayProjects = showAll ? projects : projects.slice(0, 6);
   const hasMore = projects.length > 6;

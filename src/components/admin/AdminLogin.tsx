@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Lock, Eye, EyeOff } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const LoginContainer = styled.div<{ $isDark: boolean }>`
   min-height: 100vh;
@@ -161,11 +162,11 @@ const ErrorMessage = styled.div`
 `;
 
 interface AdminLoginProps {
-  isDark: boolean;
   onLogin: (password: string) => Promise<boolean>;
 }
 
-export default function AdminLogin({ isDark, onLogin }: AdminLoginProps) {
+export default function AdminLogin({ onLogin }: AdminLoginProps) {
+  const { isDark } = useTheme();
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');

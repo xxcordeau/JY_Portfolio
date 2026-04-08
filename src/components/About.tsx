@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { skills, education, experiences } from '../data/aboutData';
 import { useState, useEffect } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Briefcase, GraduationCap, Code2, User, Mail, Phone, Calendar } from 'lucide-react';
 
 const AboutSection = styled.section<{ $isDark: boolean }>`
@@ -390,10 +392,6 @@ const CardAchievementItem = styled.li<{ $isDark: boolean }>`
 
 
 
-interface AboutProps {
-  language: 'ko' | 'en';
-  isDark: boolean;
-}
 
 const translations = {
   ko: {
@@ -443,7 +441,9 @@ const categoryTranslations = {
   }
 };
 
-export default function About({ language, isDark }: AboutProps) {
+export default function About() {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const t = translations[language];
   const ct = categoryTranslations[language];
   const [animateSkills, setAnimateSkills] = useState(false);

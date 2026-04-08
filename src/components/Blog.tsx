@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { blogPosts } from '../data/blogData';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
@@ -195,8 +197,6 @@ const ReadTime = styled.span`
 `;
 
 interface BlogProps {
-  language: 'ko' | 'en';
-  isDark: boolean;
   onPostClick: (blogId: string) => void;
   onBack: () => void;
 }
@@ -214,7 +214,9 @@ const translations = {
   }
 };
 
-export default function Blog({ language, isDark, onPostClick, onBack }: BlogProps) {
+export default function Blog({ onPostClick, onBack }: BlogProps) {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const t = translations[language];
 
   return (

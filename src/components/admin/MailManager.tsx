@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Mail, Trash2, RefreshCw, Calendar, User as UserIcon, AtSign } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 // Supabase removed — mail feature disabled
 
 const Container = styled.div`
@@ -178,12 +180,9 @@ interface MailData {
   timestamp: string;
 }
 
-interface MailManagerProps {
-  isDark: boolean;
-  language: 'ko' | 'en';
-}
-
-export default function MailManager({ isDark, language }: MailManagerProps) {
+export default function MailManager() {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const [mails, setMails] = useState<MailData[]>([]);
   const [loading, setLoading] = useState(false);
 

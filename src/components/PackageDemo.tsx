@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import '../../packages/awesome-ui/src/styles/globals.css';
 
 // === @jy/awesome-ui imports ===
@@ -181,12 +183,9 @@ const multiSelectOptions = [
   { id: 'python', label: 'Python' },
 ];
 
-interface PackageDemoProps {
-  isDark: boolean;
-  language: 'ko' | 'en';
-}
-
-export default function PackageDemo({ isDark, language }: PackageDemoProps) {
+export default function PackageDemo() {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const [searchValue, setSearchValue] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string>>({});
   const [multiSelected, setMultiSelected] = useState<string[]>([]);

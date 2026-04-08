@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const FooterContainer = styled.footer<{ $isDark: boolean }>`
   padding: 60px 40px;
@@ -101,8 +103,6 @@ const SocialLink = styled.a<{ $isDark: boolean }>`
 `;
 
 interface FooterProps {
-  language: 'ko' | 'en';
-  isDark: boolean;
   onContactClick?: () => void;
 }
 
@@ -143,7 +143,9 @@ const translations = {
   }
 };
 
-export default function Footer({ language, isDark, onContactClick }: FooterProps) {
+export default function Footer({ onContactClick }: FooterProps) {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const t = translations[language];
   const navigate = useNavigate();
 

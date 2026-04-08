@@ -2,6 +2,8 @@ import { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'motion/react';
 import { Paintbrush, Eraser, Trash2, Palette, PenTool } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const HeroSection = styled.section<{ $isDark: boolean }>`
   min-height: 100vh;
@@ -128,10 +130,10 @@ const DrawingModeToggle = styled.button<{ $isDark: boolean; $isDrawingMode: bool
   position: absolute;
   top: 100px;
   right: 40px;
-  background: ${props => props.$isDrawingMode 
+  background: ${props => props.$isDrawingMode
     ? (props.$isDark ? '#f5f5f7' : '#1d1d1f')
     : (props.$isDark ? 'rgba(29, 29, 31, 0.8)' : 'rgba(255, 255, 255, 0.8)')};
-  color: ${props => props.$isDrawingMode 
+  color: ${props => props.$isDrawingMode
     ? (props.$isDark ? '#1d1d1f' : '#f5f5f7')
     : (props.$isDark ? '#f5f5f7' : '#1d1d1f')};
   backdrop-filter: blur(20px);
@@ -170,10 +172,10 @@ const DrawingModeToggle = styled.button<{ $isDark: boolean; $isDrawingMode: bool
 `;
 
 const ToolButton = styled.button<{ $isDark: boolean; $active?: boolean }>`
-  background: ${props => props.$active 
+  background: ${props => props.$active
     ? (props.$isDark ? '#f5f5f7' : '#1d1d1f')
     : 'transparent'};
-  color: ${props => props.$active 
+  color: ${props => props.$active
     ? (props.$isDark ? '#1d1d1f' : '#f5f5f7')
     : (props.$isDark ? '#f5f5f7' : '#1d1d1f')};
   border: none;
@@ -246,11 +248,6 @@ const Slider = styled.input<{ $isDark: boolean }>`
   }
 `;
 
-interface HeroProps {
-  language: 'ko' | 'en';
-  isDark: boolean;
-}
-
 const translations = {
   ko: {
     title: '안녕하세요',
@@ -265,8 +262,8 @@ const translations = {
 };
 
 const charVariants = {
-  hidden: { 
-    opacity: 0, 
+  hidden: {
+    opacity: 0,
     y: 50,
     scale: 0.5,
     rotate: -10
@@ -296,7 +293,7 @@ const descContainerVariants = {
 };
 
 const descCharVariants = {
-  rest: { 
+  rest: {
     y: 0
   },
   hover: {
@@ -308,7 +305,9 @@ const descCharVariants = {
   }
 };
 
-export default function Hero({ language, isDark }: HeroProps) {
+export default function Hero() {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const t = translations[language];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -333,10 +332,18 @@ export default function Hero({ language, isDark }: HeroProps) {
     };
 
     updateCanvasSize();
-    window.addEventListener('resize', updateCanvasSize);
+
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(updateCanvasSize, 150);
+    };
+
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      window.removeEventListener('resize', updateCanvasSize);
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimer);
     };
   }, []);
 
@@ -452,6 +459,7 @@ export default function Hero({ language, isDark }: HeroProps) {
       <DrawingCanvas
         ref={canvasRef}
         $isDrawingMode={isDrawingMode}
+        aria-label="Drawing canvas"
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}
@@ -460,13 +468,13 @@ export default function Hero({ language, isDark }: HeroProps) {
         onTouchMove={draw}
         onTouchEnd={stopDrawing}
       />
-      
+
       <ContentWrapper>
         <Title $isDark={isDark}>
           {renderAnimatedText(t.title)}
         </Title>
         <Subtitle $isDark={isDark}>{t.subtitle}</Subtitle>
-        <Description 
+        <Description
           $isDark={isDark}
           initial="rest"
           whileHover="hover"

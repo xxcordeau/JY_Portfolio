@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Overlay = styled.div<{ $isOpen: boolean }>`
   position: fixed;
@@ -265,11 +267,8 @@ const DirectEmailButton = styled.a<{ $isDark: boolean }>`
 `;
 
 interface ContactProps {
-  language: 'ko' | 'en';
-  isDark: boolean;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  trigger?: React.ReactNode;
 }
 
 const translations = {
@@ -309,7 +308,9 @@ const translations = {
   }
 };
 
-export default function Contact({ language, isDark, isOpen = false, onOpenChange }: ContactProps) {
+export default function Contact({ isOpen = false, onOpenChange }: ContactProps) {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const t = translations[language];
   const [formData, setFormData] = useState({
     name: '',

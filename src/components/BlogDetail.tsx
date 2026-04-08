@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { blogPosts } from '../data/blogData';
 import { ArrowLeft, Copy, Check } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -389,8 +391,6 @@ const InlineCode = styled.code<{ $isDark: boolean }>`
 
 interface BlogDetailProps {
   blogId: string;
-  language: 'ko' | 'en';
-  isDark: boolean;
   onBack: () => void;
 }
 
@@ -430,7 +430,9 @@ function CodeBlockComponent({ code, language: codeLang, isDark, onCopy, copied }
   );
 }
 
-export default function BlogDetail({ blogId, language, isDark, onBack }: BlogDetailProps) {
+export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const post = blogPosts.find(p => p.id === blogId);
   const t = translations[language];
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);

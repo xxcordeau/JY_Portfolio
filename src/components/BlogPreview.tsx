@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { blogPosts } from '../data/blogData';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowRight } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const BlogSection = styled.section<{ $isDark: boolean }>`
   min-height: 100vh;
@@ -178,8 +180,6 @@ const ReadTime = styled.span`
 `;
 
 interface BlogPreviewProps {
-  language: 'ko' | 'en';
-  isDark: boolean;
   onPostClick: (blogId: string) => void;
   onViewAll: () => void;
 }
@@ -195,7 +195,9 @@ const translations = {
   }
 };
 
-export default function BlogPreview({ language, isDark, onPostClick, onViewAll }: BlogPreviewProps) {
+export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps) {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   const t = translations[language];
   // 최신 6개 포스트만 표시
   const recentPosts = blogPosts.slice(0, 6);

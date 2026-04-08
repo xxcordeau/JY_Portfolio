@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const Container = styled.div`
   width: 100%;
@@ -47,12 +49,9 @@ const InfoText = styled.p<{ $isDark: boolean }>`
   }
 `;
 
-interface BlogEditorProps {
-  isDark: boolean;
-  language: 'ko' | 'en';
-}
-
-export default function BlogEditor({ isDark, language }: BlogEditorProps) {
+export default function BlogEditor() {
+  const { isDark } = useTheme();
+  const { language } = useLanguage();
   return (
     <Container>
       <Title $isDark={isDark}>블로그 관리</Title>
