@@ -248,16 +248,38 @@ const Slider = styled.input<{ $isDark: boolean }>`
   }
 `;
 
+const DrawingHint = styled.p<{ $isDark: boolean; $visible: boolean }>`
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 15px;
+  color: ${props => props.$isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)'};
+  letter-spacing: 0.5px;
+  font-weight: 400;
+  pointer-events: none;
+  opacity: ${props => props.$visible ? 1 : 0};
+  transition: opacity 0.5s ease;
+  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+    bottom: 80px;
+  }
+`;
+
 const translations = {
   ko: {
     title: '안녕하세요',
     subtitle: '디자인과 코드를 잇는 프론트엔드 개발자',
-    description: '감각적인 디자인과 견고한 구조로 아름다움과 기능이 공존하는 인터페이스를 만듭니다.'
+    description: '감각적인 디자인과 견고한 구조로 아름다움과 기능이 공존하는 인터페이스를 만듭니다.',
+    drawingHint: 'Try doodling on this blank canvas!'
   },
   en: {
     title: 'Hello',
     subtitle: 'Frontend Developer Bridging Design and Code',
-    description: 'Creating interfaces where beauty and functionality coexist through sophisticated design and robust architecture.'
+    description: 'Creating interfaces where beauty and functionality coexist through sophisticated design and robust architecture.',
+    drawingHint: 'Try doodling on this blank canvas!'
   }
 };
 
@@ -483,6 +505,10 @@ export default function Hero() {
           {renderWavyText(t.description)}
         </Description>
       </ContentWrapper>
+
+      <DrawingHint $isDark={isDark} $visible={!isDrawingMode}>
+        {t.drawingHint}
+      </DrawingHint>
 
       <DrawingModeToggle
         $isDark={isDark}
