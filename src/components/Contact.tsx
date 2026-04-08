@@ -203,6 +203,13 @@ const SubmitButton = styled.button<{ $isDark: boolean; disabled?: boolean }>`
   }
 `;
 
+const ErrorText = styled.p`
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #ff3b30;
+  letter-spacing: -0.1px;
+`;
+
 const Message = styled.div<{ $isDark: boolean; $isError?: boolean }>`
   padding: 12px 16px;
   background: ${props => props.$isError 
@@ -288,7 +295,11 @@ const translations = {
     directEmail: '이메일 앱으로 보내기',
     directGmail: 'Gmail 웹에서 보내기',
     github: 'GitHub 방문하기',
-    or: '또는'
+    or: '또는',
+    errName: '이름을 입력해주세요.',
+    errEmail: '이메일 주소를 입력해주세요.',
+    errEmailFmt: '올바른 이메일 형식이 아니에요.',
+    errMessage: '메시지를 입력해주세요.',
   },
   en: {
     title: 'Get in Touch',
@@ -306,7 +317,11 @@ const translations = {
     directEmail: 'Send via Email App',
     directGmail: 'Send via Gmail Web',
     github: 'Visit GitHub',
-    or: 'or'
+    or: 'or',
+    errName: 'Please enter your name.',
+    errEmail: 'Please enter your email.',
+    errEmailFmt: 'Please enter a valid email address.',
+    errMessage: 'Please enter a message.',
   }
 };
 
@@ -314,21 +329,30 @@ export default function Contact({ isOpen = false, onOpenChange }: ContactProps) 
   const { isDark } = useTheme();
   const { language } = useLanguage();
   const t = translations[language];
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [errors, setErrors] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const validate = () => {
+    const next = { name: '', email: '', message: '' };
+    if (!formData.name.trim()) next.name = t.errName;
+    if (!formData.email.trim()) next.email = t.errEmail;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) next.email = t.errEmailFmt;
+    if (!formData.message.trim()) next.message = t.errMessage;
+    setErrors(next);
+    return !next.name && !next.email && !next.message;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     const subject = encodeURIComponent(`[Portfolio] ${formData.name}님의 메시지`);
     const body = encodeURIComponent(`이름: ${formData.name}\n이메일: ${formData.email}\n\n${formData.message}`);
     window.location.href = `mailto:qazseeszaq3219@gmail.com?subject=${subject}&body=${body}`;
     setStatus('success');
     setFormData({ name: '', email: '', message: '' });
+    setErrors({ name: '', email: '', message: '' });
     setTimeout(() => setStatus('idle'), 3000);
   };
 
@@ -366,7 +390,7 @@ export default function Contact({ isOpen = false, onOpenChange }: ContactProps) 
           <ModalBody>
             <Description>{t.description}</Description>
             
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={handleSubmit} noValidate>
               <InputGroup>
                 <Label $isDark={isDark}>{t.nameLabel}</Label>
                 <Input
@@ -376,8 +400,8 @@ export default function Contact({ isOpen = false, onOpenChange }: ContactProps) 
                   onChange={handleChange}
                   placeholder={t.namePlaceholder}
                   $isDark={isDark}
-                  required
                 />
+                {errors.name && <ErrorText>{errors.name}</ErrorText>}
               </InputGroup>
 
               <InputGroup>
@@ -389,8 +413,8 @@ export default function Contact({ isOpen = false, onOpenChange }: ContactProps) 
                   onChange={handleChange}
                   placeholder={t.emailPlaceholder}
                   $isDark={isDark}
-                  required
                 />
+                {errors.email && <ErrorText>{errors.email}</ErrorText>}
               </InputGroup>
 
               <InputGroup>
@@ -401,8 +425,8 @@ export default function Contact({ isOpen = false, onOpenChange }: ContactProps) 
                   onChange={handleChange}
                   placeholder={t.messagePlaceholder}
                   $isDark={isDark}
-                  required
                 />
+                {errors.message && <ErrorText>{errors.message}</ErrorText>}
               </InputGroup>
 
               <SubmitButton 
