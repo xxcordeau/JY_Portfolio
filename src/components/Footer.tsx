@@ -128,14 +128,14 @@ const ContactButton = styled.button<{ $isDark: boolean }>`
 
 const translations = {
   ko: {
-    copyright: '© 2025 Portfolio. All rights reserved.',
+    copyright: '© 2026 Portfolio. All rights reserved.',
     contact: '연락하기',
     github: 'GitHub',
     twitter: 'Twitter',
     instagram: 'Instagram'
   },
   en: {
-    copyright: '© 2025 Portfolio. All rights reserved.',
+    copyright: '© 2026 Portfolio. All rights reserved.',
     contact: 'Contact',
     github: 'GitHub',
     twitter: 'Twitter',

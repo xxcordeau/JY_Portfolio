@@ -204,11 +204,11 @@ const SkillCategories = styled.div`
 const SkillCategory = styled.div``;
 
 const CategoryTitle = styled.h4<{ $isDark: boolean }>`
-  font-size: 13px;
-  font-weight: 600;
-  color: ${props => props.$isDark ? '#a1a1a6' : '#86868b'};
+  font-size: 12px;
+  font-weight: 400;
+  color: ${props => props.$isDark ? '#6e6e73' : '#aeaeb2'};
   margin: 0 0 14px 0;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
 `;
 

@@ -287,6 +287,7 @@ const translations = {
     errorMessage: '메시지 전송에 실패했습니다. 다시 시도해주세요.',
     directEmail: '이메일 앱으로 보내기',
     directGmail: 'Gmail 웹에서 보내기',
+    github: 'GitHub 방문하기',
     or: '또는'
   },
   en: {
@@ -304,6 +305,7 @@ const translations = {
     errorMessage: 'Failed to send message. Please try again.',
     directEmail: 'Send via Email App',
     directGmail: 'Send via Gmail Web',
+    github: 'Visit GitHub',
     or: 'or'
   }
 };
@@ -439,6 +441,16 @@ export default function Contact({ isOpen = false, onOpenChange }: ContactProps) 
               style={{ marginTop: '8px' }}
             >
               {t.directGmail}
+            </DirectEmailButton>
+
+            <DirectEmailButton
+              $isDark={isDark}
+              href="https://github.com/xxcordeau"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ marginTop: '8px' }}
+            >
+              {t.github}
             </DirectEmailButton>
           </ModalBody>
         </ModalWindow>
