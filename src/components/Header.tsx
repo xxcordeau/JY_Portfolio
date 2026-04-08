@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Moon, Sun, Menu, X } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const HeaderContainer = styled.header<{ $scrolled: boolean; $isDark: boolean }>`
   position: fixed;
@@ -231,6 +232,7 @@ const translations = {
     opensource: '오픈소스',
     blog: '블로그',
     contact: '연락',
+    presentations: 'PT 자료',
     lang: 'EN'
   },
   en: {
@@ -239,6 +241,7 @@ const translations = {
     opensource: 'Open Source',
     blog: 'Blog',
     contact: 'Contact',
+    presentations: 'Presentations',
     lang: 'KO'
   }
 };
@@ -246,6 +249,7 @@ const translations = {
 export default function Header({ navigateToHome, onContactClick }: HeaderProps) {
   const { isDark, toggleDarkMode } = useTheme();
   const { language, toggleLanguage } = useLanguage();
+  const { isNavVisible, navOrder } = useSiteSettings();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -307,17 +311,31 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
     navigate('/opensource');
   };
 
+  const handlePresentationsClick = () => {
+    setMobileMenuOpen(false);
+    navigate('/presentations');
+  };
+
+  const navActions: Record<string, { label: string; onClick: () => void }> = {
+    nav_about: { label: t.about, onClick: () => scrollToSection('about') },
+    nav_projects: { label: t.projects, onClick: () => scrollToSection('projects') },
+    nav_opensource: { label: t.opensource, onClick: handleOpenSourceClick },
+    nav_blog: { label: t.blog, onClick: handleBlogClick },
+    nav_presentations: { label: t.presentations, onClick: handlePresentationsClick },
+    nav_contact: { label: t.contact, onClick: () => scrollToSection('contact') },
+  };
+
   return (
     <>
       <HeaderContainer $scrolled={scrolled || mobileMenuOpen} $isDark={isDark}>
         <Nav aria-label="Main navigation">
           <Logo $isDark={isDark} onClick={() => { setMobileMenuOpen(false); navigateToHome(); }}>Portfolio</Logo>
           <NavLinks>
-            <NavButton $isDark={isDark} onClick={() => scrollToSection('about')}>{t.about}</NavButton>
-            <NavButton $isDark={isDark} onClick={() => scrollToSection('projects')}>{t.projects}</NavButton>
-            <NavButton $isDark={isDark} onClick={handleOpenSourceClick}>{t.opensource}</NavButton>
-            <NavButton $isDark={isDark} onClick={handleBlogClick}>{t.blog}</NavButton>
-            <NavButton $isDark={isDark} onClick={() => scrollToSection('contact')}>{t.contact}</NavButton>
+            {navOrder.map(key => {
+              if (!isNavVisible(key) || !navActions[key]) return null;
+              const { label, onClick } = navActions[key];
+              return <NavButton key={key} $isDark={isDark} onClick={onClick}>{label}</NavButton>;
+            })}
           </NavLinks>
           <ButtonGroup>
             <IconButton $isDark={isDark} onClick={toggleDarkMode} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
@@ -340,11 +358,11 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
 
       <MobileMenuOverlay $isOpen={mobileMenuOpen} $isDark={isDark} onClick={() => setMobileMenuOpen(false)} />
       <MobileMenu $isOpen={mobileMenuOpen} $isDark={isDark} role="dialog" aria-label="Navigation menu">
-        <MobileNavButton $isDark={isDark} onClick={() => scrollToSection('about')}>{t.about}</MobileNavButton>
-        <MobileNavButton $isDark={isDark} onClick={() => scrollToSection('projects')}>{t.projects}</MobileNavButton>
-        <MobileNavButton $isDark={isDark} onClick={handleOpenSourceClick}>{t.opensource}</MobileNavButton>
-        <MobileNavButton $isDark={isDark} onClick={handleBlogClick}>{t.blog}</MobileNavButton>
-        <MobileNavButton $isDark={isDark} onClick={() => scrollToSection('contact')}>{t.contact}</MobileNavButton>
+        {navOrder.map(key => {
+          if (!isNavVisible(key) || !navActions[key]) return null;
+          const { label, onClick } = navActions[key];
+          return <MobileNavButton key={key} $isDark={isDark} onClick={onClick}>{label}</MobileNavButton>;
+        })}
         <MobileButtonGroup>
           <IconButton $isDark={isDark} onClick={toggleDarkMode} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
             {isDark ? <Sun /> : <Moon />}

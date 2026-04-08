@@ -127,9 +127,9 @@ export default function AboutEditor() {
     setSaving(true);
     try {
       await Promise.all([
-        supabase.from('skills').delete().neq('id', ''),
-        supabase.from('education').delete().neq('id', ''),
-        supabase.from('experiences').delete().neq('id', ''),
+        supabase.from('skills').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+        supabase.from('education').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+        supabase.from('experiences').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
       ]);
       await Promise.all([
         skills.length > 0 && supabase.from('skills').insert(skills),

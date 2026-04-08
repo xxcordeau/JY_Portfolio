@@ -14,10 +14,11 @@ import { useTheme } from '../../contexts/ThemeContext';
 // ============================================
 
 const DashboardContainer = styled.div<{ $isDark: boolean }>`
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   background: ${p => p.$isDark ? '#0a0a0a' : '#f5f5f7'};
   transition: background 0.3s ease;
+  overflow: hidden;
 `;
 
 // --- Sidebar ---
@@ -130,20 +131,20 @@ const MainArea = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
 `;
 
 const TopBar = styled.header<{ $isDark: boolean }>`
   height: 52px;
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
   background: ${p => p.$isDark ? '#111' : '#ffffff'};
   border-bottom: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   z-index: 50;
 
   @media (max-width: 768px) {
@@ -197,6 +198,7 @@ const ContentArea = styled.main`
   flex: 1;
   padding: 24px;
   overflow-y: auto;
+  overflow-x: hidden;
 
   @media (max-width: 768px) {
     padding: 16px;

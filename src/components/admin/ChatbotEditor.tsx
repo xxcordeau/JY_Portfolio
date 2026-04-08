@@ -133,8 +133,8 @@ export default function ChatbotEditor() {
     setSaving(true);
     try {
       await Promise.all([
-        supabase.from('chatbot_questions').delete().neq('id', ''),
-        supabase.from('chatbot_categories').delete().neq('id', ''),
+        supabase.from('chatbot_questions').delete().neq('id', '00000000-0000-0000-0000-000000000000'),
+        supabase.from('chatbot_categories').delete().neq('id', '_'),
       ]);
       if (categories.length > 0) {
         await supabase.from('chatbot_categories').insert(categories);
