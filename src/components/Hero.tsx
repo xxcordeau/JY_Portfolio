@@ -261,6 +261,12 @@ const DrawingHint = styled.p<{ $isDark: boolean; $visible: boolean }>`
   opacity: ${props => props.$visible ? 1 : 0};
   transition: opacity 0.5s ease;
   white-space: nowrap;
+  animation: ${props => props.$visible ? 'blink 2.5s ease-in-out infinite' : 'none'};
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
 
   @media (max-width: 768px) {
     font-size: 13px;
