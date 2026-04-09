@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { LiveProvider, LiveEditor, LivePreview, LiveError } from 'react-live';
+import { LiveProvider, LivePreview, LiveError } from 'react-live';
 import { themes as prismThemes } from 'prism-react-renderer';
 import ComponentShowcase from './ComponentShowcase';
 import { Package, Code, Eye, ChevronDown, ChevronUp, Play, Copy, Check } from 'lucide-react';
@@ -2040,25 +2040,45 @@ const LiveErrorStyled = styled.div<{ $isDark: boolean }>`
 function PlaygroundView({ component, isDark }: { component: ComponentInfo; isDark: boolean }) {
   const [copied, setCopied] = useState(false);
   const [securityError, setSecurityError] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { code: initialCode, noInline } = buildLiveCode(component.usageCode);
+  const [editorCode, setEditorCode] = useState(initialCode);
+
+  // Reset when component changes
+  useEffect(() => {
+    setEditorCode(buildLiveCode(component.usageCode).code);
+    setSecurityError(null);
+  }, [component.name]);
 
   const scope = { ...playgroundScope, isDark };
 
   const handleCopy = () => {
-    const editorEl = document.querySelector('.playground-active textarea, .playground-active [contenteditable]');
-    const text = editorEl ? (editorEl as HTMLTextAreaElement).value || editorEl.textContent || '' : initialCode;
-    navigator.clipboard.writeText(component.importCode + '\n\n' + text);
+    navigator.clipboard.writeText(component.importCode + '\n\n' + editorCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const ta = textareaRef.current!;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const next = editorCode.slice(0, start) + '  ' + editorCode.slice(end);
+      setEditorCode(next);
+      // Restore cursor after state update
+      requestAnimationFrame(() => {
+        ta.selectionStart = ta.selectionEnd = start + 2;
+      });
+    }
+  };
+
   return (
     <LiveProvider
-      code={initialCode}
+      code={editorCode}
       scope={scope}
       noInline={noInline}
-      theme={isDark ? prismThemes.vsDark : prismThemes.vsLight}
       transformCode={(code) => {
         const err = validatePlaygroundCode(code);
         if (err) {
@@ -2077,11 +2097,16 @@ function PlaygroundView({ component, isDark }: { component: ComponentInfo; isDar
               {copied ? <><Check /> Copied</> : <><Copy /> Copy</>}
             </CopyButton>
           </PlaygroundCodeHeader>
-          <div style={{ flex: 1, overflow: 'auto' }}>
-            <LiveEditor
-              style={liveEditorBaseStyle}
-            />
-          </div>
+          <PlaygroundEditor
+            ref={textareaRef}
+            $isDark={isDark}
+            value={editorCode}
+            onChange={e => setEditorCode(e.target.value)}
+            onKeyDown={handleKeyDown}
+            spellCheck={false}
+            autoCapitalize="off"
+            autoCorrect="off"
+          />
           {securityError && (
             <LiveErrorStyled $isDark={isDark}>
               🔒 {securityError}
