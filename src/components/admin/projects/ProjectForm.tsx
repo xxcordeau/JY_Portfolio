@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { ArrowLeft, Upload, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, Upload, Save, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import { uploadFile } from '../../../lib/uploadFile';
 import { useTheme } from '../../../contexts/ThemeContext';
-import type { DbProject } from '../../../lib/types/database';
+import type { DbProject, DbProjectImage } from '../../../lib/types/database';
 import TagInput from '../../ui/TagInput';
 import {
   Card, FormSection, SectionTitle, FormGroup, FormLabel,
@@ -117,6 +117,61 @@ const CoverPreview = styled.img`
   margin-top: 8px;
 `;
 
+const GalleryItem = styled.div<{ $isDark: boolean }>`
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};
+  border-radius: 12px;
+  margin-bottom: 12px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+`;
+
+const GalleryPreview = styled.img`
+  width: 160px;
+  max-height: 120px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+`;
+
+const GalleryMeta = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const GalleryBtns = styled.div`
+  display: flex;
+  gap: 4px;
+  align-items: flex-start;
+`;
+
+const SmallBtn = styled.button<{ $isDark: boolean; $danger?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  background: ${p => p.$danger ? 'rgba(212,24,61,0.08)' : p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  color: ${p => p.$danger ? '#d4183d' : p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)'};
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    background: ${p => p.$danger ? 'rgba(212,24,61,0.15)' : p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
+  }
+
+  &:disabled { opacity: 0.3; cursor: default; }
+  svg { width: 14px; height: 14px; }
+`;
+
 // ============================================
 // Default empty project
 // ============================================
@@ -140,6 +195,19 @@ const emptyProject: Omit<DbProject, 'created_at' | 'updated_at'> = {
 };
 
 // ============================================
+// Gallery image type
+// ============================================
+
+interface GalleryImage {
+  id: string;
+  url: string;
+  caption_ko: string;
+  caption_en: string;
+  file?: File;
+  isNew: boolean;
+}
+
+// ============================================
 // Component
 // ============================================
 
@@ -154,6 +222,8 @@ export default function ProjectForm() {
   const [saving, setSaving] = useState(false);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(isEdit);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [deletedImageIds, setDeletedImageIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (isEdit) {
@@ -161,6 +231,18 @@ export default function ProjectForm() {
         .then(({ data }) => {
           if (data) setForm(data as DbProject);
           setLoading(false);
+        });
+      supabase.from('project_images').select('*').eq('project_id', id).order('sort_order')
+        .then(({ data }) => {
+          if (data) {
+            setGalleryImages((data as DbProjectImage[]).map(img => ({
+              id: img.id,
+              url: img.url,
+              caption_ko: img.caption_ko ?? '',
+              caption_en: img.caption_en ?? '',
+              isNew: false,
+            })));
+          }
         });
     }
   }, [id, isEdit]);
@@ -181,6 +263,37 @@ export default function ProjectForm() {
 
   const removeListItem = (field: 'highlights_ko' | 'highlights_en', index: number) => {
     set(field, form[field].filter((_, i) => i !== index));
+  };
+
+  // Gallery management
+  const handleGalleryAdd = (files: FileList | null) => {
+    if (!files) return;
+    const newImages: GalleryImage[] = Array.from(files).map(file => ({
+      id: crypto.randomUUID(),
+      url: URL.createObjectURL(file),
+      caption_ko: '',
+      caption_en: '',
+      file,
+      isNew: true,
+    }));
+    setGalleryImages(prev => [...prev, ...newImages]);
+  };
+
+  const updateGalleryCaption = (imgId: string, field: 'caption_ko' | 'caption_en', value: string) => {
+    setGalleryImages(prev => prev.map(img => img.id === imgId ? { ...img, [field]: value } : img));
+  };
+
+  const removeGalleryImage = (imgId: string, isNew: boolean) => {
+    setGalleryImages(prev => prev.filter(img => img.id !== imgId));
+    if (!isNew) setDeletedImageIds(prev => [...prev, imgId]);
+  };
+
+  const moveGalleryImage = (index: number, direction: -1 | 1) => {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= galleryImages.length) return;
+    const updated = [...galleryImages];
+    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+    setGalleryImages(updated);
   };
 
   const handleSave = async () => {
@@ -208,6 +321,32 @@ export default function ProjectForm() {
         await supabase.from('projects').update(payload).eq('id', form.id);
       } else {
         await supabase.from('projects').insert({ ...payload, created_at: new Date().toISOString() });
+      }
+
+      // Save gallery images
+      for (const delId of deletedImageIds) {
+        await supabase.from('project_images').delete().eq('id', delId);
+      }
+      for (let i = 0; i < galleryImages.length; i++) {
+        const img = galleryImages[i];
+        if (img.isNew && img.file) {
+          const ext = img.file.name.split('.').pop();
+          const storagePath = `gallery/${form.id}/${img.id}.${ext}`;
+          const imgUrl = await uploadFile('project-images', storagePath, img.file);
+          await supabase.from('project_images').insert({
+            project_id: form.id,
+            url: imgUrl,
+            caption_ko: img.caption_ko || null,
+            caption_en: img.caption_en || null,
+            sort_order: i,
+          });
+        } else if (!img.isNew) {
+          await supabase.from('project_images').update({
+            caption_ko: img.caption_ko || null,
+            caption_en: img.caption_en || null,
+            sort_order: i,
+          }).eq('id', img.id);
+        }
       }
 
       navigate('/admin/projects');
@@ -405,6 +544,54 @@ export default function ProjectForm() {
               alt="Cover preview"
             />
           )}
+        </FormSection>
+
+        {/* === Gallery Images === */}
+        <FormSection $isDark={isDark}>
+          <SectionTitle $isDark={isDark}>상세 이미지</SectionTitle>
+          <Badge $variant="success">프로젝트 상세페이지에 표시되는 설명 이미지 (세로로 길게 표시됩니다)</Badge>
+
+          {galleryImages.map((img, idx) => (
+            <GalleryItem key={img.id} $isDark={isDark}>
+              <GalleryPreview
+                src={img.file ? img.url : img.url}
+                alt={img.caption_ko || `Image ${idx + 1}`}
+              />
+              <GalleryMeta>
+                <FormInput
+                  $isDark={isDark}
+                  value={img.caption_ko}
+                  onChange={e => updateGalleryCaption(img.id, 'caption_ko', e.target.value)}
+                  placeholder="캡션 (한국어)"
+                  style={{ fontSize: 13 }}
+                />
+                <FormInput
+                  $isDark={isDark}
+                  value={img.caption_en}
+                  onChange={e => updateGalleryCaption(img.id, 'caption_en', e.target.value)}
+                  placeholder="Caption (English)"
+                  style={{ fontSize: 13 }}
+                />
+              </GalleryMeta>
+              <GalleryBtns>
+                <SmallBtn $isDark={isDark} onClick={() => moveGalleryImage(idx, -1)} disabled={idx === 0}>
+                  <ChevronUp />
+                </SmallBtn>
+                <SmallBtn $isDark={isDark} onClick={() => moveGalleryImage(idx, 1)} disabled={idx === galleryImages.length - 1}>
+                  <ChevronDown />
+                </SmallBtn>
+                <SmallBtn $isDark={isDark} $danger onClick={() => removeGalleryImage(img.id, img.isNew)}>
+                  <Trash2 />
+                </SmallBtn>
+              </GalleryBtns>
+            </GalleryItem>
+          ))}
+
+          <FileUploadArea $isDark={isDark} $hasFile={false}>
+            <Upload />
+            <span>이미지를 클릭하거나 드래그하세요 (여러 장 가능)</span>
+            <input type="file" accept="image/*" multiple onChange={e => handleGalleryAdd(e.target.files)} />
+          </FileUploadArea>
         </FormSection>
 
         {/* === Actions === */}

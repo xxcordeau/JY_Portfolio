@@ -1,7 +1,10 @@
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useProjects } from '../hooks/useProjects';
+import { supabase } from '../lib/supabase';
+import type { DbProjectImage } from '../lib/types/database';
 import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import Footer from './Footer';
@@ -248,6 +251,45 @@ const TechItem = styled.div`
   line-height: 1.6;
 `;
 
+const ImagesSection = styled.section`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 40px;
+
+  @media (max-width: 768px) {
+    padding: 60px 20px;
+  }
+`;
+
+const ProjectImageWrapper = styled.div`
+  margin-bottom: 48px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const ProjectImage = styled.img<{ $isDark: boolean }>`
+  width: 100%;
+  border-radius: 16px;
+  display: block;
+  box-shadow: ${p => p.$isDark
+    ? '0 4px 24px rgba(0, 0, 0, 0.4)'
+    : '0 4px 24px rgba(0, 0, 0, 0.08)'};
+
+  @media (max-width: 768px) {
+    border-radius: 12px;
+  }
+`;
+
+const ImageCaption = styled.p<{ $isDark: boolean }>`
+  font-size: 14px;
+  color: ${p => p.$isDark ? '#86868b' : '#6e6e73'};
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.5;
+`;
+
 interface ProjectDetailProps {
   projectId: string;
   onBack: () => void;
@@ -308,6 +350,18 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
   const project = projects.find(p => p.id === projectId);
   const t = translations[language];
   const ct = categoryTranslations[language];
+
+  const [projectImages, setProjectImages] = useState<DbProjectImage[]>([]);
+
+  useEffect(() => {
+    supabase.from('project_images')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('sort_order')
+      .then(({ data }) => {
+        if (data) setProjectImages(data as DbProjectImage[]);
+      });
+  }, [projectId]);
 
   if (!project) {
     return <div>Project not found</div>;
@@ -384,6 +438,20 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
           </Links>
         )}
       </Hero>
+
+      {projectImages.length > 0 && (
+        <ImagesSection>
+          {projectImages.map(img => {
+            const caption = language === 'ko' ? img.caption_ko : img.caption_en;
+            return (
+              <ProjectImageWrapper key={img.id}>
+                <ProjectImage $isDark={isDark} src={img.url} alt={caption || ''} loading="lazy" />
+                {caption && <ImageCaption $isDark={isDark}>{caption}</ImageCaption>}
+              </ProjectImageWrapper>
+            );
+          })}
+        </ImagesSection>
+      )}
 
       {hasInteractiveDemo && (
         <Section style={{ borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}` }}>
