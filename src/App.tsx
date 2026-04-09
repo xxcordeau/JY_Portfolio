@@ -54,6 +54,14 @@ const GlobalStyle = createGlobalStyle`
     -webkit-user-select: none;
   }
 
+  /* 입력 필드는 선택/타이핑 허용 */
+  body:not(.admin-page) input,
+  body:not(.admin-page) textarea,
+  body:not(.admin-page) [contenteditable] {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
   body:not(.admin-page) img {
     pointer-events: none;
     -webkit-user-drag: none;
