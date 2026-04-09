@@ -296,8 +296,11 @@ export default function ProjectForm() {
     setGalleryImages(updated);
   };
 
+  const slugify = (val: string) => val.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+
   const handleSave = async () => {
-    if (!form.id || !form.title_ko) return;
+    const cleanId = slugify(form.id);
+    if (!cleanId || !form.title_ko) return;
     setSaving(true);
 
     try {
@@ -306,19 +309,20 @@ export default function ProjectForm() {
         const ext = coverFile.name.split('.').pop();
         coverUrl = await uploadFile(
           'project-images',
-          `covers/${form.id}.${ext}`,
+          `covers/${cleanId}.${ext}`,
           coverFile
         );
       }
 
       const payload = {
         ...form,
+        id: cleanId,
         cover_image_url: coverUrl,
         updated_at: new Date().toISOString(),
       };
 
       if (isEdit) {
-        await supabase.from('projects').update(payload).eq('id', form.id);
+        await supabase.from('projects').update(payload).eq('id', cleanId);
       } else {
         await supabase.from('projects').insert({ ...payload, created_at: new Date().toISOString() });
       }
@@ -331,10 +335,10 @@ export default function ProjectForm() {
         const img = galleryImages[i];
         if (img.isNew && img.file) {
           const ext = img.file.name.split('.').pop();
-          const storagePath = `gallery/${form.id}/${img.id}.${ext}`;
+          const storagePath = `gallery/${cleanId}/${img.id}.${ext}`;
           const imgUrl = await uploadFile('project-images', storagePath, img.file);
           await supabase.from('project_images').insert({
-            project_id: form.id,
+            project_id: cleanId,
             url: imgUrl,
             caption_ko: img.caption_ko || null,
             caption_en: img.caption_en || null,
@@ -383,7 +387,8 @@ export default function ProjectForm() {
               <FormInput
                 $isDark={isDark}
                 value={form.id}
-                onChange={e => set('id', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                onChange={e => set('id', e.target.value)}
+                onBlur={e => set('id', slugify(e.target.value))}
                 placeholder="my-project"
                 disabled={isEdit}
               />
