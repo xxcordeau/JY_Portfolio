@@ -29,7 +29,7 @@ function toProject(row: DbProject): Project {
 }
 
 export function useProjects() {
-  const [projects, setProjects] = useState<Project[]>(localProjects);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,10 +37,12 @@ export function useProjects() {
       .then(({ data, error }) => {
         if (data && data.length > 0 && !error) {
           setProjects((data as DbProject[]).map(toProject));
+        } else {
+          setProjects(localProjects);
         }
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => { setProjects(localProjects); setLoading(false); });
   }, []);
 
   return { projects, loading };

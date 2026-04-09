@@ -141,6 +141,48 @@ const Tag = styled.span<{ $isDark: boolean }>`
   }
 `;
 
+const shimmer = `
+  @keyframes shimmer {
+    0% { background-position: -400% 0; }
+    100% { background-position: 400% 0; }
+  }
+`;
+
+const SkeletonCard = styled.div<{ $isDark: boolean }>`
+  border-radius: 16px;
+  overflow: hidden;
+  background: ${p => p.$isDark ? '#0a0a0a' : '#f5f5f7'};
+`;
+
+const SkeletonImage = styled.div<{ $isDark: boolean }>`
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(
+    90deg,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  ${shimmer}
+`;
+
+const SkeletonLine = styled.div<{ $isDark: boolean; $width?: string }>`
+  height: 16px;
+  border-radius: 8px;
+  width: ${p => p.$width ?? '100%'};
+  background: linear-gradient(
+    90deg,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  margin-bottom: 10px;
+`;
+
 const ViewAllButton = styled.button<{ $isDark: boolean }>`
   display: flex;
   align-items: center;
@@ -190,7 +232,7 @@ const translations = {
 export default function Projects({ onProjectClick, onViewAll, showAll = false }: ProjectsProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
-  const { projects } = useProjects();
+  const { projects, loading } = useProjects();
   const t = translations[language];
   const displayProjects = showAll ? projects : projects.slice(0, 6);
   const hasMore = projects.length > 6;
@@ -200,7 +242,18 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
       <Container>
         <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
         <ProjectGrid>
-          {displayProjects.map((project) => (
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonCard key={i} $isDark={isDark}>
+                <SkeletonImage $isDark={isDark} />
+                <ProjectInfo>
+                  <SkeletonLine $isDark={isDark} $width="60%" style={{ height: 22, marginBottom: 14 }} />
+                  <SkeletonLine $isDark={isDark} />
+                  <SkeletonLine $isDark={isDark} $width="80%" />
+                </ProjectInfo>
+              </SkeletonCard>
+            ))
+          ) : displayProjects.map((project) => (
             <ProjectCard 
               key={project.id} 
               $isDark={isDark}
@@ -227,7 +280,7 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
             </ProjectCard>
           ))}
         </ProjectGrid>
-        {!showAll && hasMore && onViewAll && (
+        {!loading && !showAll && hasMore && onViewAll && (
           <ViewAllButton $isDark={isDark} onClick={onViewAll}>
             {t.viewAll}
             <ArrowRight size={18} />

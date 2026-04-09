@@ -346,7 +346,7 @@ const categoryTranslations = {
 export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
-  const { projects } = useProjects();
+  const { projects, loading: projectsLoading } = useProjects();
   const project = projects.find(p => p.id === projectId);
   const t = translations[language];
   const ct = categoryTranslations[language];
@@ -362,6 +362,14 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
         if (data) setProjectImages(data as DbProjectImage[]);
       });
   }, [projectId]);
+
+  if (projectsLoading) {
+    return (
+      <DetailContainer $isDark={isDark} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: '#86868b', fontSize: 16 }}>불러오는 중...</div>
+      </DetailContainer>
+    );
+  }
 
   if (!project) {
     return <div>Project not found</div>;
