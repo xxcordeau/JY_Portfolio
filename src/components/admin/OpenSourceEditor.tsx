@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Plus, Trash2, Save, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, Save, Eye, EyeOff, ExternalLink, Upload, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { supabase } from '../../lib/supabase';
+import { uploadFile } from '../../lib/uploadFile';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { DbOpenSourceProject } from '../../lib/types/database';
 import TagInput from '../ui/TagInput';
@@ -10,13 +12,58 @@ import {
   Card, FormSection, SectionTitle, FormGroup, FormLabel,
   FormInput, FormTextarea, FormRow,
   PrimaryButton, SecondaryButton, DestructiveButton, GhostButton,
-  TabRow, Tab, Badge, EmptyState, Table
+  TabRow, Tab, Badge, EmptyState, Table, FileUploadArea
 } from './AdminStyles';
 
 const ActionCell = styled.div`
   display: flex;
   gap: 4px;
   justify-content: flex-end;
+`;
+
+const CoverPreview = styled.div<{ $isDark: boolean }>`
+  position: relative;
+  margin-top: 12px;
+  width: 100%;
+  max-width: 320px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'};
+
+  img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+`;
+
+const ClearImageBtn = styled.button<{ $isDark: boolean }>`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover { background: rgba(0, 0, 0, 0.85); }
+
+  svg { width: 14px; height: 14px; }
+`;
+
+const Thumbnail = styled.img`
+  width: 56px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #f3f3f5;
 `;
 
 const DeleteConfirm = styled.div<{ $isDark: boolean }>`
@@ -126,6 +173,7 @@ export default function OpenSourceEditor() {
   const [langTab, setLangTab] = useState<'ko' | 'en'>('ko');
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -136,14 +184,21 @@ export default function OpenSourceEditor() {
 
   useEffect(() => { fetchProjects(); }, []);
 
+  const closeDrawer = () => {
+    setEditing(null);
+    setImageFile(null);
+  };
+
   const openNew = () => {
     setEditing({ ...emptyProject, id: '', sort_order: projects.length });
     setIsNew(true);
+    setImageFile(null);
   };
 
   const openEdit = (p: DbOpenSourceProject) => {
     setEditing({ ...p });
     setIsNew(false);
+    setImageFile(null);
   };
 
   const setField = <K extends keyof DbOpenSourceProject>(key: K, value: DbOpenSourceProject[K]) => {
@@ -151,31 +206,79 @@ export default function OpenSourceEditor() {
   };
 
   const handleSave = async () => {
-    if (!editing || !editing.id || !editing.name) return;
+    if (!editing) return;
+    if (!editing.id) { toast.error('ID를 입력해주세요.'); return; }
+    if (!editing.name) { toast.error('이름을 입력해주세요.'); return; }
+
     setSaving(true);
     try {
-      if (isNew) {
-        await supabase.from('open_source_projects').insert(editing);
-      } else {
-        await supabase.from('open_source_projects').update(editing).eq('id', editing.id);
+      // 1. Upload new cover image if selected
+      let imageUrl = editing.image_url;
+      if (imageFile) {
+        const ext = imageFile.name.split('.').pop() ?? 'png';
+        imageUrl = await uploadFile(
+          'opensource-images',
+          `covers/${editing.id}.${ext}`,
+          imageFile
+        );
       }
-      setEditing(null);
+
+      const payload = { ...editing, image_url: imageUrl };
+
+      // 2. Insert or update the row
+      if (isNew) {
+        const { error } = await supabase.from('open_source_projects').insert(payload);
+        if (error) throw error;
+        toast.success('프로젝트가 추가되었습니다.');
+      } else {
+        const { error } = await supabase
+          .from('open_source_projects')
+          .update(payload)
+          .eq('id', editing.id);
+        if (error) throw error;
+        toast.success('프로젝트가 수정되었습니다.');
+      }
+
+      closeDrawer();
       fetchProjects();
     } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
       console.error('Save failed:', err);
+      toast.error(`저장 실패: ${msg}`);
     } finally {
       setSaving(false);
     }
   };
 
+  const clearImage = () => {
+    setImageFile(null);
+    setField('image_url', null);
+  };
+
   const toggleVisibility = async (p: DbOpenSourceProject) => {
-    await supabase.from('open_source_projects').update({ is_visible: !p.is_visible }).eq('id', p.id);
+    const { error } = await supabase
+      .from('open_source_projects')
+      .update({ is_visible: !p.is_visible })
+      .eq('id', p.id);
+    if (error) {
+      toast.error(`상태 변경 실패: ${error.message}`);
+      return;
+    }
+    toast.success(!p.is_visible ? '공개로 변경되었습니다.' : '비공개로 변경되었습니다.');
     fetchProjects();
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await supabase.from('open_source_projects').delete().eq('id', deleteTarget);
+    const { error } = await supabase
+      .from('open_source_projects')
+      .delete()
+      .eq('id', deleteTarget);
+    if (error) {
+      toast.error(`삭제 실패: ${error.message}`);
+      return;
+    }
+    toast.success('삭제되었습니다.');
     setDeleteTarget(null);
     fetchProjects();
   };
@@ -200,6 +303,7 @@ export default function OpenSourceEditor() {
             <Table $isDark={isDark}>
               <thead>
                 <tr>
+                  <th style={{ width: 70 }}></th>
                   <th>이름</th>
                   <th>카테고리</th>
                   <th>연도</th>
@@ -210,6 +314,13 @@ export default function OpenSourceEditor() {
               <tbody>
                 {projects.map(p => (
                   <tr key={p.id}>
+                    <td>
+                      {p.image_url ? (
+                        <Thumbnail src={p.image_url} alt="" />
+                      ) : (
+                        <Thumbnail as="div" style={{ background: isDark ? '#222' : '#e5e5e7' }} />
+                      )}
+                    </td>
                     <td style={{ fontWeight: 600 }}>{p.name}</td>
                     <td><Badge $isDark={isDark}>{p.category_ko}</Badge></td>
                     <td>{p.year}</td>
@@ -241,11 +352,11 @@ export default function OpenSourceEditor() {
 
       {/* Edit Drawer */}
       {editing && (
-        <EditPanel $isDark={isDark} onClick={() => setEditing(null)}>
+        <EditPanel $isDark={isDark} onClick={closeDrawer}>
           <EditDrawer $isDark={isDark} onClick={e => e.stopPropagation()}>
             <DrawerHeader $isDark={isDark}>
               <DrawerTitle $isDark={isDark}>{isNew ? '새 프로젝트' : editing.name}</DrawerTitle>
-              <SecondaryButton $isDark={isDark} onClick={() => setEditing(null)}>닫기</SecondaryButton>
+              <SecondaryButton $isDark={isDark} onClick={closeDrawer}>닫기</SecondaryButton>
             </DrawerHeader>
             <DrawerBody>
               <FormSection $isDark={isDark}>
@@ -346,9 +457,38 @@ export default function OpenSourceEditor() {
               <FormSection $isDark={isDark}>
                 <TagInput label="태그" tags={editing.tags} onChange={v => setField('tags', v)} isDark={isDark} />
               </FormSection>
+
+              <FormSection $isDark={isDark}>
+                <SectionTitle $isDark={isDark}>커버 이미지</SectionTitle>
+                <FileUploadArea $isDark={isDark} $hasFile={!!imageFile || !!editing.image_url}>
+                  <Upload />
+                  <span>{imageFile ? imageFile.name : '이미지를 클릭하거나 드래그하세요'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => setImageFile(e.target.files?.[0] ?? null)}
+                  />
+                </FileUploadArea>
+                {(imageFile || editing.image_url) && (
+                  <CoverPreview $isDark={isDark}>
+                    <img
+                      src={imageFile ? URL.createObjectURL(imageFile) : editing.image_url!}
+                      alt="Cover preview"
+                    />
+                    <ClearImageBtn
+                      type="button"
+                      $isDark={isDark}
+                      onClick={clearImage}
+                      title="이미지 제거"
+                    >
+                      <X />
+                    </ClearImageBtn>
+                  </CoverPreview>
+                )}
+              </FormSection>
             </DrawerBody>
             <DrawerFooter>
-              <SecondaryButton $isDark={isDark} onClick={() => setEditing(null)}>취소</SecondaryButton>
+              <SecondaryButton $isDark={isDark} onClick={closeDrawer}>취소</SecondaryButton>
               <PrimaryButton onClick={handleSave} disabled={saving || !editing.id || !editing.name}>
                 <Save /> {saving ? '저장 중...' : '저장'}
               </PrimaryButton>
