@@ -114,7 +114,7 @@ const ScrollTrack = styled.div`
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  padding: 10px 0 20px 12vw;
+  padding: 10px 0 80px 12vw;
   scroll-snap-type: x proximity;
   scroll-padding-left: 12vw;
   scrollbar-width: none;
