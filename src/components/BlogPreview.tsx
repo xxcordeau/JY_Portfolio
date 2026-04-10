@@ -1,3 +1,4 @@
+import { useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import { useBlogPosts } from '../hooks/useBlogPosts';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -7,21 +8,19 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const BlogSection = styled.section<{ $isDark: boolean }>`
   min-height: 100vh;
-  padding: 120px 40px;
+  padding: 120px 0;
   background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
   transition: background 0.3s ease;
   display: flex;
   align-items: center;
 
   @media (max-width: 768px) {
-    padding: 80px 20px;
+    padding: 80px 0;
     display: block;
   }
 `;
 
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
+const Inner = styled.div`
   width: 100%;
 `;
 
@@ -29,9 +28,11 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  padding: 0 60px 0 12vw;
   margin-bottom: 40px;
 
   @media (max-width: 768px) {
+    padding: 0 20px;
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
@@ -40,16 +41,16 @@ const Header = styled.div`
 `;
 
 const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 44px;
-  font-weight: 600;
+  font-size: 52px;
+  font-weight: 700;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   margin: 0;
-  letter-spacing: -1.2px;
+  letter-spacing: -1.5px;
+  line-height: 1;
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
     font-size: 36px;
-    letter-spacing: -1px;
   }
 `;
 
@@ -66,6 +67,8 @@ const ViewAllButton = styled.button<{ $isDark: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
+  margin-bottom: 6px;
 
   &:hover {
     background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
@@ -78,22 +81,27 @@ const ViewAllButton = styled.button<{ $isDark: boolean }>`
   }
 `;
 
-const PostsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 28px;
-
-  @media (max-width: 1100px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* ── 가로 스크롤 트랙 ── */
+const ScrollTrack = styled.div`
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 0 0 12vw;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+  user-select: none;
+  &::-webkit-scrollbar { display: none; }
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    padding: 0 0 0 20px;
   }
 `;
 
 const PostCard = styled.article<{ $isDark: boolean }>`
+  flex: 0 0 320px;
+  scroll-snap-align: start;
   cursor: pointer;
   transition: transform 0.3s ease;
 
@@ -214,12 +222,36 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
   const { language } = useLanguage();
   const { posts: blogPosts } = useBlogPosts();
   const t = translations[language];
-  // 최신 6개 포스트만 표시
   const recentPosts = blogPosts.slice(0, 8);
+
+  const trackRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    isDragging.current = true;
+    startX.current = e.pageX - (trackRef.current?.offsetLeft ?? 0);
+    scrollLeft.current = trackRef.current?.scrollLeft ?? 0;
+    if (trackRef.current) trackRef.current.style.cursor = 'grabbing';
+  }, []);
+
+  const onMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging.current || !trackRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - trackRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.2;
+    trackRef.current.scrollLeft = scrollLeft.current - walk;
+  }, []);
+
+  const onMouseUp = useCallback(() => {
+    isDragging.current = false;
+    if (trackRef.current) trackRef.current.style.cursor = 'grab';
+  }, []);
 
   return (
     <BlogSection id="blog" $isDark={isDark}>
-      <Container>
+      <Inner>
         <Header>
           <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
           <ViewAllButton $isDark={isDark} onClick={onViewAll}>
@@ -227,17 +259,23 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
             <ArrowRight />
           </ViewAllButton>
         </Header>
-        <PostsGrid>
+        <ScrollTrack
+          ref={trackRef}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
+        >
           {recentPosts.map((post) => (
-            <PostCard 
-              key={post.id} 
+            <PostCard
+              key={post.id}
               $isDark={isDark}
-              onClick={() => onPostClick(post.id)}
+              onClick={() => { if (!isDragging.current) onPostClick(post.id); }}
             >
               <PostThumbnail>
-                <ImageWithFallback 
-                  src={post.thumbnail} 
-                  alt={post.title[language]} 
+                <ImageWithFallback
+                  src={post.thumbnail}
+                  alt={post.title[language]}
                 />
               </PostThumbnail>
               <PostMeta>
@@ -252,8 +290,8 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
               <ReadTime>{post.readTime[language]}</ReadTime>
             </PostCard>
           ))}
-        </PostsGrid>
-      </Container>
+        </ScrollTrack>
+      </Inner>
     </BlogSection>
   );
 }

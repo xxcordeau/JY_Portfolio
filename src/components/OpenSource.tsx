@@ -1,3 +1,4 @@
+import { useRef, useCallback } from 'react';
 import styled, { css } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -26,13 +27,13 @@ const OpenSourceContainer = styled.div<{ $isDark: boolean; $compact: boolean }>`
 `;
 
 const Hero = styled.div<{ $compact: boolean }>`
-  max-width: 1200px;
   width: 100%;
-  margin: 0 auto;
   ${p => p.$compact ? css`
-    padding: 0 40px 32px;
+    padding: 0 40px 32px 12vw;
     text-align: left;
   ` : css`
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 80px 40px 60px;
     text-align: center;
   `}
@@ -42,13 +43,29 @@ const Hero = styled.div<{ $compact: boolean }>`
   }
 `;
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 60px 0 12vw;
+  margin-bottom: 48px;
+
+  @media (max-width: 768px) {
+    padding: 0 20px;
+    margin-bottom: 32px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+`;
+
 const Title = styled.h1<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '44px' : '56px'};
-  font-weight: ${p => p.$compact ? '600' : '700'};
+  font-size: ${p => p.$compact ? '52px' : '56px'};
+  font-weight: ${p => p.$compact ? '700' : '700'};
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 ${p => p.$compact ? '0' : '20px'} 0;
-  letter-spacing: ${p => p.$compact ? '-1.2px' : '-1.5px'};
-  line-height: 1.1;
+  margin: 0;
+  letter-spacing: ${p => p.$compact ? '-1.5px' : '-1.5px'};
+  line-height: 1;
 
   @media (max-width: 768px) {
     font-size: 36px;
@@ -65,6 +82,48 @@ const Subtitle = styled.p<{ $isDark: boolean; $compact: boolean }>`
 
   @media (max-width: 768px) {
     font-size: ${p => p.$compact ? '14px' : '17px'};
+  }
+`;
+
+const ViewAllButton = styled.button<{ $isDark: boolean }>`
+  background: transparent;
+  border: 2px solid ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  margin-bottom: 6px;
+
+  &:hover {
+    background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+    color: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
+  }
+
+  svg { width: 16px; height: 16px; }
+`;
+
+/* ── 가로 스크롤 트랙 (compact) ── */
+const ScrollTrack = styled.div`
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 0 0 12vw;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+  user-select: none;
+  &::-webkit-scrollbar { display: none; }
+
+  @media (max-width: 768px) {
+    padding: 0 0 0 20px;
   }
 `;
 
@@ -90,39 +149,7 @@ const ProjectsGrid = styled.div<{ $compact: boolean }>`
   }
 `;
 
-const ViewAllWrap = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 32px;
-`;
-
-const ViewAllBtn = styled.button<{ $isDark: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 28px;
-  background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  color: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
-  border: none;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  letter-spacing: -0.2px;
-
-  &:hover {
-    background: ${props => props.$isDark ? '#e5e5e7' : '#2d2d2d'};
-    transform: translateY(-2px);
-  }
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-`;
-
-const ProjectCard = styled.div<{ $isDark: boolean }>`
+const ProjectCard = styled.div<{ $isDark: boolean; $compact?: boolean }>`
   background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)'};
   border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
   border-radius: 20px;
@@ -130,11 +157,15 @@ const ProjectCard = styled.div<{ $isDark: boolean }>`
   backdrop-filter: blur(20px);
   transition: all 0.3s ease;
   cursor: pointer;
+  ${p => p.$compact && css`
+    flex: 0 0 340px;
+    scroll-snap-align: start;
+  `}
 
   &:hover {
     transform: translateY(-8px);
     background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'};
-    box-shadow: ${props => props.$isDark 
+    box-shadow: ${props => props.$isDark
       ? '0 20px 60px rgba(0, 0, 0, 0.4)'
       : '0 20px 60px rgba(0, 0, 0, 0.1)'};
   }
@@ -262,11 +293,14 @@ const shimmer = `
     100% { background-position:  400% 0; }
   }
 `;
-const SkeletonCard = styled.div<{ $isDark: boolean }>`
+const SkeletonCard = styled.div<{ $isDark: boolean; $compact?: boolean }>`
   background: ${p => p.$isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'};
   border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
   border-radius: 20px;
   overflow: hidden;
+  ${p => p.$compact && css`
+    flex: 0 0 340px;
+  `}
 `;
 const SkeletonImg = styled.div<{ $isDark: boolean }>`
   width: 100%; height: 200px;
@@ -341,8 +375,114 @@ export default function OpenSource({
     compact && typeof limit === 'number'
       ? openSourceProjects.slice(0, limit)
       : openSourceProjects;
-  const hasMore =
-    compact && typeof limit === 'number' && openSourceProjects.length > limit;
+
+  const trackRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    isDragging.current = true;
+    startX.current = e.pageX - (trackRef.current?.offsetLeft ?? 0);
+    scrollLeft.current = trackRef.current?.scrollLeft ?? 0;
+    if (trackRef.current) trackRef.current.style.cursor = 'grabbing';
+  }, []);
+
+  const onMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging.current || !trackRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - trackRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.2;
+    trackRef.current.scrollLeft = scrollLeft.current - walk;
+  }, []);
+
+  const onMouseUp = useCallback(() => {
+    isDragging.current = false;
+    if (trackRef.current) trackRef.current.style.cursor = 'grab';
+  }, []);
+
+  if (compact) {
+    return (
+      <OpenSourceContainer $isDark={isDark} $compact={compact}>
+        <TitleRow>
+          <Title $isDark={isDark} $compact={compact}>{t.title}</Title>
+          {onViewAll && (
+            <ViewAllButton $isDark={isDark} onClick={onViewAll}>
+              {t.viewAll}
+              <ArrowRight />
+            </ViewAllButton>
+          )}
+        </TitleRow>
+
+        <ScrollTrack
+          ref={trackRef}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
+        >
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonCard key={i} $isDark={isDark} $compact>
+                <SkeletonImg $isDark={isDark} />
+                <SkeletonBody>
+                  <SkeletonLine $isDark={isDark} $w="60%" style={{ height: 20 }} />
+                  <SkeletonLine $isDark={isDark} $w="90%" />
+                  <SkeletonLine $isDark={isDark} $w="75%" />
+                  <SkeletonLine $isDark={isDark} $w="40%" />
+                </SkeletonBody>
+              </SkeletonCard>
+            ))
+          ) : displayProjects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              $isDark={isDark}
+              $compact
+              onClick={() => { if (!isDragging.current) onProjectClick(project.id); }}
+            >
+              <ProjectImage $image={project.image} $compact={compact} />
+              <ProjectContent $compact={compact}>
+                <ProjectHeader $compact={compact}>
+                  <ProjectName $isDark={isDark} $compact={compact}>{project.name}</ProjectName>
+                  <Category $isDark={isDark} $compact={compact}>{project.category[language]}</Category>
+                </ProjectHeader>
+
+                <ProjectDescription $isDark={isDark} $compact={compact}>
+                  {project.description[language]}
+                </ProjectDescription>
+
+                <StatsRow $compact={compact}>
+                  <Stat $isDark={isDark} $compact={compact}>
+                    <Star />
+                    {project.stats.stars}
+                  </Stat>
+                  <Stat $isDark={isDark} $compact={compact}>
+                    <Download />
+                    {project.stats.downloads}
+                  </Stat>
+                  <Stat $isDark={isDark} $compact={compact}>
+                    <Github />
+                    {project.stats.contributors}
+                  </Stat>
+                </StatsRow>
+
+                <Tags $compact={compact}>
+                  {project.tags.map((tag) => (
+                    <Tag key={tag} $isDark={isDark}>{tag}</Tag>
+                  ))}
+                </Tags>
+
+                <ViewMore $isDark={isDark}>
+                  {t.viewDetails}
+                  <ArrowRight />
+                </ViewMore>
+              </ProjectContent>
+            </ProjectCard>
+          ))}
+        </ScrollTrack>
+      </OpenSourceContainer>
+    );
+  }
 
   return (
     <OpenSourceContainer $isDark={isDark} $compact={compact}>
@@ -410,15 +550,6 @@ export default function OpenSource({
           </ProjectCard>
         ))}
       </ProjectsGrid>
-
-      {!loading && hasMore && onViewAll && (
-        <ViewAllWrap>
-          <ViewAllBtn $isDark={isDark} onClick={onViewAll}>
-            {t.viewAll}
-            <ArrowRight />
-          </ViewAllBtn>
-        </ViewAllWrap>
-      )}
     </OpenSourceContainer>
   );
 }
