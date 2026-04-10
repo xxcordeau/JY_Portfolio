@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useProjects } from '../hooks/useProjects';
@@ -85,10 +85,12 @@ const ScrollTrack = styled.div`
   overflow-x: auto;
   overflow-y: hidden;
   padding: 0 0 0 12vw;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  cursor: grab;
+  user-select: none;
   &::-webkit-scrollbar { display: none; }
 
   @media (max-width: 768px) {
@@ -243,6 +245,29 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
   const t = translations[language];
   const displayProjects = showAll ? projects : projects.slice(0, 8);
   const trackRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    isDragging.current = true;
+    startX.current = e.pageX - (trackRef.current?.offsetLeft ?? 0);
+    scrollLeft.current = trackRef.current?.scrollLeft ?? 0;
+    if (trackRef.current) trackRef.current.style.cursor = 'grabbing';
+  }, []);
+
+  const onMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging.current || !trackRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - trackRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.2;
+    trackRef.current.scrollLeft = scrollLeft.current - walk;
+  }, []);
+
+  const onMouseUp = useCallback(() => {
+    isDragging.current = false;
+    if (trackRef.current) trackRef.current.style.cursor = 'grab';
+  }, []);
 
   return (
     <section id="projects" style={{
@@ -264,7 +289,13 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
           )}
         </TitleRow>
 
-        <ScrollTrack ref={trackRef}>
+        <ScrollTrack
+          ref={trackRef}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
+        >
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
                 <SkeletonCard key={i} $isDark={isDark}>
@@ -280,7 +311,7 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
                 <ProjectCard
                   key={project.id}
                   $isDark={isDark}
-                  onClick={() => onProjectClick(project.id)}
+                  onClick={() => { if (!isDragging.current) onProjectClick(project.id); }}
                 >
                   <ProjectImage>
                     <ImageWithFallback src={project.image} alt={project.title[language]} />
