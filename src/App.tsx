@@ -1,6 +1,6 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense, type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled, { createGlobalStyle, keyframes, css } from 'styled-components';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { supabase } from './lib/supabase';
@@ -88,21 +88,108 @@ const LoadingFallback = styled.div<{ $isDark: boolean }>`
   font-size: 16px;
 `;
 
+// ─── Home page scroll-snap chapter layout ────────────────────────────────
+const fadeUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const SnapWrap = styled.div<{ $inView: boolean; $snap: boolean }>`
+  ${p => p.$snap && css`
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  `}
+
+  /* Fade-in when scrolled into view */
+  opacity: 0;
+  ${p => p.$inView && css`
+    animation: ${fadeUp} 0.9s ease forwards;
+  `}
+
+  /* Disable snap + animation on mobile for natural scroll */
+  @media (max-width: 768px) {
+    scroll-snap-align: none;
+    opacity: 1;
+    animation: none;
+  }
+`;
+
+function SnapSection({ children, snap = true }: { children: ReactNode; snap?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <SnapWrap ref={ref} $inView={inView} $snap={snap}>
+      {children}
+    </SnapWrap>
+  );
+}
+
 function HomePage({ onContactClick }: { onContactClick: () => void }) {
   const navigate = useNavigate();
+  const { isDark } = useTheme();
+
+  // Enable scroll-snap on <html> for home page only
+  useEffect(() => {
+    if (window.matchMedia('(max-width: 768px)').matches) return;
+    const html = document.documentElement;
+    const prev = html.style.scrollSnapType;
+    html.style.scrollSnapType = 'y proximity';
+    return () => {
+      html.style.scrollSnapType = prev;
+    };
+  }, []);
 
   return (
     <>
-      <Hero />
-      <About />
-      <Projects
-        onProjectClick={(id) => navigate(`/projects/${id}`)}
-        onViewAll={() => navigate('/projects')}
-      />
-      <BlogPreview
-        onPostClick={(id) => navigate(`/blog/${id}`)}
-        onViewAll={() => navigate('/blog')}
-      />
+      <SnapSection>
+        <Hero />
+      </SnapSection>
+      {/* About는 Skills + Education + Experience로 100vh보다 훨씬 길어서 snap에서 제외 */}
+      <SnapSection snap={false}>
+        <About />
+      </SnapSection>
+      <SnapSection>
+        <Projects
+          onProjectClick={(id) => navigate(`/projects/${id}`)}
+          onViewAll={() => navigate('/projects')}
+        />
+      </SnapSection>
+      <SnapSection>
+        <Suspense fallback={<LoadingFallback $isDark={isDark}>Loading...</LoadingFallback>}>
+          <OpenSource
+            onProjectClick={(id) => navigate(`/opensource/${id}`)}
+          />
+        </Suspense>
+      </SnapSection>
+      <SnapSection>
+        <BlogPreview
+          onPostClick={(id) => navigate(`/blog/${id}`)}
+          onViewAll={() => navigate('/blog')}
+        />
+      </SnapSection>
       <Footer onContactClick={onContactClick} />
     </>
   );
