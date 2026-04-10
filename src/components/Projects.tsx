@@ -87,10 +87,10 @@ const ScrollTrack = styled.div`
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
 
-  /* 스크롤바 스타일 */
-  &::-webkit-scrollbar { height: 4px; }
-  &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); border-radius: 2px; }
+  /* 스크롤바 숨김 */
+  &::-webkit-scrollbar { display: none; }
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
   @media (max-width: 768px) {
     padding: 0 20px 20px;
