@@ -9,7 +9,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 const BlogSection = styled.section<{ $isDark: boolean }>`
   min-height: 100vh;
   padding: 120px 0;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
+  background: ${props => props.$isDark ? '#000000' : '#ffffff'};
   transition: background 0.3s ease;
   display: flex;
   align-items: center;

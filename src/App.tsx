@@ -181,6 +181,12 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
         />
       </SnapSection>
       <SnapSection>
+        <BlogPreview
+          onPostClick={(id) => navigate(`/blog/${id}`)}
+          onViewAll={() => navigate('/blog')}
+        />
+      </SnapSection>
+      <SnapSection>
         <Suspense fallback={<LoadingFallback $isDark={isDark}>Loading...</LoadingFallback>}>
           <OpenSource
             compact
@@ -189,12 +195,6 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
             onViewAll={() => navigate('/opensource')}
           />
         </Suspense>
-      </SnapSection>
-      <SnapSection>
-        <BlogPreview
-          onPostClick={(id) => navigate(`/blog/${id}`)}
-          onViewAll={() => navigate('/blog')}
-        />
       </SnapSection>
       <Footer onContactClick={onContactClick} />
     </>
