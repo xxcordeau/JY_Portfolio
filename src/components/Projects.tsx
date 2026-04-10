@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import styled from 'styled-components';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useProjects } from '../hooks/useProjects';
@@ -83,7 +83,7 @@ const ScrollTrack = styled.div`
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  padding: 0 60px 28px;
+  padding: 0 60px 28px 30vw;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
 
@@ -244,14 +244,6 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
   const t = translations[language];
   const displayProjects = showAll ? projects : projects.slice(0, 8);
   const trackRef = useRef<HTMLDivElement>(null);
-
-  // 오른쪽 끝에서 시작 → 왼쪽에 카드 일부가 보여 스크롤 인지 유도
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track || loading) return;
-    // 로드 직후 오른쪽 끝으로 이동
-    track.scrollLeft = track.scrollWidth - track.clientWidth;
-  }, [loading, displayProjects]);
 
   return (
     <section id="projects" style={{
