@@ -47,7 +47,7 @@ const TitleRow = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 0 60px 0 12vw;
+  padding: 0 12vw;
   margin-bottom: 48px;
 
   @media (max-width: 768px) {

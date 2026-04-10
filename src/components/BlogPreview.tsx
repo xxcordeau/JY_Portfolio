@@ -28,7 +28,7 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 0 60px 0 12vw;
+  padding: 0 12vw;
   margin-bottom: 40px;
 
   @media (max-width: 768px) {
@@ -100,33 +100,38 @@ const ScrollTrack = styled.div`
 `;
 
 const PostCard = styled.article<{ $isDark: boolean }>`
-  flex: 0 0 320px;
+  flex: 0 0 380px;
   scroll-snap-align: start;
   cursor: pointer;
+  border-radius: 24px;
+  overflow: hidden;
+  background: ${props => props.$isDark ? '#111111' : '#f5f5f7'};
   transition: transform 0.3s ease;
 
   &:hover {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
 
     img {
-      transform: scale(1.05);
+      transform: scale(1.04);
     }
   }
 `;
 
 const PostThumbnail = styled.div`
   width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 14px;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
-  margin-bottom: 14px;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.4s ease;
   }
+`;
+
+const PostInfo = styled.div`
+  padding: 20px 22px 24px;
 `;
 
 const PostMeta = styled.div`
@@ -278,16 +283,18 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
                   alt={post.title[language]}
                 />
               </PostThumbnail>
-              <PostMeta>
-                <Category $isDark={isDark}>{post.category[language]}</Category>
-                <Date>{post.date}</Date>
-              </PostMeta>
-              <PostTitle $isDark={isDark}>
-                <span>{post.title[language]}</span>
-                <ArrowRight size={20} />
-              </PostTitle>
-              <PostExcerpt>{post.excerpt[language]}</PostExcerpt>
-              <ReadTime>{post.readTime[language]}</ReadTime>
+              <PostInfo>
+                <PostMeta>
+                  <Category $isDark={isDark}>{post.category[language]}</Category>
+                  <Date>{post.date}</Date>
+                </PostMeta>
+                <PostTitle $isDark={isDark}>
+                  <span>{post.title[language]}</span>
+                  <ArrowRight size={20} />
+                </PostTitle>
+                <PostExcerpt>{post.excerpt[language]}</PostExcerpt>
+                <ReadTime>{post.readTime[language]}</ReadTime>
+              </PostInfo>
             </PostCard>
           ))}
         </ScrollTrack>
