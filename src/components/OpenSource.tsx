@@ -27,6 +27,7 @@ const OpenSourceContainer = styled.div<{ $isDark: boolean; $compact: boolean }>`
 
 const Hero = styled.div<{ $compact: boolean }>`
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   ${p => p.$compact ? css`
     padding: 0 40px 32px;
@@ -69,10 +70,11 @@ const Subtitle = styled.p<{ $isDark: boolean; $compact: boolean }>`
 
 const ProjectsGrid = styled.div<{ $compact: boolean }>`
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   ${p => p.$compact ? css`
     padding: 0 40px;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
   ` : css`
     padding: 0 40px 100px;

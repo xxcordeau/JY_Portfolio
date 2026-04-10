@@ -167,9 +167,12 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
       <SnapSection>
         <Hero />
       </SnapSection>
-      {/* About는 Skills + Education + Experience로 100vh보다 훨씬 길어서 snap에서 제외 */}
-      <SnapSection snap={false}>
-        <About />
+      {/* About는 profile+skills / career+education 두 챕터로 분할 */}
+      <SnapSection>
+        <About chapter="profile" />
+      </SnapSection>
+      <SnapSection>
+        <About chapter="career" />
       </SnapSection>
       <SnapSection>
         <Projects

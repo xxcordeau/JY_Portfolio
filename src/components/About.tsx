@@ -1,17 +1,20 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { useAbout } from '../hooks/useAbout';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Briefcase, GraduationCap, Code2, User, Mail, Phone, Calendar } from 'lucide-react';
 
-const AboutSection = styled.section<{ $isDark: boolean }>`
+const AboutSection = styled.section<{ $isDark: boolean; $compact: boolean }>`
   min-height: 100vh;
-  padding: 120px 40px;
+  padding: ${p => p.$compact ? '100px 40px 60px' : '120px 40px'};
   background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
   transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
 
   @media (max-width: 768px) {
     padding: 80px 20px;
+    display: block;
   }
 `;
 
@@ -21,54 +24,54 @@ const Container = styled.div`
   width: 100%;
 `;
 
-const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 56px;
+const SectionTitle = styled.h2<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '36px' : '44px'};
   font-weight: 600;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 20px 0;
-  letter-spacing: -1.5px;
+  margin: 0 0 ${p => p.$compact ? '10px' : '16px'} 0;
+  letter-spacing: -1.2px;
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
-    font-size: 36px;
-    margin-bottom: 16px;
+    font-size: 32px;
+    margin-bottom: 12px;
     letter-spacing: -1px;
   }
 `;
 
-const SectionSubtitle = styled.p`
-  font-size: 20px;
+const SectionSubtitle = styled.p<{ $compact: boolean }>`
+  font-size: ${p => p.$compact ? '15px' : '20px'};
   color: #86868b;
-  margin: 0 0 40px 0;
-  line-height: 1.7;
+  margin: 0 0 ${p => p.$compact ? '28px' : '40px'} 0;
+  line-height: 1.6;
   font-weight: 400;
 
   @media (max-width: 768px) {
-    font-size: 16px;
-    margin-bottom: 30px;
+    font-size: 14px;
+    margin-bottom: 24px;
   }
 `;
 
-const ProfileCard = styled.div<{ $isDark: boolean }>`
-  margin-bottom: 60px;
-  padding-bottom: 40px;
+const ProfileCard = styled.div<{ $isDark: boolean; $compact: boolean }>`
+  margin-bottom: ${p => p.$compact ? '32px' : '60px'};
+  padding-bottom: ${p => p.$compact ? '24px' : '40px'};
   border-bottom: 1px solid ${props => props.$isDark ? 'rgba(245, 245, 247, 0.1)' : 'rgba(0, 0, 0, 0.06)'};
   transition: border-color 0.3s ease;
 
   @media (max-width: 768px) {
-    margin-bottom: 40px;
-    padding-bottom: 30px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
   }
 `;
 
-const ProfileGrid = styled.div`
+const ProfileGrid = styled.div<{ $compact: boolean }>`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px 40px;
+  gap: ${p => p.$compact ? '16px 32px' : '24px 40px'};
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
   }
 `;
 
@@ -78,7 +81,7 @@ const ProfileItem = styled.div`
   gap: 12px;
 `;
 
-const ProfileIcon = styled.div<{ $isDark: boolean }>`
+const ProfileIcon = styled.div<{ $isDark: boolean; $compact: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,15 +89,15 @@ const ProfileIcon = styled.div<{ $isDark: boolean }>`
   transition: all 0.3s ease;
 
   svg {
-    width: 18px;
-    height: 18px;
+    width: ${p => p.$compact ? '16px' : '18px'};
+    height: ${p => p.$compact ? '16px' : '18px'};
     color: #86868b;
   }
 
   @media (max-width: 768px) {
     svg {
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
     }
   }
 `;
@@ -104,20 +107,20 @@ const ProfileContent = styled.div`
   min-width: 0;
 `;
 
-const ProfileLabel = styled.div<{ $isDark: boolean }>`
-  font-size: 13px;
+const ProfileLabel = styled.div<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '11px' : '13px'};
   color: #86868b;
-  margin-bottom: 4px;
+  margin-bottom: ${p => p.$compact ? '2px' : '4px'};
   font-weight: 500;
   letter-spacing: -0.1px;
 
   @media (max-width: 768px) {
-    font-size: 12px;
+    font-size: 11px;
   }
 `;
 
-const ProfileValue = styled.div<{ $isDark: boolean }>`
-  font-size: 17px;
+const ProfileValue = styled.div<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '14px' : '17px'};
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   font-weight: 400;
   letter-spacing: -0.2px;
@@ -125,36 +128,36 @@ const ProfileValue = styled.div<{ $isDark: boolean }>`
   word-break: break-all;
 
   @media (max-width: 768px) {
-    font-size: 15px;
+    font-size: 14px;
   }
 `;
 
-const BlocksContainer = styled.div`
+const BlocksContainer = styled.div<{ $compact: boolean }>`
   display: flex;
   flex-direction: column;
-  gap: 100px;
+  gap: ${p => p.$compact ? '32px' : '56px'};
 
   @media (max-width: 768px) {
-    gap: 80px;
+    gap: 40px;
   }
 `;
 
 const Block = styled.div``;
 
-const BlockHeader = styled.div`
+const BlockHeader = styled.div<{ $compact: boolean }>`
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 40px;
+  gap: ${p => p.$compact ? '8px' : '10px'};
+  margin-bottom: ${p => p.$compact ? '20px' : '40px'};
 
   @media (max-width: 768px) {
-    margin-bottom: 28px;
+    margin-bottom: 20px;
   }
 `;
 
-const BlockIcon = styled.div<{ $isDark: boolean }>`
-  width: 32px;
-  height: 32px;
+const BlockIcon = styled.div<{ $isDark: boolean; $compact: boolean }>`
+  width: ${p => p.$compact ? '24px' : '32px'};
+  height: ${p => p.$compact ? '24px' : '32px'};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,23 +165,23 @@ const BlockIcon = styled.div<{ $isDark: boolean }>`
   transition: all 0.3s ease;
 
   svg {
-    width: 24px;
-    height: 24px;
+    width: ${p => p.$compact ? '18px' : '24px'};
+    height: ${p => p.$compact ? '18px' : '24px'};
   }
 
   @media (max-width: 768px) {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
 
     svg {
-      width: 20px;
-      height: 20px;
+      width: 16px;
+      height: 16px;
     }
   }
 `;
 
-const BlockTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 32px;
+const BlockTitle = styled.h3<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '22px' : '32px'};
   font-weight: 600;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   margin: 0;
@@ -186,36 +189,36 @@ const BlockTitle = styled.h3<{ $isDark: boolean }>`
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
-    font-size: 24px;
+    font-size: 20px;
   }
 `;
 
-const SkillCategories = styled.div`
+const SkillCategories = styled.div<{ $compact: boolean }>`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 40px;
+  gap: ${p => p.$compact ? '20px 32px' : '40px'};
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 24px;
   }
 `;
 
 const SkillCategory = styled.div``;
 
-const CategoryTitle = styled.h4<{ $isDark: boolean }>`
-  font-size: 12px;
+const CategoryTitle = styled.h4<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '11px' : '12px'};
   font-weight: 400;
   color: ${props => props.$isDark ? '#6e6e73' : '#aeaeb2'};
-  margin: 0 0 14px 0;
+  margin: 0 0 ${p => p.$compact ? '10px' : '14px'} 0;
   letter-spacing: 1.2px;
   text-transform: uppercase;
 `;
 
-const BadgeList = styled.div`
+const BadgeList = styled.div<{ $compact: boolean }>`
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: ${p => p.$compact ? '6px' : '8px'};
 `;
 
 const CATEGORY_COLORS = {
@@ -225,12 +228,12 @@ const CATEGORY_COLORS = {
   other:    { bg: 'rgba(88, 86, 214, 0.1)',  border: 'rgba(88, 86, 214, 0.25)', text: '#5856D6' },
 } as const;
 
-const SkillBadge = styled.span<{ $category: keyof typeof CATEGORY_COLORS }>`
+const SkillBadge = styled.span<{ $category: keyof typeof CATEGORY_COLORS; $compact: boolean }>`
   display: inline-flex;
   align-items: center;
-  padding: 6px 14px;
+  padding: ${p => p.$compact ? '4px 10px' : '6px 14px'};
   border-radius: 20px;
-  font-size: 14px;
+  font-size: ${p => p.$compact ? '12px' : '14px'};
   font-weight: 500;
   letter-spacing: -0.1px;
   background: ${p => CATEGORY_COLORS[p.$category].bg};
@@ -239,41 +242,41 @@ const SkillBadge = styled.span<{ $category: keyof typeof CATEGORY_COLORS }>`
   transition: all 0.2s ease;
 
   @media (max-width: 768px) {
-    font-size: 13px;
-    padding: 5px 12px;
+    font-size: 12px;
+    padding: 4px 10px;
   }
 `;
 
-const CardsContainer = styled.div`
+const CardsContainer = styled.div<{ $compact: boolean }>`
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: ${p => p.$compact ? '14px' : '24px'};
 `;
 
-const Card = styled.div<{ $isDark: boolean }>`
+const Card = styled.div<{ $isDark: boolean; $compact: boolean }>`
   background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(255, 255, 255, 0.8)'};
   border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
-  border-radius: 16px;
-  padding: 32px;
+  border-radius: ${p => p.$compact ? '12px' : '16px'};
+  padding: ${p => p.$compact ? '20px 22px' : '32px'};
   transition: all 0.3s ease;
   backdrop-filter: blur(20px);
 
   @media (max-width: 768px) {
-    padding: 24px;
+    padding: 20px;
     border-radius: 12px;
   }
 `;
 
-const CardHeader = styled.div`
+const CardHeader = styled.div<{ $compact: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
-  gap: 20px;
+  margin-bottom: ${p => p.$compact ? '10px' : '20px'};
+  gap: ${p => p.$compact ? '12px' : '20px'};
 
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
 `;
 
@@ -281,72 +284,78 @@ const CardInfo = styled.div`
   flex: 1;
 `;
 
-const CardTitle = styled.h4<{ $isDark: boolean }>`
-  font-size: 24px;
+const CardTitle = styled.h4<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '18px' : '24px'};
   font-weight: 600;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 8px 0;
+  margin: 0 0 ${p => p.$compact ? '4px' : '8px'} 0;
   letter-spacing: -0.4px;
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
-    font-size: 20px;
+    font-size: 17px;
   }
 `;
 
-const CardSubtitle = styled.div`
-  font-size: 18px;
+const CardSubtitle = styled.div<{ $compact: boolean }>`
+  font-size: ${p => p.$compact ? '14px' : '18px'};
   color: #86868b;
   font-weight: 500;
   letter-spacing: -0.2px;
 
   @media (max-width: 768px) {
-    font-size: 15px;
+    font-size: 14px;
   }
 `;
 
-const CardPeriod = styled.div<{ $isDark: boolean }>`
-  font-size: 16px;
+const CardPeriod = styled.div<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '12px' : '16px'};
   color: ${props => props.$isDark ? '#a1a1a6' : '#86868b'};
   font-weight: 500;
   white-space: nowrap;
-  padding: 8px 16px;
+  padding: ${p => p.$compact ? '4px 10px' : '8px 16px'};
   background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'};
   border-radius: 8px;
 
   @media (max-width: 768px) {
-    font-size: 14px;
-    padding: 6px 12px;
+    font-size: 12px;
+    padding: 4px 10px;
   }
 `;
 
-const CardDescription = styled.p`
-  font-size: 17px;
+const CardDescription = styled.p<{ $compact: boolean }>`
+  font-size: ${p => p.$compact ? '13px' : '17px'};
   color: #86868b;
-  line-height: 1.7;
-  margin: 0 0 16px 0;
+  line-height: ${p => p.$compact ? '1.55' : '1.7'};
+  margin: 0 0 ${p => p.$compact ? '10px' : '16px'} 0;
   letter-spacing: -0.1px;
+  ${p => p.$compact && css`
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  `}
 
   @media (max-width: 768px) {
-    font-size: 15px;
+    font-size: 13px;
   }
 `;
 
-const CardAchievements = styled.ul`
+const CardAchievements = styled.ul<{ $compact: boolean }>`
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: ${p => p.$compact ? '6px' : '10px'};
 `;
 
-const CardAchievementItem = styled.li<{ $isDark: boolean }>`
-  font-size: 16px;
+const CardAchievementItem = styled.li<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '12px' : '16px'};
   color: ${props => props.$isDark ? '#d4d4d8' : '#6e6e73'};
-  padding-left: 20px;
+  padding-left: ${p => p.$compact ? '16px' : '20px'};
   position: relative;
-  line-height: 1.6;
+  line-height: ${p => p.$compact ? '1.5' : '1.6'};
 
   &::before {
     content: '•';
@@ -357,7 +366,7 @@ const CardAchievementItem = styled.li<{ $isDark: boolean }>`
   }
 
   @media (max-width: 768px) {
-    font-size: 14px;
+    font-size: 12px;
   }
 `;
 
@@ -413,6 +422,8 @@ const translations = {
   ko: {
     title: '소개',
     subtitle: '사용자 중심의 인터페이스를 만드는 프론트엔드 개발자입니다.',
+    careerTitle: '경력 & 학력',
+    careerSubtitle: '지금까지의 여정과 함께한 팀들입니다.',
     skills: '기술 스택',
     education: '학력',
     experience: '경력',
@@ -428,6 +439,8 @@ const translations = {
   en: {
     title: 'About',
     subtitle: 'Frontend developer creating user-centered interfaces.',
+    careerTitle: 'Career & Education',
+    careerSubtitle: 'The journey and teams I have been part of.',
     skills: 'Skills',
     education: 'Education',
     experience: 'Experience',
@@ -457,7 +470,17 @@ const categoryTranslations = {
   }
 };
 
-export default function About() {
+interface AboutProps {
+  /**
+   * Which chapter to render on a split layout:
+   * - 'profile' → title + profile info card + skills
+   * - 'career'  → education + experience
+   * - undefined → render everything (legacy single-section layout)
+   */
+  chapter?: 'profile' | 'career';
+}
+
+export default function About({ chapter }: AboutProps = {}) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
   const { skills, education, experiences, loading } = useAbout();
@@ -472,158 +495,173 @@ export default function About() {
     return acc;
   }, {} as Record<string, typeof skills>);
 
+  const showProfile = chapter === undefined || chapter === 'profile';
+  const showSkills = chapter === undefined || chapter === 'profile';
+  const showEducation = chapter === undefined || chapter === 'career';
+  const showExperience = chapter === undefined || chapter === 'career';
+  const sectionId = chapter === 'career' ? 'career' : 'about';
+  const compact = chapter !== undefined;
+
   return (
-    <AboutSection id="about" $isDark={isDark}>
+    <AboutSection id={sectionId} $isDark={isDark} $compact={compact}>
       <Container>
-        <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
-        <SectionSubtitle>{t.subtitle}</SectionSubtitle>
-        
-        {/* Profile Info Card */}
-        <ProfileCard $isDark={isDark}>
-          <ProfileGrid>
-            <ProfileItem>
-              <ProfileIcon $isDark={isDark}>
-                <User />
-              </ProfileIcon>
-              <ProfileContent>
-                <ProfileLabel $isDark={isDark}>{t.name}</ProfileLabel>
-                <ProfileValue $isDark={isDark}>허정연</ProfileValue>
-              </ProfileContent>
-            </ProfileItem>
+        <SectionTitle $isDark={isDark} $compact={compact}>
+          {chapter === 'career' ? t.careerTitle : t.title}
+        </SectionTitle>
+        <SectionSubtitle $compact={compact}>
+          {chapter === 'career' ? t.careerSubtitle : t.subtitle}
+        </SectionSubtitle>
 
-            <ProfileItem>
-              <ProfileIcon $isDark={isDark}>
-                <Calendar />
-              </ProfileIcon>
-              <ProfileContent>
-                <ProfileLabel $isDark={isDark}>{t.birth}</ProfileLabel>
-                <ProfileValue $isDark={isDark}>2000.01.28</ProfileValue>
-              </ProfileContent>
-            </ProfileItem>
+        {showProfile && (
+          <ProfileCard $isDark={isDark} $compact={compact}>
+            <ProfileGrid $compact={compact}>
+              <ProfileItem>
+                <ProfileIcon $isDark={isDark} $compact={compact}>
+                  <User />
+                </ProfileIcon>
+                <ProfileContent>
+                  <ProfileLabel $isDark={isDark} $compact={compact}>{t.name}</ProfileLabel>
+                  <ProfileValue $isDark={isDark} $compact={compact}>허정연</ProfileValue>
+                </ProfileContent>
+              </ProfileItem>
 
-            <ProfileItem>
-              <ProfileIcon $isDark={isDark}>
-                <Mail />
-              </ProfileIcon>
-              <ProfileContent>
-                <ProfileLabel $isDark={isDark}>{t.email}</ProfileLabel>
-                <ProfileValue $isDark={isDark}>qazseeszaq3219@gmail.com</ProfileValue>
-              </ProfileContent>
-            </ProfileItem>
+              <ProfileItem>
+                <ProfileIcon $isDark={isDark} $compact={compact}>
+                  <Calendar />
+                </ProfileIcon>
+                <ProfileContent>
+                  <ProfileLabel $isDark={isDark} $compact={compact}>{t.birth}</ProfileLabel>
+                  <ProfileValue $isDark={isDark} $compact={compact}>2000.01.28</ProfileValue>
+                </ProfileContent>
+              </ProfileItem>
 
-            <ProfileItem>
-              <ProfileIcon $isDark={isDark}>
-                <Phone />
-              </ProfileIcon>
-              <ProfileContent>
-                <ProfileLabel $isDark={isDark}>{t.phone}</ProfileLabel>
-                <ProfileValue $isDark={isDark}>010-2863-7447</ProfileValue>
-              </ProfileContent>
-            </ProfileItem>
-          </ProfileGrid>
-        </ProfileCard>
-        
-        <BlocksContainer>
-          {/* Skills Section */}
-          <Block>
-            <BlockHeader>
-              <BlockIcon $isDark={isDark}><Code2 /></BlockIcon>
-              <BlockTitle $isDark={isDark}>{t.skills}</BlockTitle>
-            </BlockHeader>
-            {loading ? (
-              <SkillCategories>
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <SkillCategory key={i}>
-                    <SkeletonLine $isDark={isDark} $w="30%" $h="12px" style={{ marginBottom: 14 }} />
-                    <BadgeList>
-                      {Array.from({ length: 4 }).map((__, j) => <SkeletonBadge key={j} $isDark={isDark} />)}
-                    </BadgeList>
-                  </SkillCategory>
-                ))}
-              </SkillCategories>
-            ) : (
-              <SkillCategories>
-                {Object.entries(groupedSkills).map(([category, categorySkills]) => (
-                  <SkillCategory key={category}>
-                    <CategoryTitle $isDark={isDark}>{ct[category as keyof typeof ct]}</CategoryTitle>
-                    <BadgeList>
-                      {categorySkills.map((skill, index) => (
-                        <SkillBadge key={index} $category={skill.category}>{skill.name}</SkillBadge>
-                      ))}
-                    </BadgeList>
-                  </SkillCategory>
-                ))}
-              </SkillCategories>
-            )}
-          </Block>
+              <ProfileItem>
+                <ProfileIcon $isDark={isDark} $compact={compact}>
+                  <Mail />
+                </ProfileIcon>
+                <ProfileContent>
+                  <ProfileLabel $isDark={isDark} $compact={compact}>{t.email}</ProfileLabel>
+                  <ProfileValue $isDark={isDark} $compact={compact}>qazseeszaq3219@gmail.com</ProfileValue>
+                </ProfileContent>
+              </ProfileItem>
 
-          {/* Education Section */}
-          <Block>
-            <BlockHeader>
-              <BlockIcon $isDark={isDark}><GraduationCap /></BlockIcon>
-              <BlockTitle $isDark={isDark}>{t.education}</BlockTitle>
-            </BlockHeader>
-            <CardsContainer>
+              <ProfileItem>
+                <ProfileIcon $isDark={isDark} $compact={compact}>
+                  <Phone />
+                </ProfileIcon>
+                <ProfileContent>
+                  <ProfileLabel $isDark={isDark} $compact={compact}>{t.phone}</ProfileLabel>
+                  <ProfileValue $isDark={isDark} $compact={compact}>010-2863-7447</ProfileValue>
+                </ProfileContent>
+              </ProfileItem>
+            </ProfileGrid>
+          </ProfileCard>
+        )}
+
+        <BlocksContainer $compact={compact}>
+          {showSkills && (
+            <Block>
+              <BlockHeader $compact={compact}>
+                <BlockIcon $isDark={isDark} $compact={compact}><Code2 /></BlockIcon>
+                <BlockTitle $isDark={isDark} $compact={compact}>{t.skills}</BlockTitle>
+              </BlockHeader>
               {loading ? (
-                Array.from({ length: 2 }).map((_, i) => (
-                  <SkeletonCard key={i} $isDark={isDark}>
-                    <SkeletonLine $isDark={isDark} $w="55%" $h="22px" />
-                    <SkeletonLine $isDark={isDark} $w="40%" />
-                    <SkeletonLine $isDark={isDark} $w="85%" />
-                  </SkeletonCard>
-                ))
-              ) : education.map((edu, index) => (
-                <Card key={index} $isDark={isDark}>
-                  <CardHeader>
-                    <CardInfo>
-                      <CardTitle $isDark={isDark}>{edu.school[language]}</CardTitle>
-                      <CardSubtitle>{edu.degree[language]} · {edu.major[language]}</CardSubtitle>
-                    </CardInfo>
-                    <CardPeriod $isDark={isDark}>{edu.period}</CardPeriod>
-                  </CardHeader>
-                  <CardDescription>{edu.description[language]}</CardDescription>
-                </Card>
-              ))}
-            </CardsContainer>
-          </Block>
+                <SkillCategories $compact={compact}>
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <SkillCategory key={i}>
+                      <SkeletonLine $isDark={isDark} $w="30%" $h="12px" style={{ marginBottom: 14 }} />
+                      <BadgeList $compact={compact}>
+                        {Array.from({ length: 4 }).map((__, j) => <SkeletonBadge key={j} $isDark={isDark} />)}
+                      </BadgeList>
+                    </SkillCategory>
+                  ))}
+                </SkillCategories>
+              ) : (
+                <SkillCategories $compact={compact}>
+                  {Object.entries(groupedSkills).map(([category, categorySkills]) => (
+                    <SkillCategory key={category}>
+                      <CategoryTitle $isDark={isDark} $compact={compact}>{ct[category as keyof typeof ct]}</CategoryTitle>
+                      <BadgeList $compact={compact}>
+                        {categorySkills.map((skill, index) => (
+                          <SkillBadge key={index} $category={skill.category} $compact={compact}>{skill.name}</SkillBadge>
+                        ))}
+                      </BadgeList>
+                    </SkillCategory>
+                  ))}
+                </SkillCategories>
+              )}
+            </Block>
+          )}
 
-          {/* Experience Section */}
-          <Block>
-            <BlockHeader>
-              <BlockIcon $isDark={isDark}><Briefcase /></BlockIcon>
-              <BlockTitle $isDark={isDark}>{t.experience}</BlockTitle>
-            </BlockHeader>
-            <CardsContainer>
-              {loading ? (
-                Array.from({ length: 2 }).map((_, i) => (
-                  <SkeletonCard key={i} $isDark={isDark}>
-                    <SkeletonLine $isDark={isDark} $w="50%" $h="22px" />
-                    <SkeletonLine $isDark={isDark} $w="35%" />
-                    <SkeletonLine $isDark={isDark} $w="90%" />
-                    <SkeletonLine $isDark={isDark} $w="75%" />
-                  </SkeletonCard>
-                ))
-              ) : experiences.map((exp, index) => (
-                <Card key={index} $isDark={isDark}>
-                  <CardHeader>
-                    <CardInfo>
-                      <CardTitle $isDark={isDark}>{exp.company[language]}</CardTitle>
-                      <CardSubtitle>{exp.position[language]}</CardSubtitle>
-                    </CardInfo>
-                    <CardPeriod $isDark={isDark}>{exp.period}</CardPeriod>
-                  </CardHeader>
-                  <CardDescription>{exp.description[language]}</CardDescription>
-                  {exp.achievements[language].length > 0 && (
-                    <CardAchievements>
-                      {exp.achievements[language].map((achievement, idx) => (
-                        <CardAchievementItem key={idx} $isDark={isDark}>{achievement}</CardAchievementItem>
-                      ))}
-                    </CardAchievements>
-                  )}
-                </Card>
-              ))}
-            </CardsContainer>
-          </Block>
+          {showEducation && (
+            <Block>
+              <BlockHeader $compact={compact}>
+                <BlockIcon $isDark={isDark} $compact={compact}><GraduationCap /></BlockIcon>
+                <BlockTitle $isDark={isDark} $compact={compact}>{t.education}</BlockTitle>
+              </BlockHeader>
+              <CardsContainer $compact={compact}>
+                {loading ? (
+                  Array.from({ length: 2 }).map((_, i) => (
+                    <SkeletonCard key={i} $isDark={isDark}>
+                      <SkeletonLine $isDark={isDark} $w="55%" $h="22px" />
+                      <SkeletonLine $isDark={isDark} $w="40%" />
+                      <SkeletonLine $isDark={isDark} $w="85%" />
+                    </SkeletonCard>
+                  ))
+                ) : education.map((edu, index) => (
+                  <Card key={index} $isDark={isDark} $compact={compact}>
+                    <CardHeader $compact={compact}>
+                      <CardInfo>
+                        <CardTitle $isDark={isDark} $compact={compact}>{edu.school[language]}</CardTitle>
+                        <CardSubtitle $compact={compact}>{edu.degree[language]} · {edu.major[language]}</CardSubtitle>
+                      </CardInfo>
+                      <CardPeriod $isDark={isDark} $compact={compact}>{edu.period}</CardPeriod>
+                    </CardHeader>
+                    <CardDescription $compact={compact}>{edu.description[language]}</CardDescription>
+                  </Card>
+                ))}
+              </CardsContainer>
+            </Block>
+          )}
+
+          {showExperience && (
+            <Block>
+              <BlockHeader $compact={compact}>
+                <BlockIcon $isDark={isDark} $compact={compact}><Briefcase /></BlockIcon>
+                <BlockTitle $isDark={isDark} $compact={compact}>{t.experience}</BlockTitle>
+              </BlockHeader>
+              <CardsContainer $compact={compact}>
+                {loading ? (
+                  Array.from({ length: 2 }).map((_, i) => (
+                    <SkeletonCard key={i} $isDark={isDark}>
+                      <SkeletonLine $isDark={isDark} $w="50%" $h="22px" />
+                      <SkeletonLine $isDark={isDark} $w="35%" />
+                      <SkeletonLine $isDark={isDark} $w="90%" />
+                      <SkeletonLine $isDark={isDark} $w="75%" />
+                    </SkeletonCard>
+                  ))
+                ) : experiences.map((exp, index) => (
+                  <Card key={index} $isDark={isDark} $compact={compact}>
+                    <CardHeader $compact={compact}>
+                      <CardInfo>
+                        <CardTitle $isDark={isDark} $compact={compact}>{exp.company[language]}</CardTitle>
+                        <CardSubtitle $compact={compact}>{exp.position[language]}</CardSubtitle>
+                      </CardInfo>
+                      <CardPeriod $isDark={isDark} $compact={compact}>{exp.period}</CardPeriod>
+                    </CardHeader>
+                    <CardDescription $compact={compact}>{exp.description[language]}</CardDescription>
+                    {exp.achievements[language].length > 0 && (
+                      <CardAchievements $compact={compact}>
+                        {exp.achievements[language].map((achievement, idx) => (
+                          <CardAchievementItem key={idx} $isDark={isDark} $compact={compact}>{achievement}</CardAchievementItem>
+                        ))}
+                      </CardAchievements>
+                    )}
+                  </Card>
+                ))}
+              </CardsContainer>
+            </Block>
+          )}
         </BlocksContainer>
       </Container>
     </AboutSection>
