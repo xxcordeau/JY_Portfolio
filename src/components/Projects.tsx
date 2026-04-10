@@ -83,17 +83,16 @@ const ScrollTrack = styled.div`
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  padding: 0 0 28px 60px;
+  overflow-y: hidden;
+  padding: 0 0 0 60px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-
-  /* 스크롤바 숨김 */
-  &::-webkit-scrollbar { display: none; }
   scrollbar-width: none;
   -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 
   @media (max-width: 768px) {
-    padding: 0 20px 20px;
+    padding: 0 0 0 20px;
     gap: 16px;
   }
 `;
