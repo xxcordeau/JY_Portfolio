@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Plus, Pencil, Trash2, Search, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
-import { adminSupabase as supabase } from '../../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 import { useTheme } from '../../../contexts/ThemeContext';
 import type { DbBlogPost } from '../../../lib/types/database';
 import {

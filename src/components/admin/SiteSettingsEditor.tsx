@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Save, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
-import { adminSupabase as supabase } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { DbSiteSetting } from '../../lib/types/database';
 import {

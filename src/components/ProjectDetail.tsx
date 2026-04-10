@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useProjects } from '../hooks/useProjects';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { supabase } from '../lib/supabase';
 import type { DbProjectImage } from '../lib/types/database';
 import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
@@ -352,6 +353,12 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
   const ct = categoryTranslations[language];
 
   const [projectImages, setProjectImages] = useState<DbProjectImage[]>([]);
+
+  useDocumentMeta({
+    title: project?.title[language],
+    description: project?.description[language],
+    ogImage: project?.image,
+  });
 
   useEffect(() => {
     supabase.from('project_images')

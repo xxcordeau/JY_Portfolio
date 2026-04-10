@@ -1,24 +1,28 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { DbProject } from '../lib/types/database';
-import { projects as localProjects, type Project } from '../data/projectsData';
+import type { Project } from '../data/projectsData';
 
 function toProject(row: DbProject): Project {
+  const frontend = row.tech_frontend ?? [];
+  const backend = row.tech_backend ?? [];
+  const design = row.tech_design ?? [];
+  const others = row.tech_others ?? [];
   return {
     id: row.id,
     title: { ko: row.title_ko, en: row.title_en },
     description: { ko: row.description_ko, en: row.description_en },
     fullDescription: { ko: row.full_description_ko, en: row.full_description_en },
-    tags: row.tags,
+    tags: row.tags ?? [],
     image: row.cover_image_url ?? '',
     year: row.year,
     role: { ko: row.role_ko, en: row.role_en },
-    highlights: { ko: row.highlights_ko, en: row.highlights_en },
+    highlights: { ko: row.highlights_ko ?? [], en: row.highlights_en ?? [] },
     techStack: {
-      frontend: row.tech_frontend.length > 0 ? row.tech_frontend : undefined,
-      backend: row.tech_backend.length > 0 ? row.tech_backend : undefined,
-      design: row.tech_design.length > 0 ? row.tech_design : undefined,
-      others: row.tech_others.length > 0 ? row.tech_others : undefined,
+      frontend: frontend.length > 0 ? frontend : undefined,
+      backend: backend.length > 0 ? backend : undefined,
+      design: design.length > 0 ? design : undefined,
+      others: others.length > 0 ? others : undefined,
     },
     links: {
       github: row.link_github ?? undefined,
@@ -28,23 +32,36 @@ function toProject(row: DbProject): Project {
   };
 }
 
+/**
+ * Supabase is the single source of truth.
+ * No local data fallback — surface errors visibly instead.
+ */
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.from('projects').select('*').order('sort_order')
-      .then(({ data, error }) => {
-        // Trust Supabase as source of truth (even empty result respects deletions)
-        if (!error && data) {
-          setProjects((data as DbProject[]).map(toProject));
+    let cancelled = false;
+    supabase
+      .from('projects')
+      .select('*')
+      .order('sort_order')
+      .then(({ data, error: err }) => {
+        if (cancelled) return;
+        if (err) {
+          console.error('[useProjects]', err);
+          setError(err.message);
+          setProjects([]);
         } else {
-          setProjects(localProjects);
+          setProjects((data as DbProject[] | null ?? []).map(toProject));
         }
         setLoading(false);
-      })
-      .catch(() => { setProjects(localProjects); setLoading(false); });
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  return { projects, loading };
+  return { projects, loading, error };
 }

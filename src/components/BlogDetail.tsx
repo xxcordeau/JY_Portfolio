@@ -2,14 +2,47 @@ import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useBlogPosts, useBlogPost } from '../hooks/useBlogPosts';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { ArrowLeft } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import Footer from './Footer';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import SyntaxHighlighter from 'react-syntax-highlighter';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import { TreeManagementPost, FilterSystemPost, TableComponentPost, RolePermissionPost, ViewStatePost, DashboardWidgetPost, CommonUtilsPost, IconSystemPost, ReactPageRefactoringPost, DynamicStaticImportPost, CssPrintLayerPost, HiddenDivPost, ApiMismatchMemoPost } from './blog/posts';
+import typescript from 'react-syntax-highlighter/dist/esm/languages/hljs/typescript';
+import javascript from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript';
+import tsx from 'react-syntax-highlighter/dist/esm/languages/hljs/typescript';
+import jsx from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript';
+import css from 'react-syntax-highlighter/dist/esm/languages/hljs/css';
+import scss from 'react-syntax-highlighter/dist/esm/languages/hljs/scss';
+import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
+import bash from 'react-syntax-highlighter/dist/esm/languages/hljs/bash';
+import shell from 'react-syntax-highlighter/dist/esm/languages/hljs/shell';
+import sql from 'react-syntax-highlighter/dist/esm/languages/hljs/sql';
+import python from 'react-syntax-highlighter/dist/esm/languages/hljs/python';
+import markdown from 'react-syntax-highlighter/dist/esm/languages/hljs/markdown';
+import xml from 'react-syntax-highlighter/dist/esm/languages/hljs/xml';
+
+SyntaxHighlighter.registerLanguage('typescript', typescript);
+SyntaxHighlighter.registerLanguage('ts', typescript);
+SyntaxHighlighter.registerLanguage('javascript', javascript);
+SyntaxHighlighter.registerLanguage('js', javascript);
+SyntaxHighlighter.registerLanguage('tsx', tsx);
+SyntaxHighlighter.registerLanguage('jsx', jsx);
+SyntaxHighlighter.registerLanguage('css', css);
+SyntaxHighlighter.registerLanguage('scss', scss);
+SyntaxHighlighter.registerLanguage('json', json);
+SyntaxHighlighter.registerLanguage('bash', bash);
+SyntaxHighlighter.registerLanguage('sh', bash);
+SyntaxHighlighter.registerLanguage('shell', shell);
+SyntaxHighlighter.registerLanguage('sql', sql);
+SyntaxHighlighter.registerLanguage('python', python);
+SyntaxHighlighter.registerLanguage('py', python);
+SyntaxHighlighter.registerLanguage('markdown', markdown);
+SyntaxHighlighter.registerLanguage('md', markdown);
+SyntaxHighlighter.registerLanguage('html', xml);
+SyntaxHighlighter.registerLanguage('xml', xml);
 
 const DetailContainer = styled.div<{ $isDark: boolean }>`
   min-height: 100vh;
@@ -481,6 +514,12 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
   const t = translations[language];
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
+  useDocumentMeta({
+    title: post?.title[language],
+    description: post?.excerpt[language],
+    ogImage: post?.thumbnail,
+  });
+
   if (!post) {
     return <div>Post not found</div>;
   }
@@ -543,37 +582,12 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
       );
     }
 
-    // fallback: 로컬 React 컴포넌트
-    switch(post.component) {
-      case 'TreeManagementPost':
-        return <TreeManagementPost language={language} />;
-      case 'FilterSystemPost':
-        return <FilterSystemPost language={language} />;
-      case 'TableComponentPost':
-        return <TableComponentPost language={language} />;
-      case 'RolePermissionPost':
-        return <RolePermissionPost language={language} />;
-      case 'ViewStatePost':
-        return <ViewStatePost language={language} />;
-      case 'DashboardWidgetPost':
-        return <DashboardWidgetPost language={language} />;
-      case 'CommonUtilsPost':
-        return <CommonUtilsPost language={language} />;
-      case 'IconSystemPost':
-        return <IconSystemPost language={language} />;
-      case 'ReactPageRefactoringPost':
-        return <ReactPageRefactoringPost language={language} />;
-      case 'DynamicStaticImportPost':
-        return <DynamicStaticImportPost language={language} />;
-      case 'CssPrintLayerPost':
-        return <CssPrintLayerPost language={language} />;
-      case 'HiddenDivPost':
-        return <HiddenDivPost language={language} />;
-      case 'ApiMismatchMemoPost':
-        return <ApiMismatchMemoPost language={language} />;
-      default:
-        return <div>Content not found</div>;
-    }
+    // No markdown content in DB → show empty state
+    return (
+      <div style={{ padding: '40px 0', color: isDark ? '#86868b' : '#86868b', textAlign: 'center' }}>
+        {language === 'ko' ? '아직 본문이 작성되지 않았습니다.' : 'No content yet.'}
+      </div>
+    );
   };
 
   return (

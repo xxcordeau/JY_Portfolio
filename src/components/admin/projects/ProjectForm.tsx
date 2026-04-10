@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ArrowLeft, Upload, Save, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
-import { adminSupabase as supabase } from '../../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 import { uploadFile } from '../../../lib/uploadFile';
 import { useTheme } from '../../../contexts/ThemeContext';
 import type { DbProject, DbProjectImage } from '../../../lib/types/database';

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ArrowLeft, Save, Upload } from 'lucide-react';
-import { adminSupabase as supabase } from '../../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 import { uploadFile } from '../../../lib/uploadFile';
 import { useTheme } from '../../../contexts/ThemeContext';
 import type { DbBlogPost } from '../../../lib/types/database';

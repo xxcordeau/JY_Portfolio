@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Plus, Trash2, Save, Eye, EyeOff, ExternalLink } from 'lucide-react';
-import { adminSupabase as supabase } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { DbOpenSourceProject } from '../../lib/types/database';
 import TagInput from '../ui/TagInput';

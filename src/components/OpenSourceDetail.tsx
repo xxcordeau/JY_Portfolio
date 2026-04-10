@@ -1,11 +1,21 @@
+import { lazy, Suspense } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useOpenSource } from '../hooks/useOpenSource';
+import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import type { OpenSourceProject } from '../data/types';
 import { Github, Package, Star, Download, ArrowLeft, ExternalLink, CheckCircle } from 'lucide-react';
-import LibraryDocDemo from './interactive/LibraryDocDemo';
-import DataUIKitGuide from './interactive/DataUIKitGuide';
+
+// Heavy interactive demos — code-split so they don't bloat the initial bundle
+const LibraryDocDemo = lazy(() => import('./interactive/LibraryDocDemo'));
+const DataUIKitGuide = lazy(() => import('./interactive/DataUIKitGuide'));
+
+const DemoFallback = () => (
+  <div style={{ padding: 60, textAlign: 'center', color: '#86868b', fontSize: 14 }}>
+    Loading demo...
+  </div>
+);
 
 const DetailContainer = styled.div<{ $isDark: boolean }>`
   min-height: 100vh;
@@ -341,6 +351,12 @@ export default function OpenSourceDetail({
   const t = translations[language];
   const project = openSourceProjects.find(p => p.id === projectId);
 
+  useDocumentMeta({
+    title: project?.name,
+    description: project?.description[language],
+    ogImage: project?.image,
+  });
+
   if (!project) {
     return null;
   }
@@ -458,14 +474,18 @@ export default function OpenSourceDetail({
 
       {project.id === 'awesome-ui-kit' && (
         <DemoSection $isDark={isDark}>
-          <LibraryDocDemo isDark={isDark} language={language} projectId={project.id} />
+          <Suspense fallback={<DemoFallback />}>
+            <LibraryDocDemo isDark={isDark} language={language} projectId={project.id} />
+          </Suspense>
         </DemoSection>
       )}
 
       {project.id === 'data-ui-kit' && (
         <DemoSection $isDark={isDark}>
-          <DataUIKitGuide isDark={isDark} language={language} />
-          <LibraryDocDemo isDark={isDark} language={language} projectId={project.id} />
+          <Suspense fallback={<DemoFallback />}>
+            <DataUIKitGuide isDark={isDark} language={language} />
+            <LibraryDocDemo isDark={isDark} language={language} projectId={project.id} />
+          </Suspense>
         </DemoSection>
       )}
     </DetailContainer>

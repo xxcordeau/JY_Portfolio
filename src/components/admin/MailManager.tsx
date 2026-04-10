@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Trash2, RefreshCw, Eye, EyeOff } from 'lucide-react';
-import { adminSupabase as supabase } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { DbContactMessage } from '../../lib/types/database';
 import {
