@@ -5,16 +5,39 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useOpenSource } from '../hooks/useOpenSource';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import type { OpenSourceProject } from '../data/types';
-import { Github, Package, Star, Download, ArrowLeft, ExternalLink, CheckCircle } from 'lucide-react';
+import { Github, Package, Star, Download, ArrowLeft, ExternalLink, CheckCircle, Loader2 } from 'lucide-react';
 
 // Heavy interactive demos — code-split so they don't bloat the initial bundle
 const LibraryDocDemo = lazy(() => import('./interactive/LibraryDocDemo'));
 const DataUIKitGuide = lazy(() => import('./interactive/DataUIKitGuide'));
 
-const DemoFallback = () => (
-  <div style={{ padding: 60, textAlign: 'center', color: '#86868b', fontSize: 14 }}>
-    Loading demo...
-  </div>
+const spinKeyframes = `
+  @keyframes demo-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+`;
+
+const FallbackWrap = styled.div<{ $isDark: boolean }>`
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)'};
+
+  svg {
+    width: 28px;
+    height: 28px;
+    animation: demo-spin 0.9s linear infinite;
+  }
+
+  ${spinKeyframes}
+`;
+
+const DemoFallback = ({ isDark }: { isDark: boolean }) => (
+  <FallbackWrap $isDark={isDark}>
+    <Loader2 />
+  </FallbackWrap>
 );
 
 const DetailContainer = styled.div<{ $isDark: boolean }>`
@@ -474,7 +497,7 @@ export default function OpenSourceDetail({
 
       {project.id === 'awesome-ui-kit' && (
         <DemoSection $isDark={isDark}>
-          <Suspense fallback={<DemoFallback />}>
+          <Suspense fallback={<DemoFallback isDark={isDark} />}>
             <LibraryDocDemo isDark={isDark} language={language} projectId={project.id} />
           </Suspense>
         </DemoSection>
@@ -482,7 +505,7 @@ export default function OpenSourceDetail({
 
       {project.id === 'data-ui-kit' && (
         <DemoSection $isDark={isDark}>
-          <Suspense fallback={<DemoFallback />}>
+          <Suspense fallback={<DemoFallback isDark={isDark} />}>
             <DataUIKitGuide isDark={isDark} language={language} />
             <LibraryDocDemo isDark={isDark} language={language} projectId={project.id} />
           </Suspense>
