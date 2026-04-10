@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { useAbout } from '../hooks/useAbout';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -365,30 +365,38 @@ const CardAchievementItem = styled.li<{ $isDark: boolean }>`
 
 
 // ── Skeleton ─────────────────────────────────────
-const shimmer = keyframes`
-  0%   { background-position: -600px 0; }
-  100% { background-position:  600px 0; }
-`;
-const skBase = (isDark: boolean) => `
-  background: linear-gradient(
-    90deg,
-    ${isDark ? '#1a1a1a' : '#e8e8ed'} 25%,
-    ${isDark ? '#262626' : '#f0f0f5'} 50%,
-    ${isDark ? '#1a1a1a' : '#e8e8ed'} 75%
-  );
-  background-size: 600px 100%;
-  animation: ${shimmer} 1.4s infinite linear;
+const shimmer = `
+  @keyframes sk-shimmer {
+    0%   { background-position: -400% 0; }
+    100% { background-position:  400% 0; }
+  }
 `;
 const SkeletonLine = styled.div<{ $isDark: boolean; $w?: string; $h?: string }>`
   height: ${p => p.$h ?? '14px'};
   border-radius: 8px;
   width: ${p => p.$w ?? '100%'};
-  ${p => skBase(p.$isDark)}
+  background: linear-gradient(
+    90deg,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
+  );
+  background-size: 400% 100%;
+  animation: sk-shimmer 1.4s ease infinite;
+  ${shimmer}
 `;
 const SkeletonBadge = styled.div<{ $isDark: boolean }>`
   height: 32px; width: 80px;
   border-radius: 20px;
-  ${p => skBase(p.$isDark)}
+  background: linear-gradient(
+    90deg,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
+  );
+  background-size: 400% 100%;
+  animation: sk-shimmer 1.4s ease infinite;
+  ${shimmer}
 `;
 const SkeletonCard = styled.div<{ $isDark: boolean }>`
   background: ${p => p.$isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.8)'};

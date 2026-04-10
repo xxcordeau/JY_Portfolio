@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useBlogPosts } from '../hooks/useBlogPosts';
@@ -197,20 +197,11 @@ const ReadTime = styled.span`
 `;
 
 // ── Skeleton ─────────────────────────────────────
-const shimmer = keyframes`
-  0%   { background-position: -600px 0; }
-  100% { background-position:  600px 0; }
-`;
-
-const skeletonBg = (isDark: boolean) => `
-  background: linear-gradient(
-    90deg,
-    ${isDark ? '#1d1d1f' : '#e8e8ed'} 25%,
-    ${isDark ? '#2a2a2d' : '#f0f0f5'} 50%,
-    ${isDark ? '#1d1d1f' : '#e8e8ed'} 75%
-  );
-  background-size: 600px 100%;
-  animation: ${shimmer} 1.4s infinite linear;
+const shimmer = `
+  @keyframes sk-shimmer {
+    0%   { background-position: -400% 0; }
+    100% { background-position:  400% 0; }
+  }
 `;
 
 const SkeletonCard = styled.div`
@@ -223,14 +214,30 @@ const SkeletonThumb = styled.div<{ $isDark: boolean }>`
   width: 100%;
   aspect-ratio: 16 / 10;
   border-radius: 16px;
-  ${p => skeletonBg(p.$isDark)}
+  background: linear-gradient(
+    90deg,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
+  );
+  background-size: 400% 100%;
+  animation: sk-shimmer 1.4s ease infinite;
+  ${shimmer}
 `;
 
 const SkeletonLine = styled.div<{ $isDark: boolean; $w?: string }>`
   height: 14px;
   border-radius: 6px;
   width: ${p => p.$w ?? '100%'};
-  ${p => skeletonBg(p.$isDark)}
+  background: linear-gradient(
+    90deg,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
+  );
+  background-size: 400% 100%;
+  animation: sk-shimmer 1.4s ease infinite;
+  ${shimmer}
 `;
 // ─────────────────────────────────────────────────
 
