@@ -21,7 +21,8 @@ const ProjectsSection = styled.section<{ $isDark: boolean }>`
 `;
 
 const Inner = styled.div`
-  width: 100%;
+  flex: 1;
+  min-width: 0;
 `;
 
 const TitleRow = styled.div`
@@ -83,7 +84,7 @@ const ScrollTrack = styled.div`
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  padding: 10px 0 0 12vw;
+  padding: 10px 0 20px 12vw;
   scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -269,14 +270,7 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
   }, []);
 
   return (
-    <section id="projects" style={{
-      minHeight: '100vh',
-      padding: '120px 0',
-      background: isDark ? '#000000' : '#ffffff',
-      transition: 'background 0.3s ease',
-      display: 'flex',
-      alignItems: 'center',
-    }}>
+    <ProjectsSection id="projects" $isDark={isDark}>
       <Inner>
         <TitleRow>
           <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
@@ -332,6 +326,6 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
           }
         </ScrollTrack>
       </Inner>
-    </section>
+    </ProjectsSection>
   );
 }

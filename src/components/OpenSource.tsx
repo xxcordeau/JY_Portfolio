@@ -114,7 +114,7 @@ const ScrollTrack = styled.div`
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  padding: 10px 0 0 12vw;
+  padding: 10px 0 20px 12vw;
   scrollbar-width: none;
   -ms-overflow-style: none;
   cursor: grab;
@@ -157,7 +157,7 @@ const ProjectCard = styled.div<{ $isDark: boolean; $compact?: boolean }>`
   transition: all 0.3s ease;
   cursor: pointer;
   ${p => p.$compact && css`
-    flex: 0 0 340px;
+    flex: 0 0 380px;
     scroll-snap-align: start;
   `}
 
@@ -298,7 +298,7 @@ const SkeletonCard = styled.div<{ $isDark: boolean; $compact?: boolean }>`
   border-radius: 20px;
   overflow: hidden;
   ${p => p.$compact && css`
-    flex: 0 0 340px;
+    flex: 0 0 380px;
   `}
 `;
 const SkeletonImg = styled.div<{ $isDark: boolean }>`
