@@ -30,7 +30,7 @@ function toOpenSource(row: DbOpenSourceProject): OpenSourceProject {
 }
 
 export function useOpenSource() {
-  const [projects, setProjects] = useState<OpenSourceProject[]>(localProjects);
+  const [projects, setProjects] = useState<OpenSourceProject[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

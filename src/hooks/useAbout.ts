@@ -29,9 +29,9 @@ function toExperience(row: DbExperience): Experience {
 }
 
 export function useAbout() {
-  const [skills, setSkills] = useState<Skill[]>(localSkills);
-  const [education, setEducation] = useState<Education[]>(localEducation);
-  const [experiences, setExperiences] = useState<Experience[]>(localExperiences);
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [education, setEducation] = useState<Education[]>([]);
+  const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

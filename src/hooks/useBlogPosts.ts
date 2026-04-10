@@ -37,7 +37,7 @@ function toBlogPost(row: DbBlogPost): BlogPost {
 }
 
 export function useBlogPosts() {
-  const [posts, setPosts] = useState<BlogPost[]>(localBlogPosts);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

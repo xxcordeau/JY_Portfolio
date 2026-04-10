@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useBlogPosts } from '../hooks/useBlogPosts';
@@ -196,6 +196,44 @@ const ReadTime = styled.span`
   font-weight: 500;
 `;
 
+// ── Skeleton ─────────────────────────────────────
+const shimmer = keyframes`
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+`;
+
+const skeletonBg = (isDark: boolean) => `
+  background: linear-gradient(
+    90deg,
+    ${isDark ? '#1d1d1f' : '#e8e8ed'} 25%,
+    ${isDark ? '#2a2a2d' : '#f0f0f5'} 50%,
+    ${isDark ? '#1d1d1f' : '#e8e8ed'} 75%
+  );
+  background-size: 600px 100%;
+  animation: ${shimmer} 1.4s infinite linear;
+`;
+
+const SkeletonCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const SkeletonThumb = styled.div<{ $isDark: boolean }>`
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 16px;
+  ${p => skeletonBg(p.$isDark)}
+`;
+
+const SkeletonLine = styled.div<{ $isDark: boolean; $w?: string }>`
+  height: 14px;
+  border-radius: 6px;
+  width: ${p => p.$w ?? '100%'};
+  ${p => skeletonBg(p.$isDark)}
+`;
+// ─────────────────────────────────────────────────
+
 interface BlogProps {
   onPostClick: (blogId: string) => void;
   onBack: () => void;
@@ -217,7 +255,7 @@ const translations = {
 export default function Blog({ onPostClick, onBack }: BlogProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
-  const { posts: blogPosts } = useBlogPosts();
+  const { posts: blogPosts, loading } = useBlogPosts();
   const t = translations[language];
 
   return (
@@ -234,7 +272,17 @@ export default function Blog({ onPostClick, onBack }: BlogProps) {
 
       <PostsSection>
         <PostsGrid>
-          {blogPosts.map((post) => (
+          {loading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i}>
+                <SkeletonThumb $isDark={isDark} />
+                <SkeletonLine $isDark={isDark} $w="40%" />
+                <SkeletonLine $isDark={isDark} $w="80%" style={{ height: 20 }} />
+                <SkeletonLine $isDark={isDark} $w="95%" />
+                <SkeletonLine $isDark={isDark} $w="30%" />
+              </SkeletonCard>
+            ))
+          ) : blogPosts.map((post) => (
             <PostCard 
               key={post.id} 
               $isDark={isDark}

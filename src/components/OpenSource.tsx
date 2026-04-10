@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useOpenSource } from '../hooks/useOpenSource';
@@ -189,6 +189,45 @@ const ViewMore = styled.div<{ $isDark: boolean }>`
   }
 `;
 
+// ── Skeleton ─────────────────────────────────────
+const shimmer = keyframes`
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+`;
+const skeletonBase = (isDark: boolean) => `
+  background: linear-gradient(
+    90deg,
+    ${isDark ? '#1d1d1f' : '#e8e8ed'} 25%,
+    ${isDark ? '#2a2a2d' : '#f0f0f5'} 50%,
+    ${isDark ? '#1d1d1f' : '#e8e8ed'} 75%
+  );
+  background-size: 600px 100%;
+  animation: ${shimmer} 1.4s infinite linear;
+`;
+const SkeletonCard = styled.div<{ $isDark: boolean }>`
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'};
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+  border-radius: 20px;
+  overflow: hidden;
+`;
+const SkeletonImg = styled.div<{ $isDark: boolean }>`
+  width: 100%; height: 200px;
+  ${p => skeletonBase(p.$isDark)}
+`;
+const SkeletonBody = styled.div`
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+const SkeletonLine = styled.div<{ $isDark: boolean; $w?: string }>`
+  height: 14px;
+  border-radius: 6px;
+  width: ${p => p.$w ?? '100%'};
+  ${p => skeletonBase(p.$isDark)}
+`;
+// ─────────────────────────────────────────────────
+
 interface OpenSourceProps {
   onProjectClick: (id: string) => void;
 }
@@ -209,7 +248,7 @@ const translations = {
 export default function OpenSource({ onProjectClick }: OpenSourceProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
-  const { projects: openSourceProjects } = useOpenSource();
+  const { projects: openSourceProjects, loading } = useOpenSource();
   const t = translations[language];
 
   return (
@@ -220,7 +259,19 @@ export default function OpenSource({ onProjectClick }: OpenSourceProps) {
       </Hero>
 
       <ProjectsGrid>
-        {openSourceProjects.map((project) => (
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonCard key={i} $isDark={isDark}>
+              <SkeletonImg $isDark={isDark} />
+              <SkeletonBody>
+                <SkeletonLine $isDark={isDark} $w="60%" style={{ height: 20 }} />
+                <SkeletonLine $isDark={isDark} $w="90%" />
+                <SkeletonLine $isDark={isDark} $w="75%" />
+                <SkeletonLine $isDark={isDark} $w="40%" />
+              </SkeletonBody>
+            </SkeletonCard>
+          ))
+        ) : openSourceProjects.map((project) => (
           <ProjectCard
             key={project.id}
             $isDark={isDark}
