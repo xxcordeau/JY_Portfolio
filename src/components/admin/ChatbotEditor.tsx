@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Plus, Trash2, Save, ChevronDown, ChevronRight } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { adminSupabase as supabase } from '../../lib/supabase';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { DbChatbotCategory, DbChatbotQuestion } from '../../lib/types/database';
 import {

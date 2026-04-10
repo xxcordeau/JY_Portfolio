@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { Plus, Trash2, Save } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { adminSupabase as supabase } from '../../lib/supabase';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { DbSkill, DbEducation, DbExperience } from '../../lib/types/database';
 import {

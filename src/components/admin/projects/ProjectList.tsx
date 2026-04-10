@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Plus, Pencil, Trash2, Search, Star, GripVertical } from 'lucide-react';
-import { supabase } from '../../../lib/supabase';
+import { adminSupabase as supabase } from '../../../lib/supabase';
 import { useTheme } from '../../../contexts/ThemeContext';
 import type { DbProject } from '../../../lib/types/database';
 import {

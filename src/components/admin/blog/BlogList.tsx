@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Plus, Pencil, Trash2, Search, Eye, EyeOff } from 'lucide-react';
-import { supabase } from '../../../lib/supabase';
+import { toast } from 'sonner';
+import { adminSupabase as supabase } from '../../../lib/supabase';
 import { useTheme } from '../../../contexts/ThemeContext';
 import type { DbBlogPost } from '../../../lib/types/database';
 import {
@@ -159,14 +160,29 @@ export default function BlogList() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await supabase.from('blog_posts').delete().eq('id', deleteTarget);
+    const { error } = await supabase.from('blog_posts').delete().eq('id', deleteTarget);
+    if (error) {
+      console.error('Delete failed:', error);
+      toast.error(`삭제 실패: ${error.message}`);
+      return;
+    }
+    toast.success('삭제되었습니다.');
     setDeleteTarget(null);
     fetchPosts();
   };
 
   const toggleStatus = async (post: DbBlogPost) => {
     const newStatus = post.status === 'published' ? 'draft' : 'published';
-    await supabase.from('blog_posts').update({ status: newStatus }).eq('id', post.id);
+    const { error } = await supabase
+      .from('blog_posts')
+      .update({ status: newStatus })
+      .eq('id', post.id);
+    if (error) {
+      console.error('Status update failed:', error);
+      toast.error(`상태 변경 실패: ${error.message}`);
+      return;
+    }
+    toast.success(newStatus === 'published' ? 'Published 처리되었습니다.' : 'Draft로 변경되었습니다.');
     fetchPosts();
   };
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Plus, Trash2, Save, Upload, Eye, EyeOff, ExternalLink } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { adminSupabase as supabase } from '../../lib/supabase';
 import { uploadFile } from '../../lib/uploadFile';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { DbPresentation } from '../../lib/types/database';
