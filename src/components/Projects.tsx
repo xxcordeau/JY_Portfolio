@@ -7,126 +7,158 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const ProjectsSection = styled.section<{ $isDark: boolean }>`
   min-height: 100vh;
-  padding: 120px 40px;
+  padding: 120px 0;
   background: ${props => props.$isDark ? '#000000' : '#ffffff'};
   transition: background 0.3s ease;
   display: flex;
   align-items: center;
 
   @media (max-width: 768px) {
-    padding: 80px 20px;
+    padding: 80px 0;
     display: block;
   }
 `;
 
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
+const Inner = styled.div`
   width: 100%;
 `;
 
+const TitleRow = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 60px;
+  margin-bottom: 48px;
+
+  @media (max-width: 768px) {
+    padding: 0 20px;
+    margin-bottom: 32px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+`;
+
 const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 44px;
-  font-weight: 600;
+  font-size: 52px;
+  font-weight: 700;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 40px 0;
-  letter-spacing: -1.2px;
+  margin: 0;
+  letter-spacing: -1.5px;
+  line-height: 1;
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
     font-size: 36px;
-    margin-bottom: 40px;
-    letter-spacing: -1px;
   }
 `;
 
-const ProjectGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 28px;
+const ViewAllLink = styled.button<{ $isDark: boolean }>`
+  background: none;
+  border: none;
+  color: #0c8ce9;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  letter-spacing: -0.2px;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+  margin-bottom: 6px;
+
+  &:hover { opacity: 0.7; }
+  svg { width: 15px; height: 15px; }
+`;
+
+/* ── 가로 스크롤 트랙 ── */
+const ScrollTrack = styled.div`
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 0 60px 24px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+
+  /* 스크롤바 스타일 */
+  &::-webkit-scrollbar { height: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.3); border-radius: 2px; }
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    padding: 0 20px 20px;
+    gap: 16px;
   }
 `;
 
 const ProjectCard = styled.div<{ $isDark: boolean }>`
+  flex: 0 0 300px;
+  scroll-snap-align: start;
   cursor: pointer;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
-  transition: all 0.3s ease;
+  background: ${props => props.$isDark ? '#111111' : '#f5f5f7'};
+  transition: transform 0.3s ease;
 
   &:hover {
-    transform: translateY(-8px);
-    
-    img {
-      transform: scale(1.05);
-    }
+    transform: translateY(-6px);
+    img { transform: scale(1.04); }
+  }
+
+  @media (max-width: 768px) {
+    flex: 0 0 240px;
   }
 `;
 
 const ProjectImage = styled.div`
   width: 100%;
-  aspect-ratio: 16 / 9;
-  background: #e5e5e7;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.4s ease;
   }
 `;
 
 const ProjectInfo = styled.div`
-  padding: 18px 20px;
+  padding: 20px 22px 24px;
 `;
 
 const ProjectTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   margin: 0 0 8px 0;
-  letter-spacing: -0.4px;
+  letter-spacing: -0.5px;
+  transition: color 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: color 0.3s ease;
 
   svg {
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.2s;
     width: 16px;
     height: 16px;
+    flex-shrink: 0;
   }
-
-  ${ProjectCard}:hover & svg {
-    opacity: 1;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 18px;
-  }
+  ${ProjectCard}:hover & svg { opacity: 1; }
 `;
 
 const ProjectDescription = styled.p`
   font-size: 13px;
   color: #86868b;
-  line-height: 1.5;
-  margin: 0 0 12px 0;
-  font-weight: 400;
-  letter-spacing: -0.1px;
+  line-height: 1.55;
+  margin: 0 0 14px 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-
-  @media (max-width: 768px) {
-    font-size: 13px;
-  }
 `;
 
 const ProjectTags = styled.div`
@@ -136,21 +168,16 @@ const ProjectTags = styled.div`
 `;
 
 const Tag = styled.span<{ $isDark: boolean }>`
-  background: ${props => props.$isDark ? '#1d1d1f' : '#ffffff'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  background: ${props => props.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+  color: ${props => props.$isDark ? '#a1a1a6' : '#6e6e73'};
   padding: 4px 10px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: -0.1px;
-  transition: all 0.3s ease;
-
-  @media (max-width: 768px) {
-    font-size: 11px;
-    padding: 4px 10px;
-  }
 `;
 
+/* ── 스켈레톤 ── */
 const shimmer = `
   @keyframes shimmer {
     0% { background-position: -400% 0; }
@@ -159,14 +186,15 @@ const shimmer = `
 `;
 
 const SkeletonCard = styled.div<{ $isDark: boolean }>`
-  border-radius: 16px;
+  flex: 0 0 300px;
+  border-radius: 20px;
   overflow: hidden;
-  background: ${p => p.$isDark ? '#0a0a0a' : '#f5f5f7'};
+  background: ${p => p.$isDark ? '#111111' : '#f5f5f7'};
 `;
 
 const SkeletonImage = styled.div<{ $isDark: boolean }>`
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   background: linear-gradient(
     90deg,
     ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
@@ -179,9 +207,10 @@ const SkeletonImage = styled.div<{ $isDark: boolean }>`
 `;
 
 const SkeletonLine = styled.div<{ $isDark: boolean; $width?: string }>`
-  height: 16px;
-  border-radius: 8px;
+  height: 14px;
+  border-radius: 7px;
   width: ${p => p.$width ?? '100%'};
+  margin-bottom: 10px;
   background: linear-gradient(
     90deg,
     ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
@@ -190,36 +219,6 @@ const SkeletonLine = styled.div<{ $isDark: boolean; $width?: string }>`
   );
   background-size: 400% 100%;
   animation: shimmer 1.4s ease infinite;
-  margin-bottom: 10px;
-`;
-
-const ViewAllButton = styled.button<{ $isDark: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin: 32px auto 0;
-  padding: 12px 28px;
-  background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  color: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
-  border: none;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  letter-spacing: -0.2px;
-
-  &:hover {
-    background: ${props => props.$isDark ? '#e5e5e7' : '#2d2d2d'};
-    transform: translateY(-2px);
-  }
-
-  @media (max-width: 768px) {
-    font-size: 14px;
-    padding: 14px 28px;
-    margin-top: 32px;
-  }
 `;
 
 interface ProjectsProps {
@@ -229,14 +228,8 @@ interface ProjectsProps {
 }
 
 const translations = {
-  ko: {
-    title: '프로젝트',
-    viewAll: '전체보기'
-  },
-  en: {
-    title: 'Projects',
-    viewAll: 'View All'
-  }
+  ko: { title: '프로젝트', viewAll: '모두 보기 ›' },
+  en: { title: 'Projects',  viewAll: 'View All ›'  },
 };
 
 export default function Projects({ onProjectClick, onViewAll, showAll = false }: ProjectsProps) {
@@ -244,59 +237,59 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
   const { language } = useLanguage();
   const { projects, loading } = useProjects();
   const t = translations[language];
-  const displayProjects = showAll ? projects : projects.slice(0, 6);
-  const hasMore = projects.length > 6;
+  const displayProjects = showAll ? projects : projects.slice(0, 8);
 
   return (
     <ProjectsSection id="projects" $isDark={isDark}>
-      <Container>
-        <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
-        <ProjectGrid>
-          {loading ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <SkeletonCard key={i} $isDark={isDark}>
-                <SkeletonImage $isDark={isDark} />
-                <ProjectInfo>
-                  <SkeletonLine $isDark={isDark} $width="60%" style={{ height: 22, marginBottom: 14 }} />
-                  <SkeletonLine $isDark={isDark} />
-                  <SkeletonLine $isDark={isDark} $width="80%" />
-                </ProjectInfo>
-              </SkeletonCard>
-            ))
-          ) : displayProjects.map((project) => (
-            <ProjectCard 
-              key={project.id} 
-              $isDark={isDark}
-              onClick={() => onProjectClick(project.id)}
-            >
-              <ProjectImage>
-                <ImageWithFallback
-                  src={project.image}
-                  alt={project.title[language]}
-                />
-              </ProjectImage>
-              <ProjectInfo>
-                <ProjectTitle $isDark={isDark}>
-                  {project.title[language]}
-                  <ArrowRight size={20} />
-                </ProjectTitle>
-                <ProjectDescription>{project.description[language]}</ProjectDescription>
-                <ProjectTags>
-                  {project.tags.map((tag, tagIndex) => (
-                    <Tag key={tagIndex} $isDark={isDark}>{tag}</Tag>
-                  ))}
-                </ProjectTags>
-              </ProjectInfo>
-            </ProjectCard>
-          ))}
-        </ProjectGrid>
-        {!loading && !showAll && hasMore && onViewAll && (
-          <ViewAllButton $isDark={isDark} onClick={onViewAll}>
-            {t.viewAll}
-            <ArrowRight size={18} />
-          </ViewAllButton>
-        )}
-      </Container>
+      <Inner>
+        <TitleRow>
+          <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
+          {onViewAll && (
+            <ViewAllLink $isDark={isDark} onClick={onViewAll}>
+              {t.viewAll}
+              <ArrowRight />
+            </ViewAllLink>
+          )}
+        </TitleRow>
+
+        <ScrollTrack>
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonCard key={i} $isDark={isDark}>
+                  <SkeletonImage $isDark={isDark} />
+                  <ProjectInfo>
+                    <SkeletonLine $isDark={isDark} $width="55%" style={{ height: 20, marginBottom: 12 }} />
+                    <SkeletonLine $isDark={isDark} />
+                    <SkeletonLine $isDark={isDark} $width="75%" />
+                  </ProjectInfo>
+                </SkeletonCard>
+              ))
+            : displayProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  $isDark={isDark}
+                  onClick={() => onProjectClick(project.id)}
+                >
+                  <ProjectImage>
+                    <ImageWithFallback src={project.image} alt={project.title[language]} />
+                  </ProjectImage>
+                  <ProjectInfo>
+                    <ProjectTitle $isDark={isDark}>
+                      {project.title[language]}
+                      <ArrowRight size={20} />
+                    </ProjectTitle>
+                    <ProjectDescription>{project.description[language]}</ProjectDescription>
+                    <ProjectTags>
+                      {project.tags.map((tag, i) => (
+                        <Tag key={i} $isDark={isDark}>{tag}</Tag>
+                      ))}
+                    </ProjectTags>
+                  </ProjectInfo>
+                </ProjectCard>
+              ))
+          }
+        </ScrollTrack>
+      </Inner>
     </ProjectsSection>
   );
 }

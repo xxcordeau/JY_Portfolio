@@ -80,8 +80,12 @@ const ViewAllButton = styled.button<{ $isDark: boolean }>`
 
 const PostsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 28px;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -211,7 +215,7 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
   const { posts: blogPosts } = useBlogPosts();
   const t = translations[language];
   // 최신 6개 포스트만 표시
-  const recentPosts = blogPosts.slice(0, 6);
+  const recentPosts = blogPosts.slice(0, 8);
 
   return (
     <BlogSection id="blog" $isDark={isDark}>
