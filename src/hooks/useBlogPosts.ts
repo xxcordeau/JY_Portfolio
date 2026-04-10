@@ -45,18 +45,18 @@ export function useBlogPosts() {
       .eq('status', 'published')
       .order('date', { ascending: false })
       .then(({ data, error }) => {
-        if (data && data.length > 0 && !error) {
-          const remotePosts = (data as DbBlogPost[]).map(toBlogPost);
-          // Merge: use remote data but ensure local-only posts are included
-          const remoteIds = new Set(remotePosts.map(p => p.id));
-          const localOnly = localBlogPosts.filter(p => !remoteIds.has(p.id));
-          const merged = [...remotePosts, ...localOnly]
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-          setPosts(merged);
+        // Supabase is the single source of truth.
+        // - data !== null (even if empty) & no error → use it as-is (respects deletions)
+        // - fetch failed → fall back to local data
+        if (!error && data) {
+          setPosts((data as DbBlogPost[]).map(toBlogPost));
+        } else {
+          setPosts(localBlogPosts);
         }
         setLoading(false);
       })
       .catch(() => {
+        setPosts(localBlogPosts);
         setLoading(false);
       });
   }, []);

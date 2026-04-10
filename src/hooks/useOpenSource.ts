@@ -38,12 +38,15 @@ export function useOpenSource() {
       .eq('is_visible', true)
       .order('sort_order')
       .then(({ data, error }) => {
-        if (data && data.length > 0 && !error) {
+        // Trust Supabase as source of truth (respects deletions + visibility toggle)
+        if (!error && data) {
           setProjects((data as DbOpenSourceProject[]).map(toOpenSource));
+        } else {
+          setProjects(localProjects);
         }
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => { setProjects(localProjects); setLoading(false); });
   }, []);
 
   return { projects, loading };

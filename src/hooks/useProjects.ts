@@ -35,7 +35,8 @@ export function useProjects() {
   useEffect(() => {
     supabase.from('projects').select('*').order('sort_order')
       .then(({ data, error }) => {
-        if (data && data.length > 0 && !error) {
+        // Trust Supabase as source of truth (even empty result respects deletions)
+        if (!error && data) {
           setProjects((data as DbProject[]).map(toProject));
         } else {
           setProjects(localProjects);

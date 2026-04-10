@@ -40,14 +40,24 @@ export function useAbout() {
       supabase.from('education').select('*').order('sort_order'),
       supabase.from('experiences').select('*').order('sort_order'),
     ]).then(([s, e, x]) => {
-      const skillsData = (s.data as DbSkill[]) ?? [];
-      const eduData = (e.data as DbEducation[]) ?? [];
-      const expData = (x.data as DbExperience[]) ?? [];
-      if (skillsData.length > 0) setSkills(skillsData.map(toSkill));
-      if (eduData.length > 0) setEducation(eduData.map(toEducation));
-      if (expData.length > 0) setExperiences(expData.map(toExperience));
+      // Trust Supabase as source of truth (even empty arrays respect deletions).
+      // Only fall back to local data on actual errors.
+      if (!s.error && s.data) setSkills((s.data as DbSkill[]).map(toSkill));
+      else setSkills(localSkills);
+
+      if (!e.error && e.data) setEducation((e.data as DbEducation[]).map(toEducation));
+      else setEducation(localEducation);
+
+      if (!x.error && x.data) setExperiences((x.data as DbExperience[]).map(toExperience));
+      else setExperiences(localExperiences);
+
       setLoading(false);
-    }).catch(() => setLoading(false));
+    }).catch(() => {
+      setSkills(localSkills);
+      setEducation(localEducation);
+      setExperiences(localExperiences);
+      setLoading(false);
+    });
   }, []);
 
   return { skills, education, experiences, loading };
