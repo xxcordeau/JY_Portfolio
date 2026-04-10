@@ -86,6 +86,7 @@ const ScrollTrack = styled.div`
   overflow-x: auto;
   padding: 10px 0 20px 12vw;
   scroll-snap-type: x proximity;
+  scroll-padding-left: 12vw;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;

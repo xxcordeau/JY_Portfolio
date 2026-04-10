@@ -7,7 +7,7 @@ import { Github, Package, Star, Download, ArrowRight } from 'lucide-react';
 
 const OpenSourceContainer = styled.div<{ $isDark: boolean; $compact: boolean }>`
   min-height: 100vh;
-  background: ${props => props.$isDark ? '#000000' : '#ffffff'};
+  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
   transition: background 0.3s ease;
   ${p => p.$compact ? css`
     padding: 120px 0 60px;
@@ -115,6 +115,8 @@ const ScrollTrack = styled.div`
   gap: 20px;
   overflow-x: auto;
   padding: 10px 0 20px 12vw;
+  scroll-snap-type: x proximity;
+  scroll-padding-left: 12vw;
   scrollbar-width: none;
   -ms-overflow-style: none;
   cursor: grab;
