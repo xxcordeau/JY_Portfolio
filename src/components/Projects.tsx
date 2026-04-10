@@ -28,7 +28,7 @@ const TitleRow = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 0 60px;
+  padding: 0 60px 0 12vw;
   margin-bottom: 48px;
 
   @media (max-width: 768px) {
@@ -84,7 +84,7 @@ const ScrollTrack = styled.div`
   gap: 20px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0 0 0 60px;
+  padding: 0 0 0 12vw;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
