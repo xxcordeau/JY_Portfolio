@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ArrowLeft, Upload, Save, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { toast } from 'sonner';
 import { supabase } from '../../../lib/supabase';
 import { uploadFile } from '../../../lib/uploadFile';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -229,7 +230,19 @@ export default function ProjectForm() {
     if (isEdit) {
       supabase.from('projects').select('*').eq('id', id).single()
         .then(({ data }) => {
-          if (data) setForm(data as DbProject);
+          if (data) {
+            const d = data as DbProject;
+            setForm({
+              ...d,
+              tags:          d.tags          ?? [],
+              tech_frontend: d.tech_frontend ?? [],
+              tech_backend:  d.tech_backend  ?? [],
+              tech_design:   d.tech_design   ?? [],
+              tech_others:   d.tech_others   ?? [],
+              highlights_ko: d.highlights_ko ?? [],
+              highlights_en: d.highlights_en ?? [],
+            });
+          }
           setLoading(false);
         });
       supabase.from('project_images').select('*').eq('project_id', id).order('sort_order')
@@ -300,7 +313,8 @@ export default function ProjectForm() {
 
   const handleSave = async () => {
     const cleanId = slugify(form.id);
-    if (!cleanId || !form.title_ko) return;
+    if (!cleanId) { toast.error('프로젝트 ID를 입력해주세요.'); return; }
+    if (!form.title_ko) { toast.error('제목(한국어)을 입력해주세요.'); return; }
     setSaving(true);
 
     try {
@@ -322,9 +336,11 @@ export default function ProjectForm() {
       };
 
       if (isEdit) {
-        await supabase.from('projects').update(payload).eq('id', cleanId);
+        const { error } = await supabase.from('projects').update(payload).eq('id', cleanId);
+        if (error) throw error;
       } else {
-        await supabase.from('projects').insert({ ...payload, created_at: new Date().toISOString() });
+        const { error } = await supabase.from('projects').insert({ ...payload, created_at: new Date().toISOString() });
+        if (error) throw error;
       }
 
       // Save gallery images
@@ -353,9 +369,14 @@ export default function ProjectForm() {
         }
       }
 
+      toast.success('저장되었습니다.');
       navigate('/admin/projects');
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Save failed:', err);
+      const msg = err && typeof err === 'object' && 'message' in err
+        ? (err as { message: string }).message
+        : '저장에 실패했습니다.';
+      toast.error(msg);
     } finally {
       setSaving(false);
     }

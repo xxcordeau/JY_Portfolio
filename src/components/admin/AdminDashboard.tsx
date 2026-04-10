@@ -6,6 +6,7 @@ import {
   MessageSquare, FileText, Settings, LogOut,
   Menu, X, ChevronRight
 } from 'lucide-react';
+import { Toaster } from '../ui/sonner';
 import { useTheme } from '../../contexts/ThemeContext';
 
 // ============================================
@@ -345,6 +346,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           <Outlet />
         </ContentArea>
       </MainArea>
+
+      <Toaster position="bottom-right" richColors />
     </DashboardContainer>
   );
 }
