@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useProjects } from '../hooks/useProjects';
@@ -53,24 +54,28 @@ const SectionTitle = styled.h2<{ $isDark: boolean }>`
   }
 `;
 
-const ViewAllLink = styled.button<{ $isDark: boolean }>`
-  background: none;
-  border: none;
-  color: #0c8ce9;
-  font-size: 15px;
+const ViewAllButton = styled.button<{ $isDark: boolean }>`
+  background: transparent;
+  border: 2px solid ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 0;
-  letter-spacing: -0.2px;
-  transition: opacity 0.2s;
+  gap: 8px;
   white-space: nowrap;
   margin-bottom: 6px;
 
-  &:hover { opacity: 0.7; }
-  svg { width: 15px; height: 15px; }
+  &:hover {
+    background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+    color: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
+  }
+
+  svg { width: 16px; height: 16px; }
 `;
 
 /* ── 가로 스크롤 트랙 ── */
@@ -78,7 +83,7 @@ const ScrollTrack = styled.div`
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  padding: 0 60px 24px;
+  padding: 0 60px 28px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
 
@@ -94,10 +99,10 @@ const ScrollTrack = styled.div`
 `;
 
 const ProjectCard = styled.div<{ $isDark: boolean }>`
-  flex: 0 0 300px;
+  flex: 0 0 380px;
   scroll-snap-align: start;
   cursor: pointer;
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
   background: ${props => props.$isDark ? '#111111' : '#f5f5f7'};
   transition: transform 0.3s ease;
@@ -108,7 +113,7 @@ const ProjectCard = styled.div<{ $isDark: boolean }>`
   }
 
   @media (max-width: 768px) {
-    flex: 0 0 240px;
+    flex: 0 0 280px;
   }
 `;
 
@@ -126,14 +131,14 @@ const ProjectImage = styled.div`
 `;
 
 const ProjectInfo = styled.div`
-  padding: 20px 22px 24px;
+  padding: 22px 26px 28px;
 `;
 
 const ProjectTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 8px 0;
+  margin: 0 0 10px 0;
   letter-spacing: -0.5px;
   transition: color 0.3s ease;
   display: flex;
@@ -143,18 +148,18 @@ const ProjectTitle = styled.h3<{ $isDark: boolean }>`
   svg {
     opacity: 0;
     transition: opacity 0.2s;
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
   }
   ${ProjectCard}:hover & svg { opacity: 1; }
 `;
 
 const ProjectDescription = styled.p`
-  font-size: 13px;
+  font-size: 14px;
   color: #86868b;
   line-height: 1.55;
-  margin: 0 0 14px 0;
+  margin: 0 0 16px 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -186,8 +191,8 @@ const shimmer = `
 `;
 
 const SkeletonCard = styled.div<{ $isDark: boolean }>`
-  flex: 0 0 300px;
-  border-radius: 20px;
+  flex: 0 0 380px;
+  border-radius: 24px;
   overflow: hidden;
   background: ${p => p.$isDark ? '#111111' : '#f5f5f7'};
 `;
@@ -228,8 +233,8 @@ interface ProjectsProps {
 }
 
 const translations = {
-  ko: { title: '프로젝트', viewAll: '모두 보기 ›' },
-  en: { title: 'Projects',  viewAll: 'View All ›'  },
+  ko: { title: '프로젝트', viewAll: '전체 보기' },
+  en: { title: 'Projects',  viewAll: 'View All'  },
 };
 
 export default function Projects({ onProjectClick, onViewAll, showAll = false }: ProjectsProps) {
@@ -238,27 +243,43 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
   const { projects, loading } = useProjects();
   const t = translations[language];
   const displayProjects = showAll ? projects : projects.slice(0, 8);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  // 오른쪽 끝에서 시작 → 왼쪽에 카드 일부가 보여 스크롤 인지 유도
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || loading) return;
+    // 로드 직후 오른쪽 끝으로 이동
+    track.scrollLeft = track.scrollWidth - track.clientWidth;
+  }, [loading, displayProjects]);
 
   return (
-    <ProjectsSection id="projects" $isDark={isDark}>
+    <section id="projects" style={{
+      minHeight: '100vh',
+      padding: '120px 0',
+      background: isDark ? '#000000' : '#ffffff',
+      transition: 'background 0.3s ease',
+      display: 'flex',
+      alignItems: 'center',
+    }}>
       <Inner>
         <TitleRow>
           <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
           {onViewAll && (
-            <ViewAllLink $isDark={isDark} onClick={onViewAll}>
+            <ViewAllButton $isDark={isDark} onClick={onViewAll}>
               {t.viewAll}
               <ArrowRight />
-            </ViewAllLink>
+            </ViewAllButton>
           )}
         </TitleRow>
 
-        <ScrollTrack>
+        <ScrollTrack ref={trackRef}>
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
                 <SkeletonCard key={i} $isDark={isDark}>
                   <SkeletonImage $isDark={isDark} />
                   <ProjectInfo>
-                    <SkeletonLine $isDark={isDark} $width="55%" style={{ height: 20, marginBottom: 12 }} />
+                    <SkeletonLine $isDark={isDark} $width="55%" style={{ height: 22, marginBottom: 14 }} />
                     <SkeletonLine $isDark={isDark} />
                     <SkeletonLine $isDark={isDark} $width="75%" />
                   </ProjectInfo>
@@ -290,6 +311,6 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
           }
         </ScrollTrack>
       </Inner>
-    </ProjectsSection>
+    </section>
   );
 }
