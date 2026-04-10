@@ -180,7 +180,10 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
       <SnapSection>
         <Suspense fallback={<LoadingFallback $isDark={isDark}>Loading...</LoadingFallback>}>
           <OpenSource
+            compact
+            limit={3}
             onProjectClick={(id) => navigate(`/opensource/${id}`)}
+            onViewAll={() => navigate('/opensource')}
           />
         </Suspense>
       </SnapSection>

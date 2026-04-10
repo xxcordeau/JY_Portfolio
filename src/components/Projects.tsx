@@ -10,40 +10,44 @@ const ProjectsSection = styled.section<{ $isDark: boolean }>`
   padding: 120px 40px;
   background: ${props => props.$isDark ? '#000000' : '#ffffff'};
   transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
 
   @media (max-width: 768px) {
     padding: 80px 20px;
+    display: block;
   }
 `;
 
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
 `;
 
 const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 56px;
+  font-size: 44px;
   font-weight: 600;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 80px 0;
-  letter-spacing: -1.5px;
+  margin: 0 0 40px 0;
+  letter-spacing: -1.2px;
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
     font-size: 36px;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
     letter-spacing: -1px;
   }
 `;
 
 const ProjectGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 28px;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 24px;
   }
 `;
 
@@ -65,7 +69,7 @@ const ProjectCard = styled.div<{ $isDark: boolean }>`
 
 const ProjectImage = styled.div`
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   background: #e5e5e7;
   overflow: hidden;
 
@@ -78,15 +82,15 @@ const ProjectImage = styled.div`
 `;
 
 const ProjectInfo = styled.div`
-  padding: 24px;
+  padding: 18px 20px;
 `;
 
 const ProjectTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 12px 0;
-  letter-spacing: -0.5px;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.4px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -95,6 +99,8 @@ const ProjectTitle = styled.h3<{ $isDark: boolean }>`
   svg {
     opacity: 0;
     transition: opacity 0.3s ease;
+    width: 16px;
+    height: 16px;
   }
 
   ${ProjectCard}:hover & svg {
@@ -102,42 +108,46 @@ const ProjectTitle = styled.h3<{ $isDark: boolean }>`
   }
 
   @media (max-width: 768px) {
-    font-size: 20px;
+    font-size: 18px;
   }
 `;
 
 const ProjectDescription = styled.p`
-  font-size: 15px;
+  font-size: 13px;
   color: #86868b;
-  line-height: 1.6;
-  margin: 0 0 16px 0;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
   font-weight: 400;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.1px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 
   @media (max-width: 768px) {
-    font-size: 14px;
+    font-size: 13px;
   }
 `;
 
 const ProjectTags = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 `;
 
 const Tag = styled.span<{ $isDark: boolean }>`
   background: ${props => props.$isDark ? '#1d1d1f' : '#ffffff'};
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.1px;
   transition: all 0.3s ease;
 
   @media (max-width: 768px) {
     font-size: 11px;
-    padding: 5px 10px;
+    padding: 4px 10px;
   }
 `;
 
@@ -188,13 +198,13 @@ const ViewAllButton = styled.button<{ $isDark: boolean }>`
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin: 60px auto 0;
-  padding: 16px 32px;
+  margin: 32px auto 0;
+  padding: 12px 28px;
   background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   color: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
   border: none;
-  border-radius: 24px;
-  font-size: 15px;
+  border-radius: 20px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -208,7 +218,7 @@ const ViewAllButton = styled.button<{ $isDark: boolean }>`
   @media (max-width: 768px) {
     font-size: 14px;
     padding: 14px 28px;
-    margin-top: 40px;
+    margin-top: 32px;
   }
 `;
 

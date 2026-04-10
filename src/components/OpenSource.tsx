@@ -1,33 +1,52 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useOpenSource } from '../hooks/useOpenSource';
 import { Github, Package, Star, Download, ArrowRight } from 'lucide-react';
 
-const OpenSourceContainer = styled.div<{ $isDark: boolean }>`
+const OpenSourceContainer = styled.div<{ $isDark: boolean; $compact: boolean }>`
   min-height: 100vh;
   background: ${props => props.$isDark ? '#000000' : '#ffffff'};
-  padding-top: 80px;
   transition: background 0.3s ease;
-`;
-
-const Hero = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 80px 40px 60px;
-  text-align: center;
+  ${p => p.$compact ? css`
+    padding: 120px 0 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  ` : css`
+    padding-top: 80px;
+  `}
 
   @media (max-width: 768px) {
-    padding: 60px 20px 40px;
+    ${p => p.$compact && css`
+      padding: 80px 0 40px;
+      display: block;
+    `}
   }
 `;
 
-const Title = styled.h1<{ $isDark: boolean }>`
-  font-size: 56px;
-  font-weight: 700;
+const Hero = styled.div<{ $compact: boolean }>`
+  max-width: 1200px;
+  margin: 0 auto;
+  ${p => p.$compact ? css`
+    padding: 0 40px 32px;
+    text-align: left;
+  ` : css`
+    padding: 80px 40px 60px;
+    text-align: center;
+  `}
+
+  @media (max-width: 768px) {
+    padding: ${p => p.$compact ? '0 20px 24px' : '60px 20px 40px'};
+  }
+`;
+
+const Title = styled.h1<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '44px' : '56px'};
+  font-weight: ${p => p.$compact ? '600' : '700'};
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 20px 0;
-  letter-spacing: -1.5px;
+  margin: 0 0 ${p => p.$compact ? '0' : '20px'} 0;
+  letter-spacing: ${p => p.$compact ? '-1.2px' : '-1.5px'};
   line-height: 1.1;
 
   @media (max-width: 768px) {
@@ -35,30 +54,69 @@ const Title = styled.h1<{ $isDark: boolean }>`
   }
 `;
 
-const Subtitle = styled.p<{ $isDark: boolean }>`
-  font-size: 21px;
+const Subtitle = styled.p<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '16px' : '21px'};
   color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
   max-width: 800px;
   margin: 0 auto;
   line-height: 1.5;
+  ${p => p.$compact && css`display: none;`}
 
   @media (max-width: 768px) {
-    font-size: 17px;
+    font-size: ${p => p.$compact ? '14px' : '17px'};
   }
 `;
 
-const ProjectsGrid = styled.div`
+const ProjectsGrid = styled.div<{ $compact: boolean }>`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 40px 100px;
+  ${p => p.$compact ? css`
+    padding: 0 40px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  ` : css`
+    padding: 0 40px 100px;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+  `}
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 30px;
 
   @media (max-width: 768px) {
-    padding: 0 20px 60px;
+    padding: ${p => p.$compact ? '0 20px' : '0 20px 60px'};
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+`;
+
+const ViewAllWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+`;
+
+const ViewAllBtn = styled.button<{ $isDark: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  color: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: -0.2px;
+
+  &:hover {
+    background: ${props => props.$isDark ? '#e5e5e7' : '#2d2d2d'};
+    transform: translateY(-2px);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
   }
 `;
 
@@ -80,9 +138,9 @@ const ProjectCard = styled.div<{ $isDark: boolean }>`
   }
 `;
 
-const ProjectImage = styled.div<{ $image: string }>`
+const ProjectImage = styled.div<{ $image: string; $compact: boolean }>`
   width: 100%;
-  height: 200px;
+  height: ${p => p.$compact ? '140px' : '200px'};
   background-image: url(${props => props.$image});
   background-size: cover;
   background-position: center;
@@ -96,69 +154,75 @@ const ProjectImage = styled.div<{ $image: string }>`
   }
 `;
 
-const ProjectContent = styled.div`
-  padding: 24px;
+const ProjectContent = styled.div<{ $compact: boolean }>`
+  padding: ${p => p.$compact ? '18px 20px' : '24px'};
 `;
 
-const ProjectHeader = styled.div`
+const ProjectHeader = styled.div<{ $compact: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 16px;
+  margin-bottom: ${p => p.$compact ? '10px' : '16px'};
   gap: 12px;
 `;
 
-const ProjectName = styled.h3<{ $isDark: boolean }>`
-  font-size: 22px;
-  font-weight: 700;
+const ProjectName = styled.h3<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '18px' : '22px'};
+  font-weight: ${p => p.$compact ? '600' : '700'};
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   margin: 0;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.4px;
 `;
 
-const Category = styled.span<{ $isDark: boolean }>`
-  font-size: 12px;
+const Category = styled.span<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '11px' : '12px'};
   color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
   background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'};
-  padding: 4px 12px;
+  padding: ${p => p.$compact ? '3px 10px' : '4px 12px'};
   border-radius: 12px;
   white-space: nowrap;
   font-weight: 500;
 `;
 
-const ProjectDescription = styled.p<{ $isDark: boolean }>`
-  font-size: 15px;
+const ProjectDescription = styled.p<{ $isDark: boolean; $compact: boolean }>`
+  font-size: ${p => p.$compact ? '13px' : '15px'};
   color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
-  margin: 0 0 20px 0;
+  margin: 0 0 ${p => p.$compact ? '12px' : '20px'} 0;
   line-height: 1.5;
+  ${p => p.$compact && css`
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  `}
 `;
 
-const StatsRow = styled.div`
+const StatsRow = styled.div<{ $compact: boolean }>`
   display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: ${p => p.$compact ? '12px' : '16px'};
+  margin-bottom: ${p => p.$compact ? '10px' : '16px'};
   flex-wrap: wrap;
 `;
 
-const Stat = styled.div<{ $isDark: boolean }>`
+const Stat = styled.div<{ $isDark: boolean; $compact: boolean }>`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: ${p => p.$compact ? '12px' : '13px'};
   color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
 
   svg {
-    width: 14px;
-    height: 14px;
+    width: ${p => p.$compact ? '12px' : '14px'};
+    height: ${p => p.$compact ? '12px' : '14px'};
     color: ${props => props.$isDark ? '#4ECDC4' : '#007AFF'};
   }
 `;
 
-const Tags = styled.div`
+const Tags = styled.div<{ $compact: boolean }>`
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: ${p => p.$compact ? '6px' : '8px'};
+  margin-bottom: ${p => p.$compact ? '10px' : '16px'};
 `;
 
 const Tag = styled.span<{ $isDark: boolean }>`
@@ -238,35 +302,54 @@ const SkeletonLine = styled.div<{ $isDark: boolean; $w?: string }>`
 
 interface OpenSourceProps {
   onProjectClick: (id: string) => void;
+  /** Home preview mode: left-aligned title, no subtitle, compact cards, limited count */
+  compact?: boolean;
+  /** Max number of items to show in compact mode */
+  limit?: number;
+  /** Callback for "View All" button in compact mode */
+  onViewAll?: () => void;
 }
 
 const translations = {
   ko: {
-    title: '오픈소스 프로젝트',
+    title: '오픈소스',
     subtitle: '커뮤니티와 함께 만들어가는 개발자 도구와 라이브러리',
-    viewDetails: '자세히 보기'
+    viewDetails: '자세히 보기',
+    viewAll: '전체보기'
   },
   en: {
-    title: 'Open Source Projects',
+    title: 'Open Source',
     subtitle: 'Developer tools and libraries built with the community',
-    viewDetails: 'View Details'
+    viewDetails: 'View Details',
+    viewAll: 'View All'
   }
 };
 
-export default function OpenSource({ onProjectClick }: OpenSourceProps) {
+export default function OpenSource({
+  onProjectClick,
+  compact = false,
+  limit,
+  onViewAll,
+}: OpenSourceProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
   const { projects: openSourceProjects, loading } = useOpenSource();
   const t = translations[language];
+  const displayProjects =
+    compact && typeof limit === 'number'
+      ? openSourceProjects.slice(0, limit)
+      : openSourceProjects;
+  const hasMore =
+    compact && typeof limit === 'number' && openSourceProjects.length > limit;
 
   return (
-    <OpenSourceContainer $isDark={isDark}>
-      <Hero>
-        <Title $isDark={isDark}>{t.title}</Title>
-        <Subtitle $isDark={isDark}>{t.subtitle}</Subtitle>
+    <OpenSourceContainer $isDark={isDark} $compact={compact}>
+      <Hero $compact={compact}>
+        <Title $isDark={isDark} $compact={compact}>{t.title}</Title>
+        <Subtitle $isDark={isDark} $compact={compact}>{t.subtitle}</Subtitle>
       </Hero>
 
-      <ProjectsGrid>
+      <ProjectsGrid $compact={compact}>
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
             <SkeletonCard key={i} $isDark={isDark}>
@@ -279,39 +362,39 @@ export default function OpenSource({ onProjectClick }: OpenSourceProps) {
               </SkeletonBody>
             </SkeletonCard>
           ))
-        ) : openSourceProjects.map((project) => (
+        ) : displayProjects.map((project) => (
           <ProjectCard
             key={project.id}
             $isDark={isDark}
             onClick={() => onProjectClick(project.id)}
           >
-            <ProjectImage $image={project.image} />
-            <ProjectContent>
-              <ProjectHeader>
-                <ProjectName $isDark={isDark}>{project.name}</ProjectName>
-                <Category $isDark={isDark}>{project.category[language]}</Category>
+            <ProjectImage $image={project.image} $compact={compact} />
+            <ProjectContent $compact={compact}>
+              <ProjectHeader $compact={compact}>
+                <ProjectName $isDark={isDark} $compact={compact}>{project.name}</ProjectName>
+                <Category $isDark={isDark} $compact={compact}>{project.category[language]}</Category>
               </ProjectHeader>
 
-              <ProjectDescription $isDark={isDark}>
+              <ProjectDescription $isDark={isDark} $compact={compact}>
                 {project.description[language]}
               </ProjectDescription>
 
-              <StatsRow>
-                <Stat $isDark={isDark}>
+              <StatsRow $compact={compact}>
+                <Stat $isDark={isDark} $compact={compact}>
                   <Star />
                   {project.stats.stars}
                 </Stat>
-                <Stat $isDark={isDark}>
+                <Stat $isDark={isDark} $compact={compact}>
                   <Download />
                   {project.stats.downloads}
                 </Stat>
-                <Stat $isDark={isDark}>
+                <Stat $isDark={isDark} $compact={compact}>
                   <Github />
                   {project.stats.contributors}
                 </Stat>
               </StatsRow>
 
-              <Tags>
+              <Tags $compact={compact}>
                 {project.tags.map((tag) => (
                   <Tag key={tag} $isDark={isDark}>{tag}</Tag>
                 ))}
@@ -325,6 +408,15 @@ export default function OpenSource({ onProjectClick }: OpenSourceProps) {
           </ProjectCard>
         ))}
       </ProjectsGrid>
+
+      {!loading && hasMore && onViewAll && (
+        <ViewAllWrap>
+          <ViewAllBtn $isDark={isDark} onClick={onViewAll}>
+            {t.viewAll}
+            <ArrowRight />
+          </ViewAllBtn>
+        </ViewAllWrap>
+      )}
     </OpenSourceContainer>
   );
 }
