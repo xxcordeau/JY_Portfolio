@@ -56,15 +56,15 @@ const BentoGrid = styled.div`
   }
 `;
 
-/* photo bg color — matches the photo's background */
-const PHOTO_BG = '#e9e8e6';
+/* Apple-style card background */
+const CARD_BG = '#f5f5f7';
 
 /* ── Hero Tile (left, spans both rows) ── */
 const HeroTile = styled.div`
   grid-column: 1;
   grid-row: 1 / 3;
   border-radius: 28px;
-  background: ${PHOTO_BG};
+  background: ${CARD_BG};
   display: flex;
   flex-direction: column;
   min-height: 600px;
@@ -86,6 +86,7 @@ const HeroPhoto = styled.div`
   position: absolute;
   bottom: 0;
   right: 24px;
+  z-index: 1;
 
   img {
     display: block;
@@ -102,10 +103,10 @@ const HeroPhoto = styled.div`
   }
 
   @media (max-width: 768px) {
-    right: 12px;
+    right: 0;
 
     img {
-      width: 240px;
+      width: 200px;
     }
   }
 `;
@@ -123,7 +124,8 @@ const HeroContent = styled.div`
 
   @media (max-width: 768px) {
     padding: 32px 28px;
-    width: 100%;
+    /* 오른쪽 사진 영역(200px) 침범 안 하도록 */
+    width: calc(100% - 200px);
   }
 `;
 
