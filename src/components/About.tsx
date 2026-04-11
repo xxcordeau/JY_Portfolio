@@ -91,7 +91,7 @@ const HeroPhoto = styled.div<{ $isDark: boolean }>`
 
   img {
     display: block;
-    width: 260px;
+    width: 310px;
     height: auto;
     mask-image: none;
     -webkit-mask-image: none;
