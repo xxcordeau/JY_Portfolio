@@ -85,36 +85,25 @@ const HeroTile = styled.div`
 
 const HeroPhoto = styled.div`
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
   bottom: 0;
-  padding: 140px 80px 0;
+  right: 32px;
+  width: 48%;
+  height: 82%;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    object-position: center top;
-    /* 좌우 + 상단 페이드 */
+    object-position: bottom center;
+    /* 상단 + 왼쪽 페이드 */
     mask-image:
-      linear-gradient(to bottom,  transparent 0%,  black 18%, black 100%),
-      linear-gradient(to right,   transparent 0%,  black 18%, black 82%, transparent 100%);
+      linear-gradient(to bottom, transparent 0%, black 22%, black 100%),
+      linear-gradient(to right,  transparent 0%, black 20%, black 100%);
     mask-composite: intersect;
     -webkit-mask-image:
-      linear-gradient(to bottom,  transparent 0%,  black 18%, black 100%),
-      linear-gradient(to right,   transparent 0%,  black 18%, black 82%, transparent 100%);
+      linear-gradient(to bottom, transparent 0%, black 22%, black 100%),
+      linear-gradient(to right,  transparent 0%, black 20%, black 100%);
     -webkit-mask-composite: source-in;
-  }
-
-  /* 하단 흰색 페이드 오버레이 */
-  &::after {
-    content: '';
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 50%;
-    background: linear-gradient(to bottom, transparent 0%, ${PHOTO_BG} 100%);
-    pointer-events: none;
   }
 `;
 
