@@ -90,7 +90,7 @@ const HeroPhoto = styled.div`
   right: 0;
   bottom: 0;
   /* 사진 안쪽으로 여백 → 더 작아 보임 */
-  padding: 32px 48px 0;
+  padding: 80px 48px 0;
 
   img {
     width: 100%;
