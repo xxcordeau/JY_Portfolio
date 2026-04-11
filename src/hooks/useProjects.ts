@@ -3,6 +3,12 @@ import { supabase } from '../lib/supabase';
 import type { DbProject } from '../lib/types/database';
 import type { Project } from '../data/projectsData';
 
+function ensureHttps(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://${url}`;
+}
+
 function toProject(row: DbProject): Project {
   const frontend = row.tech_frontend ?? [];
   const backend = row.tech_backend ?? [];
@@ -25,9 +31,9 @@ function toProject(row: DbProject): Project {
       others: others.length > 0 ? others : undefined,
     },
     links: {
-      github: row.link_github ?? undefined,
-      demo: row.link_demo ?? undefined,
-      website: row.link_website ?? undefined,
+      github: ensureHttps(row.link_github ?? undefined),
+      demo: ensureHttps(row.link_demo ?? undefined),
+      website: ensureHttps(row.link_website ?? undefined),
     },
   };
 }
