@@ -103,7 +103,7 @@ const HeroPhoto = styled.div<{ $isDark: boolean }>`
     right: 0;
 
     img {
-      width: 200px;
+      width: 260px;
     }
   }
 `;
@@ -121,8 +121,8 @@ const HeroContent = styled.div`
 
   @media (max-width: 768px) {
     padding: 32px 28px;
-    /* 오른쪽 사진 영역(200px) 침범 안 하도록 */
-    width: calc(100% - 200px);
+    /* 오른쪽 사진 영역(260px) 침범 안 하도록 */
+    width: calc(100% - 260px);
   }
 `;
 
