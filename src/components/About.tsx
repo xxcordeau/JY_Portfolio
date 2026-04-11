@@ -56,8 +56,8 @@ const BentoGrid = styled.div`
   }
 `;
 
-/* Apple-style card background */
-const CARD_BG = '#f5f5f7';
+/* Apple-style: white card on light gray bg */
+const CARD_BG = '#ffffff';
 
 /* ── Hero Tile (left, spans both rows) ── */
 const HeroTile = styled.div`
@@ -65,6 +65,7 @@ const HeroTile = styled.div`
   grid-row: 1 / 3;
   border-radius: 28px;
   background: ${CARD_BG};
+  box-shadow: 0 2px 24px rgba(0,0,0,0.07);
   display: flex;
   flex-direction: column;
   min-height: 600px;
@@ -231,6 +232,7 @@ const Tile = styled.div<{ $isDark: boolean }>`
   border-radius: 24px;
   padding: 36px;
   background: ${p => p.$isDark ? '#111111' : '#ffffff'};
+  box-shadow: ${p => p.$isDark ? 'none' : '0 2px 24px rgba(0,0,0,0.07)'};
   transition: background 0.3s ease;
 
   @media (max-width: 768px) {
