@@ -105,7 +105,7 @@ const HeroPhoto = styled.div`
     right: 12px;
 
     img {
-      width: 160px;
+      width: 240px;
     }
   }
 `;
