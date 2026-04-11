@@ -198,7 +198,8 @@ function PdfPageCanvas({
 
       const canvas = canvasRef.current;
       if (!canvas || cancelled) return;
-      const ctx = canvas.getContext('2d');
+      // alpha: false → 투명도 없이 렌더링 → 색상 정확도 향상
+      const ctx = canvas.getContext('2d', { alpha: false });
       if (!ctx) return;
 
       // Cancel any previous render
@@ -209,7 +210,11 @@ function PdfPageCanvas({
       canvas.style.width = `${viewport.width / dpr}px`;
       canvas.style.height = `${viewport.height / dpr}px`;
 
-      renderTask.current = page.render({ canvasContext: ctx, viewport });
+      // 흰 배경 먼저 채워서 투명 레이어로 인한 색 왜곡 방지
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      renderTask.current = page.render({ canvasContext: ctx, viewport, intent: 'display' });
       await renderTask.current.promise.catch(() => {});
     };
     render();
