@@ -25,42 +25,42 @@ const Container = styled.div`
 `;
 
 const SectionTitle = styled.h2<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '36px' : '44px'};
-  font-weight: 600;
+  font-size: 52px;
+  font-weight: 700;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 ${p => p.$compact ? '10px' : '16px'} 0;
-  letter-spacing: -1.2px;
+  margin: 0 0 14px 0;
+  letter-spacing: -1.5px;
+  line-height: 1;
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
-    font-size: 32px;
-    margin-bottom: 12px;
-    letter-spacing: -1px;
+    font-size: 36px;
+    margin-bottom: 10px;
   }
 `;
 
 const SectionSubtitle = styled.p<{ $compact: boolean }>`
-  font-size: ${p => p.$compact ? '15px' : '20px'};
+  font-size: 18px;
   color: #86868b;
-  margin: 0 0 ${p => p.$compact ? '28px' : '40px'} 0;
-  line-height: 1.6;
+  margin: 0 0 52px 0;
+  line-height: 1.5;
   font-weight: 400;
 
   @media (max-width: 768px) {
-    font-size: 14px;
-    margin-bottom: 24px;
+    font-size: 15px;
+    margin-bottom: 36px;
   }
 `;
 
 const ProfileCard = styled.div<{ $isDark: boolean; $compact: boolean }>`
-  margin-bottom: ${p => p.$compact ? '32px' : '60px'};
-  padding-bottom: ${p => p.$compact ? '24px' : '40px'};
-  border-bottom: 1px solid ${props => props.$isDark ? 'rgba(245, 245, 247, 0.1)' : 'rgba(0, 0, 0, 0.06)'};
+  margin-bottom: 52px;
+  padding-bottom: 52px;
+  border-bottom: 1px solid ${props => props.$isDark ? 'rgba(245, 245, 247, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
   transition: border-color 0.3s ease;
 
   @media (max-width: 768px) {
-    margin-bottom: 32px;
-    padding-bottom: 24px;
+    margin-bottom: 36px;
+    padding-bottom: 36px;
   }
 `;
 
@@ -108,11 +108,12 @@ const ProfileContent = styled.div`
 `;
 
 const ProfileLabel = styled.div<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '11px' : '13px'};
+  font-size: 12px;
   color: #86868b;
-  margin-bottom: ${p => p.$compact ? '2px' : '4px'};
+  margin-bottom: 3px;
   font-weight: 500;
-  letter-spacing: -0.1px;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
 
   @media (max-width: 768px) {
     font-size: 11px;
@@ -120,7 +121,7 @@ const ProfileLabel = styled.div<{ $isDark: boolean; $compact: boolean }>`
 `;
 
 const ProfileValue = styled.div<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '14px' : '17px'};
+  font-size: 16px;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   font-weight: 400;
   letter-spacing: -0.2px;
@@ -128,68 +129,45 @@ const ProfileValue = styled.div<{ $isDark: boolean; $compact: boolean }>`
   word-break: break-all;
 
   @media (max-width: 768px) {
-    font-size: 14px;
+    font-size: 15px;
   }
 `;
 
 const BlocksContainer = styled.div<{ $compact: boolean }>`
   display: flex;
   flex-direction: column;
-  gap: ${p => p.$compact ? '32px' : '56px'};
+  gap: 64px;
 
   @media (max-width: 768px) {
-    gap: 40px;
+    gap: 48px;
   }
 `;
 
 const Block = styled.div``;
 
 const BlockHeader = styled.div<{ $compact: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: ${p => p.$compact ? '8px' : '10px'};
-  margin-bottom: ${p => p.$compact ? '20px' : '40px'};
+  margin-bottom: 32px;
 
   @media (max-width: 768px) {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
 `;
 
 const BlockIcon = styled.div<{ $isDark: boolean; $compact: boolean }>`
-  width: ${p => p.$compact ? '24px' : '32px'};
-  height: ${p => p.$compact ? '24px' : '32px'};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  transition: all 0.3s ease;
-
-  svg {
-    width: ${p => p.$compact ? '18px' : '24px'};
-    height: ${p => p.$compact ? '18px' : '24px'};
-  }
-
-  @media (max-width: 768px) {
-    width: 22px;
-    height: 22px;
-
-    svg {
-      width: 16px;
-      height: 16px;
-    }
-  }
+  display: none;
 `;
 
 const BlockTitle = styled.h3<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '22px' : '32px'};
-  font-weight: 600;
+  font-size: 38px;
+  font-weight: 700;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   margin: 0;
-  letter-spacing: -0.5px;
+  letter-spacing: -1px;
+  line-height: 1;
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
-    font-size: 20px;
+    font-size: 28px;
   }
 `;
 
@@ -254,16 +232,16 @@ const CardsContainer = styled.div<{ $compact: boolean }>`
 `;
 
 const Card = styled.div<{ $isDark: boolean; $compact: boolean }>`
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(255, 255, 255, 0.8)'};
+  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 0.9)'};
   border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
-  border-radius: ${p => p.$compact ? '12px' : '16px'};
-  padding: ${p => p.$compact ? '20px 22px' : '32px'};
+  border-radius: 20px;
+  padding: 32px;
   transition: all 0.3s ease;
   backdrop-filter: blur(20px);
 
   @media (max-width: 768px) {
-    padding: 20px;
-    border-radius: 12px;
+    padding: 22px;
+    border-radius: 16px;
   }
 `;
 
@@ -271,12 +249,11 @@ const CardHeader = styled.div<{ $compact: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: ${p => p.$compact ? '10px' : '20px'};
-  gap: ${p => p.$compact ? '12px' : '20px'};
+  gap: 16px;
 
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
 `;
 
@@ -285,22 +262,22 @@ const CardInfo = styled.div`
 `;
 
 const CardTitle = styled.h4<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '18px' : '24px'};
+  font-size: 22px;
   font-weight: 600;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 ${p => p.$compact ? '4px' : '8px'} 0;
+  margin: 0 0 6px 0;
   letter-spacing: -0.4px;
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
-    font-size: 17px;
+    font-size: 18px;
   }
 `;
 
 const CardSubtitle = styled.div<{ $compact: boolean }>`
-  font-size: ${p => p.$compact ? '14px' : '18px'};
+  font-size: 16px;
   color: #86868b;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: -0.2px;
 
   @media (max-width: 768px) {
@@ -309,13 +286,14 @@ const CardSubtitle = styled.div<{ $compact: boolean }>`
 `;
 
 const CardPeriod = styled.div<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '12px' : '16px'};
+  font-size: 13px;
   color: ${props => props.$isDark ? '#a1a1a6' : '#86868b'};
   font-weight: 500;
   white-space: nowrap;
-  padding: ${p => p.$compact ? '4px 10px' : '8px 16px'};
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'};
-  border-radius: 8px;
+  padding: 6px 14px;
+  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)'};
+  border-radius: 20px;
+  align-self: flex-start;
 
   @media (max-width: 768px) {
     font-size: 12px;
@@ -324,20 +302,15 @@ const CardPeriod = styled.div<{ $isDark: boolean; $compact: boolean }>`
 `;
 
 const CardDescription = styled.p<{ $compact: boolean }>`
-  font-size: ${p => p.$compact ? '13px' : '17px'};
+  font-size: 15px;
   color: #86868b;
-  line-height: ${p => p.$compact ? '1.55' : '1.7'};
-  margin: 0 0 ${p => p.$compact ? '10px' : '16px'} 0;
+  line-height: 1.65;
+  margin: 16px 0 16px 0;
   letter-spacing: -0.1px;
-  ${p => p.$compact && css`
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  `}
 
   @media (max-width: 768px) {
-    font-size: 13px;
+    font-size: 14px;
+    margin: 12px 0 12px 0;
   }
 `;
 
@@ -347,26 +320,25 @@ const CardAchievements = styled.ul<{ $compact: boolean }>`
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: ${p => p.$compact ? '6px' : '10px'};
+  gap: 8px;
 `;
 
 const CardAchievementItem = styled.li<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '12px' : '16px'};
-  color: ${props => props.$isDark ? '#d4d4d8' : '#6e6e73'};
-  padding-left: ${p => p.$compact ? '16px' : '20px'};
+  font-size: 14px;
+  color: ${props => props.$isDark ? '#c7c7cc' : '#6e6e73'};
+  padding-left: 18px;
   position: relative;
-  line-height: ${p => p.$compact ? '1.5' : '1.6'};
+  line-height: 1.6;
 
   &::before {
-    content: '•';
+    content: '–';
     position: absolute;
-    left: 6px;
-    color: ${props => props.$isDark ? '#4ECDC4' : '#FF6B6B'};
-    font-weight: bold;
+    left: 0;
+    color: #86868b;
   }
 
   @media (max-width: 768px) {
-    font-size: 12px;
+    font-size: 13px;
   }
 `;
 
