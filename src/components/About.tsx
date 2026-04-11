@@ -94,9 +94,15 @@ const HeroPhoto = styled.div`
     height: 100%;
     object-fit: contain;
     object-position: bottom center;
-    /* 누끼라 배경 없음 — 상단만 살짝 페이드 */
-    mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 100%);
+    /* 상단 + 좌우 페이드 — 어깨 자연스럽게 */
+    mask-image:
+      linear-gradient(to bottom, transparent 0%, black 18%, black 100%),
+      linear-gradient(to right,  transparent 0%, black 15%, black 85%, transparent 100%);
+    mask-composite: intersect;
+    -webkit-mask-image:
+      linear-gradient(to bottom, transparent 0%, black 18%, black 100%),
+      linear-gradient(to right,  transparent 0%, black 15%, black 85%, transparent 100%);
+    -webkit-mask-composite: source-in;
   }
 `;
 
