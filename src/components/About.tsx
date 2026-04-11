@@ -79,7 +79,8 @@ const HeroTile = styled.div<{ $isDark: boolean }>`
   overflow: hidden;
 
   @media (max-width: 768px) {
-    min-height: 340px;
+    min-height: unset;
+    flex-direction: column;
   }
 `;
 
@@ -99,11 +100,17 @@ const HeroPhoto = styled.div<{ $isDark: boolean }>`
     transition: filter 0.3s ease;
   }
 
+  /* 모바일: 사진을 아래에 중앙 배치, 절대위치 해제 */
   @media (max-width: 768px) {
-    right: 0;
+    position: relative;
+    bottom: unset;
+    right: unset;
+    display: flex;
+    justify-content: center;
+    padding-top: 8px;
 
     img {
-      width: 260px;
+      width: 200px;
     }
   }
 `;
@@ -120,9 +127,8 @@ const HeroContent = styled.div`
   width: 55%;
 
   @media (max-width: 768px) {
-    padding: 32px 28px;
-    /* 오른쪽 사진 영역(260px) 침범 안 하도록 */
-    width: calc(100% - 260px);
+    width: 100%;
+    padding: 32px 28px 20px;
   }
 `;
 
@@ -451,14 +457,6 @@ export default function About() {
           {/* ── 왼쪽: 허정연 + 기술스택 ── */}
           <LeftStack>
           <HeroTile $isDark={isDark}>
-            <HeroPhoto $isDark={isDark}>
-              <img
-                src={profilePhotoUrl}
-                alt="허정연"
-                onError={() => setProfilePhotoUrl(profilePhoto)}
-              />
-            </HeroPhoto>
-
             <HeroContent>
               <HeroTop>
                 <HeroLabel $isDark={isDark}>{t.jobTitle}</HeroLabel>
@@ -483,6 +481,14 @@ export default function About() {
                 ))}
               </HeroBottom>
             </HeroContent>
+
+            <HeroPhoto $isDark={isDark}>
+              <img
+                src={profilePhotoUrl}
+                alt="허정연"
+                onError={() => setProfilePhotoUrl(profilePhoto)}
+              />
+            </HeroPhoto>
           </HeroTile>
 
             {/* 기술 스택 */}
