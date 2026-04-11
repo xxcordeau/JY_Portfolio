@@ -163,14 +163,17 @@ export default function PresentationsManager() {
   };
 
   const openEdit = (p: DbPresentation) => {
-    setEditing({ ...p });
+    // created_at 제외하고 편집 state에 올림
+    const { created_at: _omit, ...rest } = p;
+    setEditing(rest);
     setIsNew(false);
     setPdfFile(null);
     setThumbFile(null);
   };
 
-  const setField = <K extends keyof typeof emptyPresentation>(key: K, value: (typeof emptyPresentation)[K]) => {
-    setEditing(prev => prev ? { ...prev, [key]: value } : null);
+  // 각 필드를 명시적으로 업데이트하는 헬퍼
+  const update = (patch: Partial<Omit<DbPresentation, 'id' | 'created_at'>>) => {
+    setEditing(prev => prev ? { ...prev, ...patch } : null);
   };
 
   const handleSave = async () => {
@@ -206,7 +209,20 @@ export default function PresentationsManager() {
         thumbUrl = await uploadFile('presentations', `thumb-${editing.id}.${ext}`, thumbFile);
       }
 
-      const payload = { ...editing, file_url: fileUrl, thumbnail_url: thumbUrl };
+      // id, created_at 제외하고 명시적으로 payload 구성
+      const payload = {
+        id: editing.id,
+        title_ko: editing.title_ko,
+        title_en: editing.title_en,
+        description_ko: editing.description_ko,
+        description_en: editing.description_en,
+        category_tag: editing.category_tag,
+        file_url: fileUrl,
+        thumbnail_url: thumbUrl,
+        date: editing.date,
+        is_public: editing.is_public,
+        sort_order: editing.sort_order,
+      };
 
       if (isNew) {
         const { error } = await supabase.from('presentations').insert({ ...payload, created_at: new Date().toISOString() });
@@ -311,42 +327,42 @@ export default function PresentationsManager() {
                 <FormRow>
                   <FormGroup>
                     <FormLabel $isDark={isDark}>제목 (KO)</FormLabel>
-                    <FormInput $isDark={isDark} value={editing.title_ko} onChange={e => setField('title_ko', e.target.value)} />
+                    <FormInput $isDark={isDark} value={editing.title_ko} onChange={e => update({ title_ko: e.target.value })} />
                   </FormGroup>
                   <FormGroup>
                     <FormLabel $isDark={isDark}>제목 (EN)</FormLabel>
-                    <FormInput $isDark={isDark} value={editing.title_en} onChange={e => setField('title_en', e.target.value)} />
+                    <FormInput $isDark={isDark} value={editing.title_en} onChange={e => update({ title_en: e.target.value })} />
                   </FormGroup>
                 </FormRow>
                 <FormGroup>
                   <FormLabel $isDark={isDark}>설명 (KO)</FormLabel>
                   <FormTextarea $isDark={isDark} value={editing.description_ko ?? ''}
-                    onChange={e => setField('description_ko', e.target.value || null)} style={{ minHeight: 60 }} />
+                    onChange={e => update({ description_ko: e.target.value || null })} style={{ minHeight: 60 }} />
                 </FormGroup>
                 <FormGroup>
                   <FormLabel $isDark={isDark}>설명 (EN)</FormLabel>
                   <FormTextarea $isDark={isDark} value={editing.description_en ?? ''}
-                    onChange={e => setField('description_en', e.target.value || null)} style={{ minHeight: 60 }} />
+                    onChange={e => update({ description_en: e.target.value || null })} style={{ minHeight: 60 }} />
                 </FormGroup>
                 <FormRow>
                   <FormGroup>
                     <FormLabel $isDark={isDark}>카테고리 태그</FormLabel>
                     <FormInput $isDark={isDark} value={editing.category_tag ?? ''}
-                      onChange={e => setField('category_tag', e.target.value || null)} placeholder="Design, Tech..." />
+                      onChange={e => update({ category_tag: e.target.value.trim() || null })} placeholder="Design, Tech..." />
                   </FormGroup>
                   <FormGroup>
                     <FormLabel $isDark={isDark}>날짜</FormLabel>
-                    <FormInput $isDark={isDark} type="date" value={editing.date} onChange={e => setField('date', e.target.value)} />
+                    <FormInput $isDark={isDark} type="date" value={editing.date} onChange={e => update({ date: e.target.value })} />
                   </FormGroup>
                 </FormRow>
                 <FormRow>
                   <FormGroup>
                     <FormLabel $isDark={isDark}>정렬 순서</FormLabel>
                     <FormInput $isDark={isDark} type="number" value={editing.sort_order}
-                      onChange={e => setField('sort_order', Number(e.target.value))} />
+                      onChange={e => update({ sort_order: Number(e.target.value) })} />
                   </FormGroup>
                   <FormGroup>
-                    <ToggleWrapper onClick={() => setField('is_public', !editing.is_public)}>
+                    <ToggleWrapper onClick={() => update({ is_public: !editing.is_public })}>
                       <ToggleSwitch $on={editing.is_public} />
                       <ToggleLabel $isDark={isDark}>공개</ToggleLabel>
                     </ToggleWrapper>

@@ -385,14 +385,14 @@ const translations = {
   ko: {
     back: '뒤로가기',
     title: '오픈소스',
-    subtitle: '커뮤니티와 함께 만들어가는 개발자 도구와 라이브러리',
+    subtitle: '직접 만들고 공개한 라이브러리, 컴포넌트, 그리고 작은 실험들',
     viewDetails: '자세히 보기',
     viewAll: '전체보기'
   },
   en: {
     back: 'Back',
     title: 'Open Source',
-    subtitle: 'Developer tools and libraries built with the community',
+    subtitle: 'Libraries, components, and small experiments I\'ve built and open-sourced',
     viewDetails: 'View Details',
     viewAll: 'View All'
   }
