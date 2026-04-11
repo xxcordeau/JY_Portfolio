@@ -93,20 +93,8 @@ const HeroPhoto = styled.div<{ $isDark: boolean }>`
     display: block;
     width: 260px;
     height: auto;
-    mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black 12%,
-      black 88%,
-      transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black 12%,
-      black 88%,
-      transparent 100%
-    );
+    mask-image: none;
+    -webkit-mask-image: none;
     filter: ${p => p.$isDark ? 'grayscale(0.35) brightness(0.9)' : 'none'};
     transition: filter 0.3s ease;
   }
