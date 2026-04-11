@@ -59,27 +59,26 @@ const BentoGrid = styled.div`
 /* Apple-style: white card on light gray bg */
 const CARD_BG = '#ffffff';
 
-/* ── Hero Tile (left, spans both rows) ── */
+/* ── Left / Right stacks ── */
+const LeftStack = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+`;
+
+/* ── Hero Tile ── */
 const HeroTile = styled.div`
-  grid-column: 1;
-  grid-row: 1 / 3;
   border-radius: 28px;
   background: ${CARD_BG};
   box-shadow: 0 2px 24px rgba(0,0,0,0.07);
   display: flex;
   flex-direction: column;
-  min-height: 600px;
+  min-height: 400px;
   position: relative;
   overflow: hidden;
 
-  @media (max-width: 960px) {
-    grid-column: 1;
-    grid-row: auto;
-    min-height: 480px;
-  }
-
   @media (max-width: 768px) {
-    min-height: 400px;
+    min-height: 340px;
   }
 `;
 
@@ -216,16 +215,9 @@ const ContactValue = styled.div`
 
 /* ── Right column tiles ── */
 const RightStack = styled.div`
-  grid-column: 2;
-  grid-row: 1 / 3;
   display: flex;
   flex-direction: column;
   gap: 14px;
-
-  @media (max-width: 960px) {
-    grid-column: 1;
-    grid-row: auto;
-  }
 `;
 
 const Tile = styled.div<{ $isDark: boolean }>`
@@ -438,7 +430,8 @@ export default function About() {
         <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
 
         <BentoGrid>
-          {/* ── Hero Tile (left) ── */}
+          {/* ── 왼쪽: 허정연 + 기술스택 ── */}
+          <LeftStack>
           <HeroTile>
             <HeroPhoto>
               <img src={profilePhoto} alt="허정연" />
@@ -470,8 +463,6 @@ export default function About() {
             </HeroContent>
           </HeroTile>
 
-          {/* ── Right column ── */}
-          <RightStack>
             {/* 기술 스택 */}
             <Tile $isDark={isDark}>
               <TileLabel $isDark={isDark}>{t.skills}</TileLabel>
@@ -503,7 +494,10 @@ export default function About() {
                 </SkillCategories>
               )}
             </Tile>
+          </LeftStack>
 
+          {/* ── 오른쪽: 학력 + 경력 ── */}
+          <RightStack>
             {/* 학력 */}
             <Tile $isDark={isDark}>
               <TileLabel $isDark={isDark}>{t.education}</TileLabel>
