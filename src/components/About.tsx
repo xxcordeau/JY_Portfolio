@@ -93,14 +93,8 @@ const HeroPhoto = styled.div`
     display: block;
     width: 260px;
     height: auto;
-    mask-image:
-      linear-gradient(to bottom, transparent 0%, black 18%, black 100%),
-      linear-gradient(to right,  transparent 0%, black 15%, black 85%, transparent 100%);
-    mask-composite: intersect;
-    -webkit-mask-image:
-      linear-gradient(to bottom, transparent 0%, black 18%, black 100%),
-      linear-gradient(to right,  transparent 0%, black 15%, black 85%, transparent 100%);
-    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
   }
 
   @media (max-width: 768px) {
