@@ -474,7 +474,11 @@ export default function About() {
           <LeftStack>
           <HeroTile $isDark={isDark}>
             <HeroPhoto $isDark={isDark}>
-              <img src={profilePhotoUrl} alt="허정연" />
+              <img
+                src={profilePhotoUrl}
+                alt="허정연"
+                onError={() => setProfilePhotoUrl(profilePhoto)}
+              />
             </HeroPhoto>
 
             <HeroContent>

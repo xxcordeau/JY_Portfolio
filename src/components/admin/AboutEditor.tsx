@@ -494,10 +494,16 @@ export default function AboutEditor() {
             <SectionTitle $isDark={isDark}>프로필 사진</SectionTitle>
             {photoUrl ? (
               <PhotoPreviewBox>
-                <img src={photoUrl} alt="프로필 사진" />
+                <img
+                  src={photoUrl}
+                  alt="프로필 사진"
+                  onError={e => { (e.target as HTMLImageElement).style.opacity = '0.3'; }}
+                />
               </PhotoPreviewBox>
             ) : (
-              <div style={{ marginBottom: 20, color: '#86868b', fontSize: 14 }}>등록된 사진이 없어요</div>
+              <div style={{ marginBottom: 20, color: '#86868b', fontSize: 14 }}>
+                등록된 사진이 없어요 — 기본 사진(profile.png)이 사용됩니다.
+              </div>
             )}
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
               <UploadLabel>
@@ -506,14 +512,29 @@ export default function AboutEditor() {
                 <input type="file" accept="image/*" onChange={handlePhotoUpload} disabled={photoUploading} />
               </UploadLabel>
               {photoUrl && (
-                <GhostButton onClick={handlePhotoDelete} disabled={photoUploading}>
-                  <Trash2 size={14} /> 사진 삭제
-                </GhostButton>
+                <>
+                  <GhostButton
+                    $isDark={isDark}
+                    onClick={async () => {
+                      if (!confirm('저장된 URL을 초기화해서 기본 사진으로 되돌릴까요?')) return;
+                      await supabase.from('site_settings').delete().eq('key', 'profile_photo_url');
+                      setPhotoUrl(null);
+                      setPhotoMsg('✓ 기본 사진으로 되돌렸어요');
+                    }}
+                    disabled={photoUploading}
+                  >
+                    기본으로 되돌리기
+                  </GhostButton>
+                  <GhostButton $isDark={isDark} onClick={handlePhotoDelete} disabled={photoUploading}>
+                    <Trash2 size={14} /> 사진 삭제
+                  </GhostButton>
+                </>
               )}
             </div>
             {photoMsg && <PhotoMsg $ok={photoMsg.startsWith('✓')}>{photoMsg}</PhotoMsg>}
             <div style={{ marginTop: 16, fontSize: 13, color: '#86868b' }}>
-              * 업로드한 사진은 포트폴리오 소개 섹션에 자동으로 반영됩니다.
+              * 업로드한 사진은 포트폴리오 소개 섹션에 자동으로 반영됩니다.<br />
+              * URL이 깨져서 사진이 안 보이면 "기본으로 되돌리기"를 눌러주세요.
             </div>
           </FormSection>
         )}
