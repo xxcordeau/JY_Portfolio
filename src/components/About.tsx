@@ -94,7 +94,6 @@ const HeroPhoto = styled.div`
     height: 100%;
     object-fit: contain;
     object-position: bottom center;
-    /* 상단 + 좌우 페이드 — 어깨 자연스럽게 */
     mask-image:
       linear-gradient(to bottom, transparent 0%, black 18%, black 100%),
       linear-gradient(to right,  transparent 0%, black 15%, black 85%, transparent 100%);
@@ -103,6 +102,12 @@ const HeroPhoto = styled.div`
       linear-gradient(to bottom, transparent 0%, black 18%, black 100%),
       linear-gradient(to right,  transparent 0%, black 15%, black 85%, transparent 100%);
     -webkit-mask-composite: source-in;
+  }
+
+  @media (max-width: 768px) {
+    width: 44%;
+    height: 55%;
+    right: 16px;
   }
 `;
 
