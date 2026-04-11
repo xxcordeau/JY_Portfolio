@@ -96,29 +96,17 @@ const HeroPhoto = styled.div<{ $isDark: boolean }>`
     mask-image: linear-gradient(
       to right,
       transparent 0%,
-      black 15%,
-      black 85%,
+      black 12%,
+      black 88%,
       transparent 100%
-    ),
-    linear-gradient(
-      to top,
-      ${p => p.$isDark ? 'rgba(17,17,17,0.6)' : 'rgba(255,255,255,0.6)'} 0%,
-      transparent 18%
     );
-    mask-composite: intersect;
     -webkit-mask-image: linear-gradient(
       to right,
       transparent 0%,
-      black 15%,
-      black 85%,
+      black 12%,
+      black 88%,
       transparent 100%
-    ),
-    linear-gradient(
-      to top,
-      ${p => p.$isDark ? 'rgba(17,17,17,0.6)' : 'rgba(255,255,255,0.6)'} 0%,
-      transparent 18%
     );
-    -webkit-mask-composite: destination-in;
   }
 
   @media (max-width: 768px) {
