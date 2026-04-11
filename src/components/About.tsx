@@ -86,7 +86,7 @@ const HeroPhoto = styled.div`
   position: absolute;
   bottom: 0;
   right: 32px;
-  width: 68%;
+  width: 76%;
   height: 100%;
 
   img {
