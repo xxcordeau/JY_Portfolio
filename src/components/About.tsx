@@ -56,12 +56,15 @@ const BentoGrid = styled.div`
   }
 `;
 
+/* photo bg color — matches the photo's background */
+const PHOTO_BG = '#e9e8e6';
+
 /* ── Hero Tile (left, spans both rows) ── */
 const HeroTile = styled.div`
   grid-column: 1;
   grid-row: 1 / 3;
   border-radius: 28px;
-  background: #1d1d1f;
+  background: ${PHOTO_BG};
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -82,30 +85,33 @@ const HeroTile = styled.div`
 
 const HeroPhoto = styled.div`
   position: absolute;
-  inset: 0;
-  bottom: 35%;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* 사진 높이를 카드의 65%로 제한 → 얼굴이 작아 보임 */
+  height: 65%;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center top;
+    object-position: center 10%;
   }
 
-  /* gradient fade to dark at bottom */
+  /* 사진 배경색으로 자연스럽게 페이드 */
   &::after {
     content: '';
     position: absolute;
     left: 0; right: 0; bottom: 0;
-    height: 60%;
-    background: linear-gradient(to bottom, transparent 0%, #1d1d1f 75%);
+    height: 55%;
+    background: linear-gradient(to bottom, transparent 0%, ${PHOTO_BG} 85%);
   }
 `;
 
 const HeroContent = styled.div`
   position: relative;
   z-index: 2;
-  padding: 0 44px 44px;
+  padding: 0 40px 40px;
 
   @media (max-width: 768px) {
     padding: 0 28px 32px;
@@ -113,7 +119,7 @@ const HeroContent = styled.div`
 `;
 
 const HeroTop = styled.div`
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 `;
 
 const HeroLabel = styled.div`
@@ -121,29 +127,29 @@ const HeroLabel = styled.div`
   font-weight: 600;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
-  margin-bottom: 20px;
+  color: rgba(0,0,0,0.35);
+  margin-bottom: 16px;
 `;
 
 const HeroName = styled.h3`
-  font-size: 52px;
+  font-size: 48px;
   font-weight: 700;
-  color: #f5f5f7;
-  margin: 0 0 12px 0;
+  color: #1d1d1f;
+  margin: 0 0 10px 0;
   letter-spacing: -2px;
   line-height: 1;
 
   @media (max-width: 768px) {
-    font-size: 38px;
+    font-size: 36px;
   }
 `;
 
 const HeroBio = styled.p`
-  font-size: 16px;
-  color: rgba(255,255,255,0.45);
+  font-size: 15px;
+  color: rgba(0,0,0,0.45);
   line-height: 1.6;
   margin: 0;
-  max-width: 360px;
+  max-width: 340px;
 
   @media (max-width: 768px) {
     font-size: 14px;
@@ -166,7 +172,7 @@ const ContactIcon = styled.div`
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  background: rgba(255,255,255,0.07);
+  background: rgba(0,0,0,0.07);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -175,7 +181,7 @@ const ContactIcon = styled.div`
   svg {
     width: 14px;
     height: 14px;
-    color: rgba(255,255,255,0.5);
+    color: rgba(0,0,0,0.4);
   }
 `;
 
@@ -183,7 +189,7 @@ const ContactText = styled.div``;
 
 const ContactLabel = styled.div`
   font-size: 10px;
-  color: rgba(255,255,255,0.3);
+  color: rgba(0,0,0,0.35);
   font-weight: 500;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -192,7 +198,7 @@ const ContactLabel = styled.div`
 
 const ContactValue = styled.div`
   font-size: 14px;
-  color: rgba(255,255,255,0.7);
+  color: rgba(0,0,0,0.65);
   letter-spacing: -0.1px;
 `;
 
