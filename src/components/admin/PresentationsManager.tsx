@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Plus, Trash2, Save, Upload, Eye, EyeOff, ExternalLink } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { uploadFile } from '../../lib/uploadFile';
+import { compressPdf } from '../../lib/compressPdf';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { DbPresentation } from '../../lib/types/database';
 import {
@@ -130,6 +131,7 @@ export default function PresentationsManager() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState('');  // 압축 중 / 업로드 중 등
   const [saveError, setSaveError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
@@ -175,11 +177,21 @@ export default function PresentationsManager() {
     if (!editing || !editing.title_ko) return;
     setSaving(true);
     setSaveError('');
+    setSaveStatus('');
     try {
       let fileUrl = editing.file_url;
       if (pdfFile) {
-        const ext = pdfFile.name.split('.').pop();
-        fileUrl = await uploadFile('presentations', `${editing.id}.${ext}`, pdfFile);
+        // 1) 압축
+        setSaveStatus('🗜️ PDF 압축 중...');
+        const compressed = await compressPdf(pdfFile);
+        const originalMB = (pdfFile.size / 1024 / 1024).toFixed(1);
+        const compressedMB = (compressed.size / 1024 / 1024).toFixed(1);
+        console.log(`PDF 압축: ${originalMB}MB → ${compressedMB}MB`);
+
+        // 2) 업로드
+        setSaveStatus(`⬆️ 업로드 중... (${compressedMB}MB)`);
+        fileUrl = await uploadFile('presentations', `${editing.id}.pdf`, compressed);
+        setSaveStatus('');
       }
 
       if (isNew && !fileUrl) {
@@ -370,9 +382,12 @@ export default function PresentationsManager() {
               {saveError && (
                 <span style={{ fontSize: 12, color: '#d4183d', flex: 1 }}>{saveError}</span>
               )}
+              {saveStatus && !saveError && (
+                <span style={{ fontSize: 12, color: '#86868b', flex: 1 }}>{saveStatus}</span>
+              )}
               <SecondaryButton $isDark={isDark} onClick={() => setEditing(null)}>취소</SecondaryButton>
               <PrimaryButton onClick={handleSave} disabled={saving || !editing.title_ko}>
-                <Save /> {saving ? '저장 중...' : '저장'}
+                <Save /> {saving ? (saveStatus ? '처리 중...' : '저장 중...') : '저장'}
               </PrimaryButton>
             </DrawerFooter>
           </EditDrawer>
