@@ -318,7 +318,7 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
 
   const navActions: Record<string, { label: string; onClick: () => void }> = {
     nav_about: { label: t.about, onClick: () => scrollToSection('about') },
-    nav_projects: { label: t.projects, onClick: () => scrollToSection('projects') },
+    nav_projects: { label: t.projects, onClick: () => { setMobileMenuOpen(false); navigate('/projects'); } },
     nav_opensource: { label: t.opensource, onClick: handleOpenSourceClick },
     nav_blog: { label: t.blog, onClick: handleBlogClick },
     nav_presentations: { label: t.presentations, onClick: handlePresentationsClick },
