@@ -167,12 +167,7 @@ export default function Footer({ onContactClick }: FooterProps) {
             <SocialLink $isDark={isDark} href="https://github.com" target="_blank" rel="noopener noreferrer">
               {t.github}
             </SocialLink>
-            <SocialLink $isDark={isDark} href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-              {t.twitter}
-            </SocialLink>
-            <SocialLink $isDark={isDark} href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-              {t.instagram}
-            </SocialLink>
+
           </SocialLinks>
         </FooterContent>
       </Container>

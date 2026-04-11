@@ -135,8 +135,8 @@ export const chatbotData: ChatCategory[] = [
           en: 'What projects have you worked on?'
         },
         answer: {
-          ko: '동훈아이텍의 기업 보안 솔루션 \'Keyrke\'의 프론트엔드 개발을 담당하며, 대규모 로그 관리·정책 관리·디자인 시스템 프로젝트를 진행했습니다.',
-          en: 'I was in charge of frontend development for Donghun I-Tech\'s enterprise security solution \'Keyrke\', working on large-scale log management, policy management, and design system projects.'
+          ko: '크게 세 가지 영역에서 프로젝트를 진행했어요.\n\n🏢 기업 보안 솔루션\n동훈아이텍의 \'Keyrke\' 프론트엔드를 담당했습니다. 수만 건의 로그를 다루는 관리 시스템, 권한·정책 UI, 팀 전체가 사용하는 디자인 시스템까지 직접 설계하고 구현했어요.\n\n📦 계약 관리 플랫폼\n통인익스프레스의 통합 계약관리 시스템을 개발했습니다. 이사 신청부터 계약 체결까지의 전 과정을 디지털화하고, 관리자와 고객 양쪽의 흐름을 설계했어요.\n\n🧩 오픈소스 & 개인 프로젝트\nReact 기반 UI 컴포넌트 라이브러리를 직접 개발해 오픈소스로 공개했고, 이 포트폴리오 사이트도 직접 기획·설계·개발했습니다.\n\n자세한 내용은 프로젝트 탭에서 확인해보세요 🙂',
+          en: 'I\'ve worked on three main areas.\n\n🏢 Enterprise Security Solution\nI handled the frontend for Donghun I-Tech\'s \'Keyrke\'. I designed and built a log management system handling tens of thousands of records, permission & policy UI, and a design system used across the team.\n\n📦 Contract Management Platform\nI developed an integrated contract management system for Tongin Express. I digitized the entire flow from moving applications to contract signing, designing experiences for both admin and customer sides.\n\n🧩 Open Source & Personal Projects\nI developed a React-based UI component library and released it as open source. This portfolio site was also planned, designed, and developed entirely by me.\n\nCheck out the Projects tab for more details 🙂'
         }
       },
       {
