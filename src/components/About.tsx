@@ -88,23 +88,23 @@ const HeroPhoto = styled.div`
   top: 0;
   left: 0;
   right: 0;
-  /* 사진 높이를 카드의 65%로 제한 → 얼굴이 작아 보임 */
-  height: 65%;
+  bottom: 0;
 
   img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center 10%;
+    /* contain → 전신이 보이고 배경색이 자연스럽게 채워짐 */
+    object-fit: contain;
+    object-position: center top;
   }
 
-  /* 사진 배경색으로 자연스럽게 페이드 */
+  /* 하단 페이드 */
   &::after {
     content: '';
     position: absolute;
     left: 0; right: 0; bottom: 0;
-    height: 55%;
-    background: linear-gradient(to bottom, transparent 0%, ${PHOTO_BG} 85%);
+    height: 40%;
+    background: linear-gradient(to bottom, transparent 0%, ${PHOTO_BG} 80%);
   }
 `;
 
