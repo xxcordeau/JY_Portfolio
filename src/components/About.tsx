@@ -85,15 +85,12 @@ const HeroTile = styled.div`
 const HeroPhoto = styled.div`
   position: absolute;
   bottom: 0;
-  right: 32px;
-  width: 76%;
-  height: 100%;
+  right: 24px;
 
   img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: bottom center;
+    display: block;
+    width: 340px;
+    height: auto;
     mask-image:
       linear-gradient(to bottom, transparent 0%, black 18%, black 100%),
       linear-gradient(to right,  transparent 0%, black 15%, black 85%, transparent 100%);
@@ -105,9 +102,11 @@ const HeroPhoto = styled.div`
   }
 
   @media (max-width: 768px) {
-    width: 44%;
-    height: 55%;
-    right: 16px;
+    right: 12px;
+
+    img {
+      width: 160px;
+    }
   }
 `;
 
