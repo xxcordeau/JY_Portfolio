@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { Plus, Trash2, Save } from 'lucide-react';
+import { Plus, Trash2, Save, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { uploadFile, deleteFile } from '../../lib/uploadFile';
 import { useTheme } from '../../contexts/ThemeContext';
 import type { DbSkill, DbEducation, DbExperience } from '../../lib/types/database';
 import {
@@ -82,7 +83,36 @@ const AddSkillRow = styled.div`
   gap: 8px;
 `;
 
-type ActiveTab = 'skills' | 'education' | 'experience';
+type ActiveTab = 'skills' | 'education' | 'experience' | 'photo';
+
+const PhotoPreviewBox = styled.div`
+  width: 200px;
+  height: 260px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f0f0f0;
+  margin-bottom: 20px;
+  img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+`;
+const UploadLabel = styled.label`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: #007AFF;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  &:hover { opacity: 0.85; }
+  input { display: none; }
+`;
+const PhotoMsg = styled.div<{ $ok: boolean }>`
+  font-size: 13px;
+  color: ${p => p.$ok ? '#34C759' : '#FF3B30'};
+  margin-top: 10px;
+`;
 
 export default function AboutEditor() {
   const { isDark } = useTheme();
@@ -92,17 +122,22 @@ export default function AboutEditor() {
   const [experiences, setExperiences] = useState<DbExperience[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoMsg, setPhotoMsg] = useState('');
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
-    const [s, e, x] = await Promise.all([
+    const [s, e, x, ps] = await Promise.all([
       supabase.from('skills').select('*').order('sort_order'),
       supabase.from('education').select('*').order('sort_order'),
       supabase.from('experiences').select('*').order('sort_order'),
+      supabase.from('site_settings').select('value').eq('key', 'profile_photo_url').maybeSingle(),
     ]);
     setSkills((s.data as DbSkill[]) ?? []);
     setEducation((e.data as DbEducation[]) ?? []);
     setExperiences((x.data as DbExperience[]) ?? []);
+    setPhotoUrl(ps.data?.value ?? null);
     setLoading(false);
   }, []);
 
@@ -203,6 +238,42 @@ export default function AboutEditor() {
     }
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoUploading(true);
+    setPhotoMsg('');
+    try {
+      const ext = file.name.split('.').pop();
+      const url = await uploadFile('about', `profile.${ext}`, file);
+      await supabase.from('site_settings').upsert({ key: 'profile_photo_url', value: url }, { onConflict: 'key' });
+      setPhotoUrl(url);
+      setPhotoMsg('✓ 사진이 업로드되었어요');
+    } catch (err) {
+      setPhotoMsg('업로드 실패: ' + (err as Error).message);
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
+  const handlePhotoDelete = async () => {
+    if (!confirm('프로필 사진을 삭제할까요?')) return;
+    setPhotoUploading(true);
+    try {
+      // Extract path from URL and delete from storage (best-effort)
+      try { await deleteFile('about', 'profile.png'); } catch {}
+      try { await deleteFile('about', 'profile.jpg'); } catch {}
+      try { await deleteFile('about', 'profile.jpeg'); } catch {}
+      await supabase.from('site_settings').delete().eq('key', 'profile_photo_url');
+      setPhotoUrl(null);
+      setPhotoMsg('삭제되었어요');
+    } catch (err) {
+      setPhotoMsg('삭제 실패: ' + (err as Error).message);
+    } finally {
+      setPhotoUploading(false);
+    }
+  };
+
   if (loading) {
     return <EmptyState $isDark={isDark}>불러오는 중...</EmptyState>;
   }
@@ -229,6 +300,9 @@ export default function AboutEditor() {
           </Tab>
           <Tab $isDark={isDark} $active={tab === 'experience'} onClick={() => setTab('experience')}>
             경력 ({experiences.length})
+          </Tab>
+          <Tab $isDark={isDark} $active={tab === 'photo'} onClick={() => setTab('photo')}>
+            사진
           </Tab>
         </TabRow>
 
@@ -412,6 +486,35 @@ export default function AboutEditor() {
               </ItemCard>
             ))}
             {experiences.length === 0 && <EmptyState $isDark={isDark}>경력 정보가 없습니다</EmptyState>}
+          </FormSection>
+        )}
+
+        {tab === 'photo' && (
+          <FormSection $isDark={isDark}>
+            <SectionTitle $isDark={isDark}>프로필 사진</SectionTitle>
+            {photoUrl ? (
+              <PhotoPreviewBox>
+                <img src={photoUrl} alt="프로필 사진" />
+              </PhotoPreviewBox>
+            ) : (
+              <div style={{ marginBottom: 20, color: '#86868b', fontSize: 14 }}>등록된 사진이 없어요</div>
+            )}
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <UploadLabel>
+                <Upload size={16} />
+                {photoUploading ? '업로드 중...' : '사진 업로드'}
+                <input type="file" accept="image/*" onChange={handlePhotoUpload} disabled={photoUploading} />
+              </UploadLabel>
+              {photoUrl && (
+                <GhostButton onClick={handlePhotoDelete} disabled={photoUploading}>
+                  <Trash2 size={14} /> 사진 삭제
+                </GhostButton>
+              )}
+            </div>
+            {photoMsg && <PhotoMsg $ok={photoMsg.startsWith('✓')}>{photoMsg}</PhotoMsg>}
+            <div style={{ marginTop: 16, fontSize: 13, color: '#86868b' }}>
+              * 업로드한 사진은 포트폴리오 소개 섹션에 자동으로 반영됩니다.
+            </div>
           </FormSection>
         )}
       </Card>

@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useAbout } from '../hooks/useAbout';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Mail, Phone, Calendar, MapPin } from 'lucide-react';
 import profilePhoto from '../assets/profile.png';
+import { supabase } from '../lib/supabase';
 
 /* ── Section ── */
 const AboutSection = styled.section<{ $isDark: boolean }>`
@@ -415,6 +417,19 @@ export default function About() {
   const t = translations[language];
   const ct = categoryTranslations[language];
 
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(profilePhoto);
+
+  useEffect(() => {
+    supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'profile_photo_url')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) setProfilePhotoUrl(data.value);
+      });
+  }, []);
+
   const groupedSkills = skills.reduce((acc, skill) => {
     if (!acc[skill.category]) acc[skill.category] = [];
     acc[skill.category].push(skill);
@@ -431,7 +446,7 @@ export default function About() {
           <LeftStack>
           <HeroTile>
             <HeroPhoto>
-              <img src={profilePhoto} alt="허정연" />
+              <img src={profilePhotoUrl} alt="허정연" />
             </HeroPhoto>
 
             <HeroContent>
