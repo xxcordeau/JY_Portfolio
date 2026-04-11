@@ -67,7 +67,6 @@ const HeroTile = styled.div`
   background: ${PHOTO_BG};
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   min-height: 600px;
   position: relative;
   overflow: hidden;
@@ -87,8 +86,8 @@ const HeroPhoto = styled.div`
   position: absolute;
   bottom: 0;
   right: 32px;
-  width: 48%;
-  height: 82%;
+  width: 58%;
+  height: 92%;
 
   img {
     width: 100%;
@@ -110,10 +109,17 @@ const HeroPhoto = styled.div`
 const HeroContent = styled.div`
   position: relative;
   z-index: 2;
-  padding: 0 40px 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 44px 40px 44px;
+  /* 텍스트가 사진과 겹치지 않도록 */
+  width: 55%;
 
   @media (max-width: 768px) {
-    padding: 0 28px 32px;
+    padding: 32px 28px;
+    width: 100%;
   }
 `;
 
