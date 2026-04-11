@@ -107,6 +107,8 @@ const HeroPhoto = styled.div<{ $isDark: boolean }>`
       black 88%,
       transparent 100%
     );
+    filter: ${p => p.$isDark ? 'grayscale(1)' : 'none'};
+    transition: filter 0.3s ease;
   }
 
   @media (max-width: 768px) {
