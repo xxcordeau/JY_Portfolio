@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useOpenSource } from '../hooks/useOpenSource';
-import { Github, Package, Star, Download, ArrowRight } from 'lucide-react';
+import { Github, Package, Star, Download, ArrowRight, ArrowLeft } from 'lucide-react';
 
 const OpenSourceContainer = styled.div<{ $isDark: boolean; $compact: boolean }>`
   min-height: 100vh;
@@ -337,6 +337,39 @@ const SkeletonLine = styled.div<{ $isDark: boolean; $w?: string }>`
 `;
 // ─────────────────────────────────────────────────
 
+const BackButton = styled.button<{ $isDark: boolean }>`
+  position: fixed;
+  top: 100px;
+  left: 40px;
+  background: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
+  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  border: none;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  z-index: 100;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  @media (max-width: 768px) {
+    position: fixed;
+    top: auto;
+    bottom: 24px;
+    left: 20px;
+    padding: 10px 18px;
+    font-size: 13px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  }
+`;
+
 interface OpenSourceProps {
   onProjectClick: (id: string) => void;
   /** Home preview mode: left-aligned title, no subtitle, compact cards, limited count */
@@ -345,16 +378,19 @@ interface OpenSourceProps {
   limit?: number;
   /** Callback for "View All" button in compact mode */
   onViewAll?: () => void;
+  onBack?: () => void;
 }
 
 const translations = {
   ko: {
+    back: '뒤로가기',
     title: '오픈소스',
     subtitle: '커뮤니티와 함께 만들어가는 개발자 도구와 라이브러리',
     viewDetails: '자세히 보기',
     viewAll: '전체보기'
   },
   en: {
+    back: 'Back',
     title: 'Open Source',
     subtitle: 'Developer tools and libraries built with the community',
     viewDetails: 'View Details',
@@ -367,6 +403,7 @@ export default function OpenSource({
   compact = false,
   limit,
   onViewAll,
+  onBack,
 }: OpenSourceProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
@@ -487,6 +524,12 @@ export default function OpenSource({
 
   return (
     <OpenSourceContainer $isDark={isDark} $compact={compact}>
+      {onBack && (
+        <BackButton $isDark={isDark} onClick={onBack}>
+          <ArrowLeft size={16} />
+          {t.back}
+        </BackButton>
+      )}
       <Hero $compact={compact}>
         <Title $isDark={isDark} $compact={compact}>{t.title}</Title>
         <Subtitle $isDark={isDark} $compact={compact}>{t.subtitle}</Subtitle>

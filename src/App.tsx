@@ -259,6 +259,7 @@ function OpenSourcePage() {
   return (
     <OpenSource
       onProjectClick={(id) => navigate(`/opensource/${id}`)}
+      onBack={() => navigate('/')}
     />
   );
 }

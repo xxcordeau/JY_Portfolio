@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { supabase } from '../lib/supabase';
 
 const Overlay = styled.div<{ $isOpen: boolean }>`
   position: fixed;
@@ -344,16 +345,24 @@ export default function Contact({ isOpen = false, onOpenChange }: ContactProps) 
     return !next.name && !next.email && !next.message;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    const subject = encodeURIComponent(`[Portfolio] ${formData.name}님의 메시지`);
-    const body = encodeURIComponent(`이름: ${formData.name}\n이메일: ${formData.email}\n\n${formData.message}`);
-    window.location.href = `mailto:qazseeszaq3219@gmail.com?subject=${subject}&body=${body}`;
-    setStatus('success');
-    setFormData({ name: '', email: '', message: '' });
-    setErrors({ name: '', email: '', message: '' });
-    setTimeout(() => setStatus('idle'), 3000);
+    setStatus('loading');
+    const { error } = await supabase.from('contact_messages').insert({
+      name: formData.name,
+      email: formData.email,
+      message: formData.message,
+    });
+    if (error) {
+      setStatus('error');
+      setErrorMessage(error.message);
+    } else {
+      setStatus('success');
+      setFormData({ name: '', email: '', message: '' });
+      setErrors({ name: '', email: '', message: '' });
+      setTimeout(() => setStatus('idle'), 3000);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
