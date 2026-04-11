@@ -568,7 +568,7 @@ const siteSettings = [
   { key: 'nav_opensource', value: 'true' },
   { key: 'nav_blog', value: 'true' },
   { key: 'nav_contact', value: 'true' },
-  { key: 'nav_presentations', value: 'false' },
+  { key: 'nav_presentations', value: 'true' },
   { key: 'contact_email', value: 'qazseeszaq3219@gmail.com' },
   { key: 'github_url', value: '' },
   { key: 'linkedin_url', value: '' },

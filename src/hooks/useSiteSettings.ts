@@ -35,6 +35,7 @@ export function useSiteSettings() {
       });
   }, []);
 
+  // DB에 'false'로 저장된 경우에만 숨김. 값이 없거나 'true'면 표시
   const isNavVisible = (key: string) => settings[key] !== 'false';
 
   return { settings, loading, isNavVisible, navOrder };

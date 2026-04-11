@@ -130,6 +130,7 @@ export default function PresentationsManager() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   const fetchPresentations = async () => {
@@ -139,7 +140,18 @@ export default function PresentationsManager() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchPresentations(); }, []);
+  // PT자료 관리에 들어오면 nav 메뉴 자동 활성화
+  const enableNavItem = async () => {
+    await supabase.from('site_settings').upsert(
+      { key: 'nav_presentations', value: 'true' },
+      { onConflict: 'key' }
+    );
+  };
+
+  useEffect(() => {
+    fetchPresentations();
+    enableNavItem();
+  }, []);
 
   const openNew = () => {
     setEditing({ ...emptyPresentation, id: crypto.randomUUID(), sort_order: presentations.length });
@@ -162,11 +174,18 @@ export default function PresentationsManager() {
   const handleSave = async () => {
     if (!editing || !editing.title_ko) return;
     setSaving(true);
+    setSaveError('');
     try {
       let fileUrl = editing.file_url;
       if (pdfFile) {
         const ext = pdfFile.name.split('.').pop();
         fileUrl = await uploadFile('presentations', `${editing.id}.${ext}`, pdfFile);
+      }
+
+      if (isNew && !fileUrl) {
+        setSaveError('PDF 파일을 업로드해주세요.');
+        setSaving(false);
+        return;
       }
 
       let thumbUrl = editing.thumbnail_url;
@@ -178,14 +197,18 @@ export default function PresentationsManager() {
       const payload = { ...editing, file_url: fileUrl, thumbnail_url: thumbUrl };
 
       if (isNew) {
-        await supabase.from('presentations').insert({ ...payload, created_at: new Date().toISOString() });
+        const { error } = await supabase.from('presentations').insert({ ...payload, created_at: new Date().toISOString() });
+        if (error) throw error;
       } else {
-        await supabase.from('presentations').update(payload).eq('id', editing.id);
+        const { error } = await supabase.from('presentations').update(payload).eq('id', editing.id);
+        if (error) throw error;
       }
 
       setEditing(null);
       fetchPresentations();
-    } catch (err) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setSaveError(`저장 실패: ${msg}`);
       console.error('Save failed:', err);
     } finally {
       setSaving(false);
@@ -344,6 +367,9 @@ export default function PresentationsManager() {
               </FormSection>
             </DrawerBody>
             <DrawerFooter>
+              {saveError && (
+                <span style={{ fontSize: 12, color: '#d4183d', flex: 1 }}>{saveError}</span>
+              )}
               <SecondaryButton $isDark={isDark} onClick={() => setEditing(null)}>취소</SecondaryButton>
               <PrimaryButton onClick={handleSave} disabled={saving || !editing.title_ko}>
                 <Save /> {saving ? '저장 중...' : '저장'}

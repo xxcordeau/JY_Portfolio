@@ -264,6 +264,11 @@ function OpenSourcePage() {
   );
 }
 
+function PresentationsPage() {
+  const navigate = useNavigate();
+  return <Presentations onBack={() => navigate('/')} />;
+}
+
 function OpenSourceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -403,7 +408,7 @@ function AppContent() {
             <Route path="/blog/:id" element={<BlogDetailPage />} />
             <Route path="/opensource" element={<OpenSourcePage />} />
             <Route path="/opensource/:id" element={<OpenSourceDetailPage />} />
-            <Route path="/presentations" element={<Presentations />} />
+            <Route path="/presentations" element={<PresentationsPage />} />
             <Route path="/demo" element={<PackageDemo />} />
             <Route path="/admin" element={<AdminPage />}>
               <Route index element={<AdminHome />} />
