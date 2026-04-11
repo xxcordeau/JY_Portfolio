@@ -3,6 +3,7 @@ import { useAbout } from '../hooks/useAbout';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Mail, Phone, Calendar, MapPin } from 'lucide-react';
+import profilePhoto from '../assets/profile.jpeg';
 
 /* ── Section ── */
 const AboutSection = styled.section<{ $isDark: boolean }>`
@@ -60,40 +61,59 @@ const HeroTile = styled.div`
   grid-column: 1;
   grid-row: 1 / 3;
   border-radius: 28px;
-  padding: 52px;
   background: #1d1d1f;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-height: 520px;
+  justify-content: flex-end;
+  min-height: 600px;
   position: relative;
   overflow: hidden;
-
-  /* subtle gradient overlay */
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 20% 80%, rgba(0,122,255,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 20%, rgba(88,86,214,0.06) 0%, transparent 60%);
-    pointer-events: none;
-  }
 
   @media (max-width: 960px) {
     grid-column: 1;
     grid-row: auto;
-    min-height: 360px;
+    min-height: 480px;
   }
 
   @media (max-width: 768px) {
-    padding: 36px;
-    min-height: 300px;
+    min-height: 400px;
+  }
+`;
+
+const HeroPhoto = styled.div`
+  position: absolute;
+  inset: 0;
+  bottom: 35%;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  /* gradient fade to dark at bottom */
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 60%;
+    background: linear-gradient(to bottom, transparent 0%, #1d1d1f 75%);
+  }
+`;
+
+const HeroContent = styled.div`
+  position: relative;
+  z-index: 2;
+  padding: 0 44px 44px;
+
+  @media (max-width: 768px) {
+    padding: 0 28px 32px;
   }
 `;
 
 const HeroTop = styled.div`
-  position: relative;
-  z-index: 1;
+  margin-bottom: 28px;
 `;
 
 const HeroLabel = styled.div`
@@ -131,11 +151,9 @@ const HeroBio = styled.p`
 `;
 
 const HeroBottom = styled.div`
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 `;
 
 const ContactItem = styled.div`
@@ -403,28 +421,34 @@ export default function About() {
         <BentoGrid>
           {/* ── Hero Tile (left) ── */}
           <HeroTile>
-            <HeroTop>
-              <HeroLabel>{t.jobTitle}</HeroLabel>
-              <HeroName>허정연</HeroName>
-              <HeroBio>{t.bio}</HeroBio>
-            </HeroTop>
+            <HeroPhoto>
+              <img src={profilePhoto} alt="허정연" />
+            </HeroPhoto>
 
-            <HeroBottom>
-              {[
-                { icon: <Calendar />, label: t.birth,    value: '2000.01.28' },
-                { icon: <Mail />,     label: t.email,    value: 'qazseeszaq3219@gmail.com' },
-                { icon: <Phone />,    label: t.phone,    value: '010-2863-7447' },
-                { icon: <MapPin />,   label: t.location, value: '서울, 대한민국' },
-              ].map(({ icon, label, value }) => (
-                <ContactItem key={label}>
-                  <ContactIcon>{icon}</ContactIcon>
-                  <ContactText>
-                    <ContactLabel>{label}</ContactLabel>
-                    <ContactValue>{value}</ContactValue>
-                  </ContactText>
-                </ContactItem>
-              ))}
-            </HeroBottom>
+            <HeroContent>
+              <HeroTop>
+                <HeroLabel>{t.jobTitle}</HeroLabel>
+                <HeroName>허정연</HeroName>
+                <HeroBio>{t.bio}</HeroBio>
+              </HeroTop>
+
+              <HeroBottom>
+                {[
+                  { icon: <Calendar />, label: t.birth,    value: '2000.01.28' },
+                  { icon: <Mail />,     label: t.email,    value: 'qazseeszaq3219@gmail.com' },
+                  { icon: <Phone />,    label: t.phone,    value: '010-2863-7447' },
+                  { icon: <MapPin />,   label: t.location, value: '서울, 대한민국' },
+                ].map(({ icon, label, value }) => (
+                  <ContactItem key={label}>
+                    <ContactIcon>{icon}</ContactIcon>
+                    <ContactText>
+                      <ContactLabel>{label}</ContactLabel>
+                      <ContactValue>{value}</ContactValue>
+                    </ContactText>
+                  </ContactItem>
+                ))}
+              </HeroBottom>
+            </HeroContent>
           </HeroTile>
 
           {/* ── Right column ── */}
