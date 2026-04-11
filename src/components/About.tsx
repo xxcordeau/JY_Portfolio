@@ -3,7 +3,7 @@ import { useAbout } from '../hooks/useAbout';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Mail, Phone, Calendar, MapPin } from 'lucide-react';
-import profilePhoto from '../assets/profile.jpeg';
+import profilePhoto from '../assets/profile.png';
 
 /* ── Section ── */
 const AboutSection = styled.section<{ $isDark: boolean }>`
@@ -94,15 +94,9 @@ const HeroPhoto = styled.div`
     height: 100%;
     object-fit: contain;
     object-position: bottom center;
-    /* 상단 + 왼쪽 페이드 */
-    mask-image:
-      linear-gradient(to bottom, transparent 0%, black 22%, black 100%),
-      linear-gradient(to right,  transparent 0%, black 20%, black 100%);
-    mask-composite: intersect;
-    -webkit-mask-image:
-      linear-gradient(to bottom, transparent 0%, black 22%, black 100%),
-      linear-gradient(to right,  transparent 0%, black 20%, black 100%);
-    -webkit-mask-composite: source-in;
+    /* 누끼라 배경 없음 — 상단만 살짝 페이드 */
+    mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 100%);
   }
 `;
 
