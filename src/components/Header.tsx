@@ -11,7 +11,7 @@ const HeaderContainer = styled.header<{ $scrolled: boolean; $isDark: boolean }>`
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 1002;
   padding: 20px 40px;
   background: ${props => props.$scrolled
     ? props.$isDark
