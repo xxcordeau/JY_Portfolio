@@ -58,9 +58,6 @@ const BentoGrid = styled.div`
   }
 `;
 
-/* Apple-style: white card on light gray bg */
-const CARD_BG = '#ffffff';
-
 /* ── Left / Right stacks ── */
 const LeftStack = styled.div`
   display: flex;
@@ -70,10 +67,11 @@ const LeftStack = styled.div`
 `;
 
 /* ── Hero Tile ── */
-const HeroTile = styled.div`
+const HeroTile = styled.div<{ $isDark: boolean }>`
   border-radius: 28px;
-  background: ${CARD_BG};
-  box-shadow: 0 2px 24px rgba(0,0,0,0.07);
+  background: ${p => p.$isDark ? '#111111' : '#ffffff'};
+  box-shadow: ${p => p.$isDark ? 'none' : '0 2px 24px rgba(0,0,0,0.07)'};
+  transition: background 0.3s ease;
   display: flex;
   flex-direction: column;
   min-height: 400px;
@@ -85,7 +83,7 @@ const HeroTile = styled.div`
   }
 `;
 
-const HeroPhoto = styled.div`
+const HeroPhoto = styled.div<{ $isDark: boolean }>`
   position: absolute;
   bottom: 0;
   right: 24px;
@@ -95,8 +93,32 @@ const HeroPhoto = styled.div`
     display: block;
     width: 260px;
     height: auto;
-    mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 15%,
+      black 85%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to top,
+      ${p => p.$isDark ? 'rgba(17,17,17,0.6)' : 'rgba(255,255,255,0.6)'} 0%,
+      transparent 18%
+    );
+    mask-composite: intersect;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 15%,
+      black 85%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to top,
+      ${p => p.$isDark ? 'rgba(17,17,17,0.6)' : 'rgba(255,255,255,0.6)'} 0%,
+      transparent 18%
+    );
+    -webkit-mask-composite: destination-in;
   }
 
   @media (max-width: 768px) {
@@ -130,34 +152,37 @@ const HeroTop = styled.div`
   margin-bottom: 24px;
 `;
 
-const HeroLabel = styled.div`
+const HeroLabel = styled.div<{ $isDark: boolean }>`
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(0,0,0,0.35);
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
   margin-bottom: 16px;
+  transition: color 0.3s ease;
 `;
 
-const HeroName = styled.h3`
+const HeroName = styled.h3<{ $isDark: boolean }>`
   font-size: 48px;
   font-weight: 700;
-  color: #1d1d1f;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   margin: 0 0 10px 0;
   letter-spacing: -2px;
   line-height: 1;
+  transition: color 0.3s ease;
 
   @media (max-width: 768px) {
     font-size: 36px;
   }
 `;
 
-const HeroBio = styled.p`
+const HeroBio = styled.p<{ $isDark: boolean }>`
   font-size: 15px;
-  color: rgba(0,0,0,0.45);
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.45)'};
   line-height: 1.6;
   margin: 0;
   max-width: 340px;
+  transition: color 0.3s ease;
 
   @media (max-width: 768px) {
     font-size: 14px;
@@ -176,38 +201,41 @@ const ContactItem = styled.div`
   gap: 12px;
 `;
 
-const ContactIcon = styled.div`
+const ContactIcon = styled.div<{ $isDark: boolean }>`
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  background: rgba(0,0,0,0.07);
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'};
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: background 0.3s ease;
 
   svg {
     width: 14px;
     height: 14px;
-    color: rgba(0,0,0,0.4);
+    color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
   }
 `;
 
 const ContactText = styled.div``;
 
-const ContactLabel = styled.div`
+const ContactLabel = styled.div<{ $isDark: boolean }>`
   font-size: 10px;
-  color: rgba(0,0,0,0.35);
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
   font-weight: 500;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   margin-bottom: 1px;
+  transition: color 0.3s ease;
 `;
 
-const ContactValue = styled.div`
+const ContactValue = styled.div<{ $isDark: boolean }>`
   font-size: 14px;
-  color: rgba(0,0,0,0.65);
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.65)'};
   letter-spacing: -0.1px;
+  transition: color 0.3s ease;
 `;
 
 /* ── Right column tiles ── */
@@ -444,16 +472,16 @@ export default function About() {
         <BentoGrid>
           {/* ── 왼쪽: 허정연 + 기술스택 ── */}
           <LeftStack>
-          <HeroTile>
-            <HeroPhoto>
+          <HeroTile $isDark={isDark}>
+            <HeroPhoto $isDark={isDark}>
               <img src={profilePhotoUrl} alt="허정연" />
             </HeroPhoto>
 
             <HeroContent>
               <HeroTop>
-                <HeroLabel>{t.jobTitle}</HeroLabel>
-                <HeroName>허정연</HeroName>
-                <HeroBio>{t.bio}</HeroBio>
+                <HeroLabel $isDark={isDark}>{t.jobTitle}</HeroLabel>
+                <HeroName $isDark={isDark}>허정연</HeroName>
+                <HeroBio $isDark={isDark}>{t.bio}</HeroBio>
               </HeroTop>
 
               <HeroBottom>
@@ -464,10 +492,10 @@ export default function About() {
                   { icon: <MapPin />,   label: t.location, value: '서울, 대한민국' },
                 ].map(({ icon, label, value }) => (
                   <ContactItem key={label}>
-                    <ContactIcon>{icon}</ContactIcon>
+                    <ContactIcon $isDark={isDark}>{icon}</ContactIcon>
                     <ContactText>
-                      <ContactLabel>{label}</ContactLabel>
-                      <ContactValue>{value}</ContactValue>
+                      <ContactLabel $isDark={isDark}>{label}</ContactLabel>
+                      <ContactValue $isDark={isDark}>{value}</ContactValue>
                     </ContactText>
                   </ContactItem>
                 ))}
