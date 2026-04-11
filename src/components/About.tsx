@@ -89,7 +89,7 @@ const HeroPhoto = styled.div`
 
   img {
     display: block;
-    width: 340px;
+    width: 520px;
     height: auto;
     mask-image:
       linear-gradient(to bottom, transparent 0%, black 18%, black 100%),
