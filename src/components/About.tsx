@@ -89,22 +89,23 @@ const HeroPhoto = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
+  /* 사진 안쪽으로 여백 → 더 작아 보임 */
+  padding: 32px 48px 0;
 
   img {
     width: 100%;
     height: 100%;
-    /* contain → 전신이 보이고 배경색이 자연스럽게 채워짐 */
     object-fit: contain;
     object-position: center top;
-  }
-
-  /* 하단 페이드 */
-  &::after {
-    content: '';
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 40%;
-    background: linear-gradient(to bottom, transparent 0%, ${PHOTO_BG} 80%);
+    /* 상하좌우 외곽 블러 페이드 */
+    mask-image:
+      linear-gradient(to bottom,  transparent 0%,  black 18%, black 72%, transparent 100%),
+      linear-gradient(to right,   transparent 0%,  black 18%, black 82%, transparent 100%);
+    mask-composite: intersect;
+    -webkit-mask-image:
+      linear-gradient(to bottom,  transparent 0%,  black 18%, black 72%, transparent 100%),
+      linear-gradient(to right,   transparent 0%,  black 18%, black 82%, transparent 100%);
+    -webkit-mask-composite: source-in;
   }
 `;
 
