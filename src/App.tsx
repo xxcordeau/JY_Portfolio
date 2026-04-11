@@ -167,12 +167,8 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
       <SnapSection>
         <Hero />
       </SnapSection>
-      {/* About는 profile+skills / career+education 두 챕터로 분할 */}
       <SnapSection>
-        <About chapter="profile" />
-      </SnapSection>
-      <SnapSection>
-        <About chapter="career" />
+        <About />
       </SnapSection>
       <SnapSection>
         <Projects
