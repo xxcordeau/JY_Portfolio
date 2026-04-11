@@ -48,8 +48,8 @@ const SectionTitle = styled.h2<{ $isDark: boolean }>`
 const BentoGrid = styled.div`
   display: grid;
   grid-template-columns: 1.1fr 1fr;
-  grid-template-rows: auto auto;
   gap: 14px;
+  align-items: stretch;
 
   @media (max-width: 960px) {
     grid-template-columns: 1fr;
@@ -64,6 +64,7 @@ const LeftStack = styled.div`
   display: flex;
   flex-direction: column;
   gap: 14px;
+  height: 100%;
 `;
 
 /* ── Hero Tile ── */
@@ -90,7 +91,7 @@ const HeroPhoto = styled.div`
 
   img {
     display: block;
-    width: 520px;
+    width: 260px;
     height: auto;
     mask-image:
       linear-gradient(to bottom, transparent 0%, black 18%, black 100%),
@@ -218,14 +219,16 @@ const RightStack = styled.div`
   display: flex;
   flex-direction: column;
   gap: 14px;
+  height: 100%;
 `;
 
-const Tile = styled.div<{ $isDark: boolean }>`
+const Tile = styled.div<{ $isDark: boolean; $flex?: boolean }>`
   border-radius: 24px;
   padding: 36px;
   background: ${p => p.$isDark ? '#111111' : '#ffffff'};
   box-shadow: ${p => p.$isDark ? 'none' : '0 2px 24px rgba(0,0,0,0.07)'};
   transition: background 0.3s ease;
+  ${p => p.$flex && 'flex: 1;'}
 
   @media (max-width: 768px) {
     padding: 28px;
@@ -464,7 +467,7 @@ export default function About() {
           </HeroTile>
 
             {/* 기술 스택 */}
-            <Tile $isDark={isDark}>
+            <Tile $isDark={isDark} $flex>
               <TileLabel $isDark={isDark}>{t.skills}</TileLabel>
               {loading ? (
                 <SkillCategories>
@@ -530,7 +533,7 @@ export default function About() {
             </Tile>
 
             {/* 경력 */}
-            <Tile $isDark={isDark}>
+            <Tile $isDark={isDark} $flex>
               <TileLabel $isDark={isDark}>{t.experience}</TileLabel>
               {loading ? (
                 <CareerList>
