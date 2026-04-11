@@ -11,7 +11,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('portfolio_dark_mode');
     if (saved !== null) return saved === 'true';
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return false; // 시스템 설정 무관하게 라이트모드 기본값
   });
 
   useEffect(() => {
