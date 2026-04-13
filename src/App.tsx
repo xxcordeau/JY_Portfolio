@@ -220,7 +220,7 @@ function ProjectDetailPage() {
   return (
     <ProjectDetail
       projectId={id}
-      onBack={() => navigate('/projects')}
+      onBack={() => navigate(-1)}
     />
   );
 }
@@ -248,7 +248,7 @@ function BlogDetailPage() {
   return (
     <BlogDetail
       blogId={id}
-      onBack={() => navigate('/blog')}
+      onBack={() => navigate(-1)}
     />
   );
 }
@@ -281,7 +281,7 @@ function OpenSourceDetailPage() {
   return (
     <OpenSourceDetail
       projectId={id}
-      onBack={() => navigate('/opensource')}
+      onBack={() => navigate(-1)}
     />
   );
 }

@@ -230,11 +230,13 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
 
   const trackRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
+  const hasDragged = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     isDragging.current = true;
+    hasDragged.current = false;
     startX.current = e.pageX - (trackRef.current?.offsetLeft ?? 0);
     scrollLeft.current = trackRef.current?.scrollLeft ?? 0;
     if (trackRef.current) trackRef.current.style.cursor = 'grabbing';
@@ -245,6 +247,7 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
     e.preventDefault();
     const x = e.pageX - trackRef.current.offsetLeft;
     const walk = (x - startX.current) * 1.2;
+    if (Math.abs(walk) > 4) hasDragged.current = true;
     trackRef.current.scrollLeft = scrollLeft.current - walk;
   }, []);
 
@@ -274,7 +277,7 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
             <PostCard
               key={post.id}
               $isDark={isDark}
-              onClick={() => { if (!isDragging.current) onPostClick(post.id); }}
+              onClick={() => { if (!hasDragged.current) onPostClick(post.id); }}
             >
               <PostThumbnail>
                 <ImageWithFallback

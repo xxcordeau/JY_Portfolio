@@ -416,11 +416,13 @@ export default function OpenSource({
 
   const trackRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
+  const hasDragged = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     isDragging.current = true;
+    hasDragged.current = false;
     startX.current = e.pageX - (trackRef.current?.offsetLeft ?? 0);
     scrollLeft.current = trackRef.current?.scrollLeft ?? 0;
     if (trackRef.current) trackRef.current.style.cursor = 'grabbing';
@@ -431,6 +433,7 @@ export default function OpenSource({
     e.preventDefault();
     const x = e.pageX - trackRef.current.offsetLeft;
     const walk = (x - startX.current) * 1.2;
+    if (Math.abs(walk) > 4) hasDragged.current = true;
     trackRef.current.scrollLeft = scrollLeft.current - walk;
   }, []);
 
@@ -476,7 +479,7 @@ export default function OpenSource({
               key={project.id}
               $isDark={isDark}
               $compact
-              onClick={() => { if (!isDragging.current) onProjectClick(project.id); }}
+              onClick={() => { if (!hasDragged.current) onProjectClick(project.id); }}
             >
               <ProjectImage $image={project.image} $compact={compact} />
               <ProjectContent $compact={compact}>
