@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense, type ReactNode } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation, useNavigationType } from 'react-router-dom';
 import styled, { createGlobalStyle, keyframes, css } from 'styled-components';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
@@ -332,10 +332,14 @@ function AppContent() {
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const navigationType = useNavigationType();
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
+    // POP = 브라우저 뒤로가기/앞으로가기 → 스크롤 위치 브라우저에게 맡김
+    if (navigationType !== 'POP') {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, navigationType]);
 
   const isAdminPage = location.pathname.startsWith('/admin');
 
@@ -447,6 +451,11 @@ function AppContent() {
 }
 
 export default function App() {
+  // 브라우저 기본 스크롤 복원 활성화
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'auto';
+  }
+
   return (
     <BrowserRouter>
       <ThemeProvider>
