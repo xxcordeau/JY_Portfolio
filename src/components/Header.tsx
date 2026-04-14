@@ -229,7 +229,7 @@ const translations = {
   ko: {
     about: '소개',
     projects: '프로젝트',
-    opensource: '오픈소스',
+    opensource: '컴포넌트 라이브러리',
     blog: '블로그',
     contact: '연락',
     presentations: 'PT 자료',
@@ -238,7 +238,7 @@ const translations = {
   en: {
     about: 'About',
     projects: 'Projects',
-    opensource: 'Open Source',
+    opensource: 'Component Library',
     blog: 'Blog',
     contact: 'Contact',
     presentations: 'Presentations',

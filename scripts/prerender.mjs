@@ -190,7 +190,7 @@ async function generatePortfolioTxt() {
     }
 
     // 오픈소스
-    txt += '## 오픈소스 프로젝트\n';
+    txt += '## 컴포넌트 라이브러리\n';
     for (const o of (opensource || [])) {
       txt += `### ${o.name}\n`;
       if (o.description_ko) txt += `${o.description_ko}\n`;
