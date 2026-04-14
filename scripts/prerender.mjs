@@ -106,6 +106,108 @@ function startServer() {
   });
 }
 
+// ── Generate portfolio.txt — 모든 콘텐츠를 하나의 텍스트로 ─────
+async function generatePortfolioTxt() {
+  console.log('Generating portfolio.txt...');
+  try {
+    const [about, skills, education, experiences, projects, blogs, opensource] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/site_settings?key=in.(profile_name,profile_job_title,profile_bio)`, { headers: HEADERS }).then(r => r.json()),
+      fetch(`${SUPABASE_URL}/rest/v1/skills?order=sort_order`, { headers: HEADERS }).then(r => r.json()),
+      fetch(`${SUPABASE_URL}/rest/v1/education?order=sort_order`, { headers: HEADERS }).then(r => r.json()),
+      fetch(`${SUPABASE_URL}/rest/v1/experiences?order=sort_order`, { headers: HEADERS }).then(r => r.json()),
+      fetch(`${SUPABASE_URL}/rest/v1/projects?order=sort_order`, { headers: HEADERS }).then(r => r.json()),
+      fetch(`${SUPABASE_URL}/rest/v1/blog_posts?status=eq.published&order=created_at.desc`, { headers: HEADERS }).then(r => r.json()),
+      fetch(`${SUPABASE_URL}/rest/v1/open_source_projects?is_visible=eq.true&order=sort_order`, { headers: HEADERS }).then(r => r.json()),
+    ]);
+
+    let txt = '';
+    txt += '='.repeat(60) + '\n';
+    txt += '허정연 — 프론트엔드 개발자 포트폴리오\n';
+    txt += '='.repeat(60) + '\n\n';
+
+    // 기본 정보
+    txt += '## 기본 정보\n';
+    txt += '이름: 허정연\n';
+    txt += '생년월일: 2000.01.28\n';
+    txt += '이메일: qazseeszaq3219@gmail.com\n';
+    txt += '연락처: 010-2863-7447\n';
+    txt += '위치: 서울, 대한민국\n';
+    txt += '소개: 사용자 중심의 인터페이스를 설계하고, 섬세한 UI와 부드러운 경험을 만드는 프론트엔드 개발자입니다.\n\n';
+
+    // 기술 스택
+    txt += '## 기술 스택\n';
+    const grouped = {};
+    for (const s of (skills || [])) {
+      if (!grouped[s.category]) grouped[s.category] = [];
+      grouped[s.category].push(s.name);
+    }
+    for (const [cat, names] of Object.entries(grouped)) {
+      txt += `- ${cat}: ${names.join(', ')}\n`;
+    }
+    txt += '\n';
+
+    // 학력
+    txt += '## 학력\n';
+    for (const edu of (education || [])) {
+      txt += `- ${edu.school_ko} (${edu.period})\n`;
+      txt += `  ${edu.degree_ko} · ${edu.major_ko}\n`;
+      if (edu.description_ko) txt += `  ${edu.description_ko}\n`;
+    }
+    txt += '\n';
+
+    // 경력
+    txt += '## 경력\n';
+    for (const exp of (experiences || [])) {
+      txt += `- ${exp.company_ko} — ${exp.position_ko} (${exp.period})\n`;
+      if (exp.description_ko) txt += `  ${exp.description_ko}\n`;
+      if (exp.achievements_ko?.length) {
+        for (const a of exp.achievements_ko) txt += `  · ${a}\n`;
+      }
+    }
+    txt += '\n';
+
+    // 프로젝트
+    txt += '## 프로젝트\n';
+    for (const p of (projects || [])) {
+      txt += `### ${p.title_ko}\n`;
+      txt += `${p.description_ko}\n`;
+      if (p.full_description_ko) txt += `${p.full_description_ko}\n`;
+      if (p.tech_stack?.length) txt += `기술: ${p.tech_stack.join(', ')}\n`;
+      txt += '\n';
+    }
+
+    // 블로그
+    txt += '## 블로그\n';
+    for (const b of (blogs || [])) {
+      txt += `### ${b.title_ko}\n`;
+      txt += `날짜: ${b.created_at?.slice(0, 10) || ''}\n`;
+      if (b.excerpt_ko) txt += `요약: ${b.excerpt_ko}\n`;
+      if (b.content_ko) {
+        // 마크다운 본문 전체 포함
+        txt += `\n${b.content_ko}\n`;
+      }
+      txt += '\n---\n\n';
+    }
+
+    // 오픈소스
+    txt += '## 오픈소스 프로젝트\n';
+    for (const o of (opensource || [])) {
+      txt += `### ${o.name}\n`;
+      if (o.description_ko) txt += `${o.description_ko}\n`;
+      if (o.long_description_ko) txt += `${o.long_description_ko}\n`;
+      if (o.tech_stack?.length) txt += `기술: ${o.tech_stack.join(', ')}\n`;
+      if (o.github_url) txt += `GitHub: ${o.github_url}\n`;
+      if (o.npm_url) txt += `NPM: ${o.npm_url}\n`;
+      txt += '\n';
+    }
+
+    writeFileSync(join(BUILD_DIR, 'portfolio.txt'), txt, 'utf-8');
+    console.log(`  ✓ portfolio.txt (${(txt.length / 1024).toFixed(1)}KB)`);
+  } catch (err) {
+    console.warn('  ⚠ portfolio.txt generation failed:', err.message);
+  }
+}
+
 // ── Main ─────────────────────────────────────────────────────────
 async function prerender() {
   if (!existsSync(join(BUILD_DIR, 'index.html'))) {
@@ -165,6 +267,10 @@ async function prerender() {
 
   await browser.close();
   server.close();
+
+  // portfolio.txt 생성
+  await generatePortfolioTxt();
+
   console.log('\nPrerender complete!');
 }
 
