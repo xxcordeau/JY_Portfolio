@@ -146,23 +146,26 @@ const SkillSection = styled.div`
 `;
 
 const SkillEyebrow = styled.span<{ $isDark: boolean }>`
-  font-size: 14px;
-  font-weight: 400;
-  color: #007AFF;
   display: block;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
   margin-bottom: 12px;
 `;
 
-const SkillTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 28px;
+const SkillTitle = styled.h2<{ $isDark: boolean }>`
+  font-size: 40px;
   font-weight: 700;
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 32px 0;
-  letter-spacing: -0.5px;
+  margin: 0 0 48px 0;
+  letter-spacing: -1px;
+  line-height: 1.15;
 
   @media (max-width: 768px) {
-    font-size: 22px;
-    margin-bottom: 24px;
+    font-size: 30px;
+    margin-bottom: 36px;
   }
 `;
 
@@ -203,17 +206,16 @@ const Tab = styled.button<{ $isDark: boolean; $active: boolean }>`
 `;
 
 const IconGrid = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(5, 56px);
   gap: 16px;
-  max-width: 500px;
+  justify-content: center;
   margin: 0 auto;
   padding-bottom: 28px;
 
   @media (max-width: 768px) {
+    grid-template-columns: repeat(5, 48px);
     gap: 12px;
-    max-width: 360px;
   }
 `;
 
@@ -524,6 +526,7 @@ const translations = {
     eyebrow: 'ABOUT',
     title: '안녕하세요,\n허정연입니다.',
     bio: '사용자 중심의 인터페이스를 설계하고, 섬세한 UI와 부드러운 경험을 만드는 프론트엔드 개발자입니다. React와 TypeScript를 기반으로 웹 프론트엔드를 개발합니다.',
+    skillsEyebrow: 'SKILLS',
     skills: '기술 스택',
     education: '학력',
     experience: '경력',
@@ -535,6 +538,7 @@ const translations = {
     eyebrow: 'ABOUT',
     title: 'Hello,\nI\'m Jungyeon Heo.',
     bio: 'A frontend developer who designs user-centered interfaces and crafts delicate UI with smooth, thoughtful experiences. I build web frontends based on React and TypeScript.',
+    skillsEyebrow: 'SKILLS',
     skills: 'Skills & Tools',
     education: 'Education',
     experience: 'Experience',
@@ -634,7 +638,8 @@ export default function About() {
       >
         <Container>
           <SkillSection>
-            <SkillEyebrow $isDark={isDark}>{t.skills}</SkillEyebrow>
+            <SkillEyebrow $isDark={isDark}>{t.skillsEyebrow}</SkillEyebrow>
+            <SkillTitle $isDark={isDark}>{t.skills}</SkillTitle>
             {loading ? (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center' }}>
                 {Array.from({ length: 10 }).map((_, i) => (
