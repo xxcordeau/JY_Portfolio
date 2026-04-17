@@ -230,8 +230,9 @@ const AnswerBox = styled.div<{ $isDark: boolean }>`
 `;
 
 const ToggleButton = styled.button<{ $isDark: boolean; $isOpen: boolean }>`
+  width: 48px;
   height: 48px;
-  padding: 0 20px;
+  padding: 0;
   border-radius: 100px;
   background: ${props => props.$isDark
     ? 'rgba(22, 22, 24, 0.85)'
@@ -473,7 +474,6 @@ export default function Chatbot({ onContactClick }: ChatbotProps) {
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <X /> : <MessageCircle />}
-          {isOpen ? (language === 'ko' ? '닫기' : 'Close') : (language === 'ko' ? '문의하기' : 'Ask me')}
         </ToggleButton>
       </ChatbotContainer>
     </>
