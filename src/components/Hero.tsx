@@ -40,7 +40,7 @@ const translations = {
 };
 
 const MAX_PARTICLES = 3000;
-const SAMPLE_INTERVAL = 6;
+const SAMPLE_INTERVAL = 6; // desktop default; overridden per-call on mobile
 const SPRING = 0.045;
 const FRICTION = 0.82;
 const SIZE_LERP = 0.08;
@@ -63,9 +63,12 @@ function sampleImage(
   img: HTMLImageElement,
   canvasW: number,
   canvasH: number,
+  interval: number,
 ): SampledPoint[] {
-  const maxW = Math.min(canvasW * 0.4, 420);
-  const maxH = Math.min(canvasH * 0.65, 560);
+  // Mobile: use more of the screen width for the face
+  const isMobile = canvasW <= 480;
+  const maxW = isMobile ? canvasW * 0.72 : Math.min(canvasW * 0.4, 420);
+  const maxH = isMobile ? canvasH * 0.55 : Math.min(canvasH * 0.65, 560);
   const scale = Math.min(maxW / img.width, maxH / img.height);
   const drawW = img.width * scale;
   const drawH = img.height * scale;
@@ -82,21 +85,18 @@ function sampleImage(
   const data = imageData.data;
   const points: SampledPoint[] = [];
 
-  for (let y = 0; y < canvasH; y += SAMPLE_INTERVAL) {
-    for (let x = 0; x < canvasW; x += SAMPLE_INTERVAL) {
+  for (let y = 0; y < canvasH; y += interval) {
+    for (let x = 0; x < canvasW; x += interval) {
       const idx = (y * canvasW + x) * 4;
       const r = data[idx];
       const g = data[idx + 1];
       const b = data[idx + 2];
       const a = data[idx + 3];
-      // 투명 영역 스킵 (배경)
       if (a < 30) continue;
       const brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
-      // 밝은 피부 영역을 과감히 제거 → 이목구비·머리카락만 남김
       if (brightness > 0.72) continue;
-      // 어두울수록 큰 점, 중간 밝기는 작은 점
-      const t = 1 - brightness / 0.72; // 0 (밝음) ~ 1 (어두움)
-      const size = t * t * (SAMPLE_INTERVAL * 1.0) + 0.4;
+      const t = 1 - brightness / 0.72;
+      const size = t * t * (interval * 1.0) + 0.4;
       points.push({ x, y, size });
     }
   }
@@ -124,14 +124,19 @@ function sampleText(
   text: string,
   canvasW: number,
   canvasH: number,
+  interval: number,
 ): SampledPoint[] {
   const offscreen = document.createElement('canvas');
   offscreen.width = canvasW;
   offscreen.height = canvasH;
   const ctx = offscreen.getContext('2d')!;
 
-  let fontSize = Math.min(canvasW * 0.12, 140);
-  if (text.length <= 5) {
+  const isMobile = canvasW <= 480;
+  // Mobile: larger font so text fills the screen better
+  let fontSize = isMobile
+    ? Math.min(canvasW * 0.19, 100)
+    : Math.min(canvasW * 0.12, 140);
+  if (!isMobile && text.length <= 5) {
     fontSize = Math.min(canvasW * 0.16, 180);
   }
   ctx.font = `900 ${fontSize}px Pretendard, -apple-system, BlinkMacSystemFont, sans-serif`;
@@ -144,12 +149,12 @@ function sampleText(
   const data = imageData.data;
   const points: SampledPoint[] = [];
 
-  for (let y = 0; y < canvasH; y += SAMPLE_INTERVAL) {
-    for (let x = 0; x < canvasW; x += SAMPLE_INTERVAL) {
+  for (let y = 0; y < canvasH; y += interval) {
+    for (let x = 0; x < canvasW; x += interval) {
       const idx = (y * canvasW + x) * 4;
       const a = data[idx + 3];
       if (a < 30) continue;
-      const size = (a / 255) * (SAMPLE_INTERVAL * 0.45) + 0.3;
+      const size = (a / 255) * (interval * 0.45) + 0.3;
       points.push({ x, y, size });
     }
   }
@@ -241,8 +246,10 @@ export default function Hero() {
     canvas.style.width = `${w}px`;
     canvas.style.height = `${h}px`;
 
-    // Mobile: scale down dot radius so circles don't look oversized on narrow screens
-    const sizeMult = w <= 480 ? 0.48 : w <= 768 ? 0.68 : 1.0;
+    // Denser sampling on mobile (smaller interval = more dots = tighter)
+    const interval = w <= 480 ? 4 : w <= 768 ? 5 : SAMPLE_INTERVAL;
+    // Slight size reduction on mobile so dots aren't oversized
+    const sizeMult = w <= 480 ? 0.72 : w <= 768 ? 0.85 : 1.0;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -262,7 +269,7 @@ export default function Hero() {
     img.src = faceImg;
 
     const startAnimation = (faceRaw: SampledPoint[]) => {
-      const textRaw = sampleText(t.title, w, h);
+      const textRaw = sampleText(t.title, w, h, interval);
       const { face, text } = normalizeAndPad(faceRaw, textRaw, MAX_PARTICLES, w, h);
       const count = face.length;
 
@@ -432,7 +439,7 @@ export default function Hero() {
     };
 
     img.onload = () => {
-      const faceRaw = sampleImage(img, w, h);
+      const faceRaw = sampleImage(img, w, h, interval);
       startAnimation(faceRaw.length > 0 ? faceRaw : sampleFallbackFace(w, h));
     };
 

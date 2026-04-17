@@ -206,15 +206,16 @@ const Tab = styled.button<{ $isDark: boolean; $active: boolean }>`
 `;
 
 const IconGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(5, 56px);
-  gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  gap: 16px;
+  max-width: 376px; /* 5 × 56px + 4 × 16px gap */
   margin: 0 auto;
   padding-bottom: 28px;
 
   @media (max-width: 768px) {
-    grid-template-columns: repeat(5, 48px);
+    max-width: 312px; /* 5 × 48px + 4 × 12px gap */
     gap: 12px;
   }
 `;
@@ -222,7 +223,13 @@ const IconGrid = styled.div`
 const IconItem = styled.div<{ $isDark: boolean; $faded?: boolean }>`
   width: 56px;
   height: 56px;
+  flex-shrink: 0;
   border-radius: 10px;
+
+  @media (max-width: 768px) {
+    width: 48px;
+    height: 48px;
+  }
   display: flex;
   align-items: center;
   justify-content: center;
@@ -304,7 +311,6 @@ const SubTitle = styled.h3<{ $isDark: boolean }>`
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   margin: 0 0 24px 0;
   letter-spacing: -0.5px;
-  text-align: center;
 
   @media (max-width: 768px) {
     font-size: 19px;

@@ -19,7 +19,6 @@ const HeaderWrapper = styled.header<{ $visible: boolean }>`
 
   @media (max-width: 768px) {
     top: 12px;
-    width: calc(100% - 24px);
   }
 `;
 
@@ -42,8 +41,8 @@ const Capsule = styled.nav<{ $isDark: boolean }>`
     : '0 4px 24px rgba(0, 0, 0, 0.06)'};
 
   @media (max-width: 768px) {
-    width: 100%;
-    justify-content: space-between;
+    width: auto;
+    gap: 6px;
   }
 `;
 
@@ -102,6 +101,10 @@ const Separator = styled.div<{ $isDark: boolean }>`
   background: ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
   margin: 0 4px;
   flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const Controls = styled.div`
