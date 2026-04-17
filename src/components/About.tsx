@@ -304,6 +304,7 @@ const SubTitle = styled.h3<{ $isDark: boolean }>`
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   margin: 0 0 24px 0;
   letter-spacing: -0.5px;
+  text-align: center;
 
   @media (max-width: 768px) {
     font-size: 19px;

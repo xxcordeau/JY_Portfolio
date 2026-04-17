@@ -79,6 +79,7 @@ const BackButton = styled.button<{ $isDark: boolean }>`
 
 const Header = styled.header`
   padding: 140px 0 0;
+  text-align: center;
 
   @media (max-width: 768px) {
     padding: 110px 0 0;

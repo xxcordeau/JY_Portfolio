@@ -24,9 +24,6 @@ const LoginCard = styled.div<{ $isDark: boolean }>`
   max-width: 420px;
   backdrop-filter: blur(28px) saturate(1.6);
   -webkit-backdrop-filter: blur(28px) saturate(1.6);
-  box-shadow: ${props => props.$isDark
-    ? '0 16px 48px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)'
-    : '0 16px 48px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)'};
   transition: all 0.3s ease;
 
   @media (max-width: 768px) {
