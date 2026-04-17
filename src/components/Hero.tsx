@@ -241,6 +241,9 @@ export default function Hero() {
     canvas.style.width = `${w}px`;
     canvas.style.height = `${h}px`;
 
+    // Mobile: scale down dot radius so circles don't look oversized on narrow screens
+    const sizeMult = w <= 480 ? 0.48 : w <= 768 ? 0.68 : 1.0;
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -417,8 +420,8 @@ export default function Hero() {
         ctx.fillStyle = dark ? 'rgba(220,220,225,0.92)' : 'rgba(30,30,35,0.92)';
 
         for (let i = 0; i < count; i++) {
-          const s = psize[i];
-          if (s < 0.15) continue;
+          const s = psize[i] * sizeMult;
+          if (s < 0.12) continue;
           ctx.beginPath();
           ctx.arc(px[i], py[i], s, 0, Math.PI * 2);
           ctx.fill();
