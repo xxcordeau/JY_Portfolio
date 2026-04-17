@@ -39,8 +39,8 @@ const translations = {
   },
 };
 
-const MAX_PARTICLES = 3000;
-const SAMPLE_INTERVAL = 6; // desktop default; overridden per-call on mobile
+const MAX_PARTICLES = 5000;
+const SAMPLE_INTERVAL = 4; // unified interval — 4px gives dense halftone on all screens
 const SPRING = 0.045;
 const FRICTION = 0.82;
 const SIZE_LERP = 0.08;
@@ -246,8 +246,8 @@ export default function Hero() {
     canvas.style.width = `${w}px`;
     canvas.style.height = `${h}px`;
 
-    // Denser sampling on mobile (smaller interval = more dots = tighter)
-    const interval = w <= 480 ? 4 : w <= 768 ? 5 : SAMPLE_INTERVAL;
+    // 4px interval on all screen sizes for a consistently dense halftone
+    const interval = SAMPLE_INTERVAL;
     // Slight size reduction on mobile so dots aren't oversized
     const sizeMult = w <= 480 ? 0.72 : w <= 768 ? 0.85 : 1.0;
 
