@@ -14,7 +14,7 @@ import DrawingToolDemo from './interactive/DrawingToolDemo';
 import TextHighlightDemo from './interactive/TextHighlightDemo';
 import TextHoverDemo from './interactive/TextHoverDemo';
 import MouseFollowTextDemo from './interactive/MouseFollowTextDemo';
-import { FILLED_ICONS, resolveIcon } from '../lib/techIcons';
+import { FILLED_ICONS, DARK_INVERT_ICONS, resolveIcon } from '../lib/techIcons';
 
 const DetailContainer = styled.div<{ $isDark: boolean }>`
   min-height: 100vh;
@@ -311,6 +311,14 @@ const TechIconWrapper = styled.div<{ $isDark: boolean }>`
     height: 30px;
     object-fit: contain;
   }
+
+  img.icon-dark-invert {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    filter: ${p => p.$isDark ? 'invert(1) brightness(2)' : 'none'};
+    transition: filter 0.3s ease;
+  }
 `;
 
 const TechIconTooltip = styled.span<{ $isDark: boolean }>`
@@ -582,7 +590,7 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
                 {project.techStack.frontend.map((tech, index) =>
                   resolveIcon(tech) ? (
                     <TechIconWrapper key={index} $isDark={isDark}>
-                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : 'icon-plain'} />
+                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : DARK_INVERT_ICONS.has(tech) ? 'icon-dark-invert' : 'icon-plain'} />
                       <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
                     </TechIconWrapper>
                   ) : (
@@ -599,7 +607,7 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
                 {project.techStack.backend.map((tech, index) =>
                   resolveIcon(tech) ? (
                     <TechIconWrapper key={index} $isDark={isDark}>
-                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : 'icon-plain'} />
+                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : DARK_INVERT_ICONS.has(tech) ? 'icon-dark-invert' : 'icon-plain'} />
                       <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
                     </TechIconWrapper>
                   ) : (
@@ -616,7 +624,7 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
                 {project.techStack.design.map((tech, index) =>
                   resolveIcon(tech) ? (
                     <TechIconWrapper key={index} $isDark={isDark}>
-                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : 'icon-plain'} />
+                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : DARK_INVERT_ICONS.has(tech) ? 'icon-dark-invert' : 'icon-plain'} />
                       <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
                     </TechIconWrapper>
                   ) : (
@@ -633,7 +641,7 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
                 {project.techStack.others.map((tech, index) =>
                   resolveIcon(tech) ? (
                     <TechIconWrapper key={index} $isDark={isDark}>
-                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : 'icon-plain'} />
+                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : DARK_INVERT_ICONS.has(tech) ? 'icon-dark-invert' : 'icon-plain'} />
                       <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
                     </TechIconWrapper>
                   ) : (

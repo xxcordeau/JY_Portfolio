@@ -129,6 +129,28 @@ export const FILLED_ICONS = new Set([
 ]);
 
 /**
+ * Icons that are black/near-black in their original color.
+ * In dark mode these should be inverted to white so they stay visible.
+ */
+export const DARK_INVERT_ICONS = new Set([
+  // devicons-original variants that use solid black paths
+  'GitHub', 'GitHub Actions',
+  'Next.js',
+  'Vercel',
+  'Express',
+  'Netlify',
+  'Notion',
+  // simpleicons with 000000 or very dark hex color
+  'Remix',
+  'Shadcn UI',
+  'CSS Modules',
+  'Fastify',
+  'Radix UI',
+  'Cypress',
+  'Prisma',
+]);
+
+/**
  * Resolve icon URL for a tech name.
  * Handles variant names like "Tailwind CSS v4", "Java 17", "Nuxt 3" etc.
  */

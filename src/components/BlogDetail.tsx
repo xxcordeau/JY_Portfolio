@@ -8,7 +8,7 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import Footer from './Footer';
 import { useState } from 'react';
 
-import { FILLED_ICONS, resolveIcon } from '../lib/techIcons';
+import { FILLED_ICONS, DARK_INVERT_ICONS, resolveIcon } from '../lib/techIcons';
 import ReactMarkdown from 'react-markdown';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
@@ -214,6 +214,14 @@ const TagIconWrapper = styled.div<{ $isDark: boolean }>`
     width: 24px;
     height: 24px;
     object-fit: contain;
+  }
+
+  img.icon-dark-invert {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: ${p => p.$isDark ? 'invert(1) brightness(2)' : 'none'};
+    transition: filter 0.3s ease;
   }
 `;
 
@@ -675,7 +683,7 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
           {post.tags.map((tag, index) =>
             resolveIcon(tag) ? (
               <TagIconWrapper key={index} $isDark={isDark}>
-                <img src={resolveIcon(tag)} alt={tag} loading="lazy" className={FILLED_ICONS.has(tag) ? 'icon-filled' : 'icon-plain'} />
+                <img src={resolveIcon(tag)} alt={tag} loading="lazy" className={FILLED_ICONS.has(tag) ? 'icon-filled' : DARK_INVERT_ICONS.has(tag) ? 'icon-dark-invert' : 'icon-plain'} />
                 <TagIconTooltip $isDark={isDark}>{tag}</TagIconTooltip>
               </TagIconWrapper>
             ) : (

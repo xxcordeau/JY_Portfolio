@@ -191,13 +191,17 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
   const navigate = useNavigate();
   const { isDark } = useTheme();
 
-  // Enable scroll-snap on <html> for home page only
+  // Enable scroll-snap on <html> for home page only.
+  // Delay on POP so scrollTo runs first before snap can re-snap.
   useEffect(() => {
     if (window.matchMedia('(max-width: 768px)').matches) return;
     const html = document.documentElement;
     const prev = html.style.scrollSnapType;
-    html.style.scrollSnapType = 'y proximity';
+    const isPopNav = __popNavFlag;
+    const delay = isPopNav ? 550 : 0;
+    const t = setTimeout(() => { html.style.scrollSnapType = 'y proximity'; }, delay);
     return () => {
+      clearTimeout(t);
       html.style.scrollSnapType = prev;
     };
   }, []);
@@ -402,10 +406,25 @@ function AppContent() {
     if (navigationType === 'POP') {
       __popNavFlag = true;
       const saved = sessionStorage.getItem(`sp:${location.pathname}`);
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: saved ? parseInt(saved) : 0, behavior: 'instant' as ScrollBehavior });
-        setTimeout(() => { __popNavFlag = false; }, 100);
-      });
+      const target = saved ? parseInt(saved, 10) : 0;
+
+      if (target === 0) {
+        __popNavFlag = false;
+        return;
+      }
+
+      // Scroll to saved position; retry a few times in case async data
+      // hasn't finished rendering yet (Supabase lists, lazy components, etc.)
+      const tryScroll = () =>
+        window.scrollTo({ top: target, behavior: 'instant' as ScrollBehavior });
+
+      // immediate + two retries to cover slow data loads
+      tryScroll();
+      const t1 = setTimeout(tryScroll, 120);
+      const t2 = setTimeout(tryScroll, 350);
+      const t3 = setTimeout(() => { __popNavFlag = false; }, 500);
+
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     } else {
       __popNavFlag = false;
       window.scrollTo(0, 0);
