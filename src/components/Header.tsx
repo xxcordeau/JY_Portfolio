@@ -6,97 +6,118 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 
-const HeaderContainer = styled.header<{ $scrolled: boolean; $isDark: boolean }>`
+/* ── Floating Capsule Header ── */
+const HeaderWrapper = styled.header<{ $visible: boolean }>`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(${p => p.$visible ? '0' : '-80px'});
   z-index: 1002;
-  padding: 20px 40px;
-  background: ${props => props.$scrolled
-    ? props.$isDark
-      ? 'rgba(0, 0, 0, 0.8)'
-      : 'rgba(255, 255, 255, 0.8)'
-    : 'transparent'};
-  backdrop-filter: ${props => props.$scrolled ? 'blur(20px)' : 'none'};
-  transition: all 0.3s ease;
-  border-bottom: ${props => props.$scrolled
-    ? props.$isDark
-      ? '1px solid rgba(255, 255, 255, 0.1)'
-      : '1px solid rgba(0, 0, 0, 0.1)'
-    : 'none'};
+  opacity: ${p => p.$visible ? 1 : 0};
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  pointer-events: ${p => p.$visible ? 'auto' : 'none'};
 
   @media (max-width: 768px) {
-    padding: 15px 20px;
+    top: 12px;
+    width: calc(100% - 24px);
   }
 `;
 
-const Nav = styled.nav`
-  max-width: 1200px;
-  margin: 0 auto;
+const Capsule = styled.nav<{ $isDark: boolean }>`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 100px;
+  background: ${p => p.$isDark
+    ? 'rgba(30, 30, 30, 0.85)'
+    : 'rgba(255, 255, 255, 0.85)'};
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid ${p => p.$isDark
+    ? 'rgba(255, 255, 255, 0.08)'
+    : 'rgba(0, 0, 0, 0.06)'};
+  box-shadow: ${p => p.$isDark
+    ? '0 4px 24px rgba(0, 0, 0, 0.4)'
+    : '0 4px 24px rgba(0, 0, 0, 0.06)'};
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+  }
 `;
 
-const Logo = styled.button<{ $isDark: boolean }>`
-  font-size: 20px;
-  font-weight: 600;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  letter-spacing: -0.5px;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-  background: none;
-  border: none;
-  padding: 0;
-  font-family: inherit;
+const Dots = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px 0 4px;
+  flex-shrink: 0;
+`;
 
-  &:hover {
-    opacity: 0.6;
-  }
+const Dot = styled.div<{ $color: string }>`
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: ${p => p.$color};
 `;
 
 const NavLinks = styled.div`
   display: flex;
-  gap: 40px;
   align-items: center;
+  gap: 2px;
 
   @media (max-width: 768px) {
     display: none;
   }
 `;
 
-const NavButton = styled.button<{ $isDark: boolean }>`
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  background: none;
+const NavButton = styled.button<{ $isDark: boolean; $active?: boolean }>`
+  padding: 6px 16px;
   border: none;
-  font-size: 14px;
-  font-weight: 400;
+  border-radius: 100px;
+  background: ${p => p.$active
+    ? p.$isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.07)'
+    : 'transparent'};
+  color: ${p => p.$active
+    ? p.$isDark ? '#f5f5f7' : '#1d1d1f'
+    : p.$isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)'};
+  font-size: 13px;
+  font-weight: ${p => p.$active ? 600 : 400};
   cursor: pointer;
-  transition: opacity 0.2s ease;
-  letter-spacing: -0.2px;
-  padding: 0;
+  transition: all 0.2s ease;
   font-family: inherit;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
 
   &:hover {
-    opacity: 0.6;
+    background: ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'};
+    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   }
 `;
 
-const ButtonGroup = styled.div`
+const Separator = styled.div<{ $isDark: boolean }>`
+  width: 1px;
+  height: 16px;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
+  margin: 0 4px;
+  flex-shrink: 0;
+`;
+
+const Controls = styled.div`
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 `;
 
 const IconButton = styled.button<{ $isDark: boolean }>`
   background: transparent;
-  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  width: 36px;
-  height: 36px;
-  border-radius: 18px;
+  border: none;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)'};
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,34 +125,32 @@ const IconButton = styled.button<{ $isDark: boolean }>`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'};
+    background: ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'};
+    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   }
 
   svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
 `;
 
 const LangButton = styled.button<{ $isDark: boolean }>`
-  background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  color: ${props => props.$isDark ? '#1d1d1f' : '#ffffff'};
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)'};
   border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 13px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-weight: 500;
-  letter-spacing: -0.2px;
+  font-family: inherit;
+  letter-spacing: 0.5px;
 
   &:hover {
-    opacity: 0.8;
-  }
-
-  @media (max-width: 768px) {
-    padding: 6px 12px;
-    font-size: 12px;
+    background: ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'};
+    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   }
 `;
 
@@ -139,14 +158,14 @@ const HamburgerButton = styled.button<{ $isDark: boolean }>`
   display: none;
   background: transparent;
   border: none;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)'};
   cursor: pointer;
   padding: 4px;
   z-index: 1001;
 
   svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
   }
 
   @media (max-width: 768px) {
@@ -156,6 +175,7 @@ const HamburgerButton = styled.button<{ $isDark: boolean }>`
   }
 `;
 
+/* ── Mobile Menu ── */
 const MobileMenuOverlay = styled.div<{ $isOpen: boolean; $isDark: boolean }>`
   display: none;
 
@@ -166,11 +186,11 @@ const MobileMenuOverlay = styled.div<{ $isOpen: boolean; $isDark: boolean }>`
     left: 0;
     right: 0;
     bottom: 0;
-    background: ${props => props.$isDark ? 'rgba(0, 0, 0, 0.95)' : 'rgba(255, 255, 255, 0.95)'};
+    background: ${p => p.$isDark ? 'rgba(0, 0, 0, 0.95)' : 'rgba(255, 255, 255, 0.95)'};
     backdrop-filter: blur(20px);
     z-index: 999;
-    opacity: ${props => props.$isOpen ? 1 : 0};
-    pointer-events: ${props => props.$isOpen ? 'auto' : 'none'};
+    opacity: ${p => p.$isOpen ? 1 : 0};
+    pointer-events: ${p => p.$isOpen ? 'auto' : 'none'};
     transition: opacity 0.3s ease;
   }
 `;
@@ -190,15 +210,15 @@ const MobileMenu = styled.div<{ $isOpen: boolean; $isDark: boolean }>`
     right: 0;
     bottom: 0;
     z-index: 1000;
-    opacity: ${props => props.$isOpen ? 1 : 0};
-    pointer-events: ${props => props.$isOpen ? 'auto' : 'none'};
-    transform: ${props => props.$isOpen ? 'translateY(0)' : 'translateY(-20px)'};
+    opacity: ${p => p.$isOpen ? 1 : 0};
+    pointer-events: ${p => p.$isOpen ? 'auto' : 'none'};
+    transform: ${p => p.$isOpen ? 'translateY(0)' : 'translateY(-20px)'};
     transition: all 0.3s ease;
   }
 `;
 
 const MobileNavButton = styled.button<{ $isDark: boolean }>`
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   background: none;
   border: none;
   font-size: 24px;
@@ -250,7 +270,7 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
   const { isDark, toggleDarkMode } = useTheme();
   const { language, toggleLanguage } = useLanguage();
   const { isNavVisible, navOrder } = useSiteSettings();
-  const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -258,12 +278,18 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      // Show capsule after scrolling past hero area (roughly 200px)
+      setVisible(window.scrollY > 200);
     };
+
+    // Also check on mount for pages that aren't the home page
+    if (location.pathname !== '/') {
+      setVisible(true);
+    }
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -274,6 +300,18 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
     return () => { document.body.style.overflow = ''; };
   }, [mobileMenuOpen]);
 
+  // Determine active nav item based on current route/scroll
+  const getActiveKey = (): string | null => {
+    const path = location.pathname;
+    if (path.startsWith('/projects')) return 'nav_projects';
+    if (path.startsWith('/blog')) return 'nav_blog';
+    if (path.startsWith('/opensource')) return 'nav_opensource';
+    if (path.startsWith('/presentations')) return 'nav_presentations';
+    return null;
+  };
+
+  const activeKey = getActiveKey();
+
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false);
     if (id === 'contact') {
@@ -282,33 +320,15 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
     }
 
     if (location.pathname !== '/') {
+      // Store target section, then navigate to home — HomePage will pick it up
+      sessionStorage.setItem('scrollTarget', id);
       navigate('/');
-      setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
     } else {
       const element = document.getElementById(id);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
     }
-  };
-
-  const handleBlogClick = () => {
-    setMobileMenuOpen(false);
-    if (location.pathname === '/') {
-      scrollToSection('blog');
-    } else {
-      navigate('/blog');
-    }
-  };
-
-  const handleOpenSourceClick = () => {
-    setMobileMenuOpen(false);
-    navigate('/opensource');
   };
 
   const handlePresentationsClick = () => {
@@ -318,26 +338,41 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
 
   const navActions: Record<string, { label: string; onClick: () => void }> = {
     nav_about: { label: t.about, onClick: () => scrollToSection('about') },
-    nav_projects: { label: t.projects, onClick: () => { setMobileMenuOpen(false); navigate('/projects'); } },
-    nav_opensource: { label: t.opensource, onClick: handleOpenSourceClick },
-    nav_blog: { label: t.blog, onClick: handleBlogClick },
+    nav_projects: { label: t.projects, onClick: () => scrollToSection('projects') },
+    nav_opensource: { label: t.opensource, onClick: () => scrollToSection('opensource') },
+    nav_blog: { label: t.blog, onClick: () => scrollToSection('blog') },
     nav_presentations: { label: t.presentations, onClick: handlePresentationsClick },
     nav_contact: { label: t.contact, onClick: () => scrollToSection('contact') },
   };
 
   return (
     <>
-      <HeaderContainer $scrolled={scrolled || mobileMenuOpen} $isDark={isDark}>
-        <Nav aria-label="Main navigation">
-          <Logo $isDark={isDark} onClick={() => { setMobileMenuOpen(false); navigateToHome(); }}>Portfolio</Logo>
+      <HeaderWrapper $visible={visible || mobileMenuOpen}>
+        <Capsule $isDark={isDark} aria-label="Main navigation">
+          <Dots onClick={() => { setMobileMenuOpen(false); navigateToHome(); }} style={{ cursor: 'pointer' }}>
+            <Dot $color={isDark ? '#f5f5f7' : '#1d1d1f'} />
+          </Dots>
+
           <NavLinks>
             {navOrder.map(key => {
               if (!isNavVisible(key) || !navActions[key]) return null;
               const { label, onClick } = navActions[key];
-              return <NavButton key={key} $isDark={isDark} onClick={onClick}>{label}</NavButton>;
+              return (
+                <NavButton
+                  key={key}
+                  $isDark={isDark}
+                  $active={activeKey === key}
+                  onClick={onClick}
+                >
+                  {label}
+                </NavButton>
+              );
             })}
           </NavLinks>
-          <ButtonGroup>
+
+          <Separator $isDark={isDark} />
+
+          <Controls>
             <IconButton $isDark={isDark} onClick={toggleDarkMode} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
               {isDark ? <Sun /> : <Moon />}
             </IconButton>
@@ -352,9 +387,9 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
             >
               {mobileMenuOpen ? <X /> : <Menu />}
             </HamburgerButton>
-          </ButtonGroup>
-        </Nav>
-      </HeaderContainer>
+          </Controls>
+        </Capsule>
+      </HeaderWrapper>
 
       <MobileMenuOverlay $isOpen={mobileMenuOpen} $isDark={isDark} onClick={() => setMobileMenuOpen(false)} />
       <MobileMenu $isOpen={mobileMenuOpen} $isDark={isDark} role="dialog" aria-label="Navigation menu">

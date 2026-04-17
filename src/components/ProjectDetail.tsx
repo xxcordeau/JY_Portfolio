@@ -14,6 +14,7 @@ import DrawingToolDemo from './interactive/DrawingToolDemo';
 import TextHighlightDemo from './interactive/TextHighlightDemo';
 import TextHoverDemo from './interactive/TextHoverDemo';
 import MouseFollowTextDemo from './interactive/MouseFollowTextDemo';
+import { FILLED_ICONS, resolveIcon } from '../lib/techIcons';
 
 const DetailContainer = styled.div<{ $isDark: boolean }>`
   min-height: 100vh;
@@ -26,17 +27,18 @@ const BackButton = styled.button<{ $isDark: boolean }>`
   position: fixed;
   top: 100px;
   left: 40px;
-  background: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
+  background: ${props => props.$isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)'};
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  border: none;
+  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)'};
   padding: 12px 24px;
-  border-radius: 24px;
+  border-radius: 100px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
+  backdrop-filter: blur(12px);
   transition: all 0.3s ease;
   z-index: 100;
 
@@ -51,12 +53,11 @@ const BackButton = styled.button<{ $isDark: boolean }>`
     left: 20px;
     padding: 10px 18px;
     font-size: 13px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   }
 `;
 
 const Hero = styled.div`
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 60px 40px;
 
@@ -68,7 +69,7 @@ const Hero = styled.div`
 const HeroImage = styled.div`
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 24px;
+  border-radius: 14px;
   overflow: hidden;
   margin-bottom: 60px;
 
@@ -79,22 +80,22 @@ const HeroImage = styled.div`
   }
 
   @media (max-width: 768px) {
-    border-radius: 16px;
+    border-radius: 14px;
     margin-bottom: 40px;
   }
 `;
 
 const Title = styled.h1<{ $isDark: boolean }>`
-  font-size: 64px;
-  font-weight: 600;
+  font-size: 40px;
+  font-weight: 700;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   margin: 0 0 24px 0;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
-    font-size: 36px;
-    letter-spacing: -1px;
+    font-size: 30px;
+    letter-spacing: -0.5px;
   }
 `;
 
@@ -108,10 +109,10 @@ const Metadata = styled.div`
 const MetaItem = styled.div``;
 
 const MetaLabel = styled.div`
-  font-size: 12px;
+  font-size: 13px;
   color: #86868b;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
   margin-bottom: 8px;
   font-weight: 500;
 `;
@@ -124,15 +125,15 @@ const MetaValue = styled.div<{ $isDark: boolean }>`
 `;
 
 const Description = styled.p<{ $isDark: boolean }>`
-  font-size: 20px;
-  color: ${props => props.$isDark ? '#a1a1a6' : '#1d1d1f'};
+  font-size: 16px;
+  color: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'};
   line-height: 1.7;
   margin: 0 0 40px 0;
   white-space: pre-line;
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
-    font-size: 17px;
+    font-size: 15px;
   }
 `;
 
@@ -147,10 +148,11 @@ const LinkButton = styled.a<{ $isDark: boolean }>`
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
+  background: transparent;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   text-decoration: none;
-  border-radius: 24px;
+  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)'};
+  border-radius: 100px;
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
@@ -166,7 +168,7 @@ const LinkButton = styled.a<{ $isDark: boolean }>`
 `;
 
 const Section = styled.section`
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 80px 40px;
   border-top: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
@@ -177,15 +179,16 @@ const Section = styled.section`
 `;
 
 const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 36px;
+  font-size: 13px;
   font-weight: 600;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  color: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.35)' : 'rgba(0, 0, 0, 0.35)'};
   margin: 0 0 40px 0;
-  letter-spacing: -1px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
   transition: color 0.3s ease;
 
   @media (max-width: 768px) {
-    font-size: 28px;
+    font-size: 13px;
   }
 `;
 
@@ -218,6 +221,30 @@ const HighlightItem = styled.li<{ $isDark: boolean }>`
   }
 `;
 
+const TechSectionHeader = styled.div`
+  text-align: center;
+  margin-bottom: 60px;
+`;
+
+const TechSectionEyebrow = styled.p<{ $isDark: boolean }>`
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
+  margin: 0 0 12px 0;
+  transition: color 0.3s ease;
+`;
+
+const TechSectionTitle = styled.h2<{ $isDark: boolean }>`
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  margin: 0;
+  transition: color 0.3s ease;
+`;
+
 const TechStackGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -232,28 +259,89 @@ const TechStackGrid = styled.div`
 const TechCategory = styled.div``;
 
 const TechCategoryTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 600;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  color: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.35)' : 'rgba(0, 0, 0, 0.35)'};
   margin: 0 0 16px 0;
-  letter-spacing: -0.3px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
   transition: color 0.3s ease;
 `;
 
 const TechList = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 12px;
 `;
 
-const TechItem = styled.div`
-  font-size: 15px;
-  color: #86868b;
+const TechIconWrapper = styled.div<{ $isDark: boolean }>`
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: default;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : '#ffffff'};
+  box-shadow: ${p => p.$isDark
+    ? '0 2px 8px rgba(0,0,0,0.3)'
+    : '0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03)'};
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.15);
+    z-index: 10;
+  }
+
+  &:hover > span {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  img.icon-filled {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  img.icon-plain {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+  }
+`;
+
+const TechIconTooltip = styled.span<{ $isDark: boolean }>`
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  font-size: 11px;
+  font-weight: 500;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#ffffff'};
+  background: ${p => p.$isDark ? '#333' : '#1d1d1f'};
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.15s ease;
+  pointer-events: none;
+`;
+
+const TechItem = styled.div<{ $isDark: boolean }>`
+  display: inline-block;
+  font-size: 12px;
+  color: ${p => p.$isDark ? '#86868b' : '#86868b'};
   line-height: 1.6;
+  padding: 6px 14px;
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
+  border-radius: 100px;
 `;
 
 const ImagesSection = styled.section`
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 80px 40px;
 
@@ -272,14 +360,11 @@ const ProjectImageWrapper = styled.div`
 
 const ProjectImage = styled.img<{ $isDark: boolean }>`
   width: 100%;
-  border-radius: 16px;
+  border-radius: 14px;
   display: block;
-  box-shadow: ${p => p.$isDark
-    ? '0 4px 24px rgba(0, 0, 0, 0.4)'
-    : '0 4px 24px rgba(0, 0, 0, 0.08)'};
 
   @media (max-width: 768px) {
-    border-radius: 12px;
+    border-radius: 14px;
   }
 `;
 
@@ -485,15 +570,25 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
       </Section>
 
       <Section style={{ borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}` }}>
-        <SectionTitle $isDark={isDark}>{t.techStack}</SectionTitle>
+        <TechSectionHeader>
+          <TechSectionEyebrow $isDark={isDark}>Built with</TechSectionEyebrow>
+          <TechSectionTitle $isDark={isDark}>{t.techStack}</TechSectionTitle>
+        </TechSectionHeader>
         <TechStackGrid>
           {project.techStack.frontend && (
             <TechCategory>
               <TechCategoryTitle $isDark={isDark}>{ct.frontend}</TechCategoryTitle>
               <TechList>
-                {project.techStack.frontend.map((tech, index) => (
-                  <TechItem key={index}>{tech}</TechItem>
-                ))}
+                {project.techStack.frontend.map((tech, index) =>
+                  resolveIcon(tech) ? (
+                    <TechIconWrapper key={index} $isDark={isDark}>
+                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : 'icon-plain'} />
+                      <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
+                    </TechIconWrapper>
+                  ) : (
+                    <TechItem key={index} $isDark={isDark}>{tech}</TechItem>
+                  )
+                )}
               </TechList>
             </TechCategory>
           )}
@@ -501,9 +596,16 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
             <TechCategory>
               <TechCategoryTitle $isDark={isDark}>{ct.backend}</TechCategoryTitle>
               <TechList>
-                {project.techStack.backend.map((tech, index) => (
-                  <TechItem key={index}>{tech}</TechItem>
-                ))}
+                {project.techStack.backend.map((tech, index) =>
+                  resolveIcon(tech) ? (
+                    <TechIconWrapper key={index} $isDark={isDark}>
+                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : 'icon-plain'} />
+                      <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
+                    </TechIconWrapper>
+                  ) : (
+                    <TechItem key={index} $isDark={isDark}>{tech}</TechItem>
+                  )
+                )}
               </TechList>
             </TechCategory>
           )}
@@ -511,9 +613,16 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
             <TechCategory>
               <TechCategoryTitle $isDark={isDark}>{ct.design}</TechCategoryTitle>
               <TechList>
-                {project.techStack.design.map((tech, index) => (
-                  <TechItem key={index}>{tech}</TechItem>
-                ))}
+                {project.techStack.design.map((tech, index) =>
+                  resolveIcon(tech) ? (
+                    <TechIconWrapper key={index} $isDark={isDark}>
+                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : 'icon-plain'} />
+                      <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
+                    </TechIconWrapper>
+                  ) : (
+                    <TechItem key={index} $isDark={isDark}>{tech}</TechItem>
+                  )
+                )}
               </TechList>
             </TechCategory>
           )}
@@ -521,9 +630,16 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
             <TechCategory>
               <TechCategoryTitle $isDark={isDark}>{ct.others}</TechCategoryTitle>
               <TechList>
-                {project.techStack.others.map((tech, index) => (
-                  <TechItem key={index}>{tech}</TechItem>
-                ))}
+                {project.techStack.others.map((tech, index) =>
+                  resolveIcon(tech) ? (
+                    <TechIconWrapper key={index} $isDark={isDark}>
+                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : 'icon-plain'} />
+                      <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
+                    </TechIconWrapper>
+                  ) : (
+                    <TechItem key={index} $isDark={isDark}>{tech}</TechItem>
+                  )
+                )}
               </TechList>
             </TechCategory>
           )}

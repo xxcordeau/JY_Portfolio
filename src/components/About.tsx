@@ -1,372 +1,495 @@
-import { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import { useState, useEffect, useRef } from 'react';
+import React from 'react';
+import styled, { keyframes, css } from 'styled-components';
 import { useAbout } from '../hooks/useAbout';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Mail, Phone, Calendar, MapPin } from 'lucide-react';
-import profilePhoto from '../assets/profile.png';
+import { Mail, Phone, Calendar, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
-/* ── Section ── */
-const AboutSection = styled.section<{ $isDark: boolean }>`
+/* ── Full-screen sub-section ── */
+const fadeUp = keyframes`
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
+const SubScreen = styled.section<{ $isDark: boolean; $inView: boolean; $align?: 'center' | 'start' }>`
   min-height: 100vh;
-  padding: 100px 0 80px;
-  background: ${p => p.$isDark ? '#000000' : '#f5f5f7'};
-  transition: background 0.3s ease;
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
   display: flex;
-  align-items: center;
+  align-items: ${p => p.$align === 'start' ? 'flex-start' : 'center'};
+  justify-content: center;
+  background: ${p => p.$isDark ? '#000' : '#ffffff'};
+  transition: background 0.3s ease;
+  padding: ${p => p.$align === 'start' ? '120px 0 80px' : '80px 0'};
+  width: 100%;
+
+  opacity: 0;
+  ${p => p.$inView && css`
+    animation: ${fadeUp} 0.9s ease forwards;
+  `}
 
   @media (max-width: 768px) {
-    padding: 80px 0 60px;
-    display: block;
+    min-height: auto;
+    scroll-snap-align: none;
+    padding: 60px 0;
+    align-items: flex-start;
+    opacity: 1;
+    animation: none;
   }
 `;
 
 const Container = styled.div`
-  width: 100%;
-  padding: 0 12vw;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px;
 
-  @media (max-width: 960px) {
+  @media (max-width: 768px) {
     padding: 0 20px;
   }
 `;
 
-const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 52px;
-  font-weight: 700;
-  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 40px 0;
-  letter-spacing: -1.5px;
-  line-height: 1;
-  transition: color 0.3s ease;
-
-  @media (max-width: 768px) {
-    font-size: 36px;
-    margin-bottom: 28px;
-  }
-`;
-
-/* ── Bento Grid ── */
-const BentoGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 14px;
-  align-items: stretch;
-
-  @media (max-width: 960px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-/* ── Left / Right stacks ── */
-const LeftStack = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  height: 100%;
-`;
-
-/* ── Hero Tile ── */
-const HeroTile = styled.div<{ $isDark: boolean }>`
-  border-radius: 28px;
-  background: ${p => p.$isDark ? '#111111' : '#ffffff'};
-  box-shadow: ${p => p.$isDark ? 'none' : '0 2px 24px rgba(0,0,0,0.07)'};
-  transition: background 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  min-height: 400px;
-  position: relative;
-  overflow: hidden;
-
-  @media (max-width: 768px) {
-    min-height: unset;
-    flex-direction: column;
-  }
-`;
-
-const HeroPhoto = styled.div<{ $isDark: boolean }>`
-  position: absolute;
-  bottom: 0;
-  right: 24px;
-  z-index: 1;
-
-  img {
-    display: block;
-    width: 310px;
-    height: auto;
-    mask-image: none;
-    -webkit-mask-image: none;
-    filter: ${p => p.$isDark ? 'grayscale(0.35) brightness(0.9)' : 'none'};
-    transition: filter 0.3s ease;
-  }
-
-  /* 모바일: 사진을 아래에 중앙 배치, 절대위치 해제 */
-  @media (max-width: 768px) {
-    position: relative;
-    bottom: unset;
-    right: unset;
-    display: flex;
-    justify-content: center;
-    padding-top: 8px;
-
-    img {
-      width: 200px;
-    }
-  }
-`;
-
-const HeroContent = styled.div`
-  position: relative;
-  z-index: 2;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 44px 40px 44px;
-  /* 텍스트가 사진과 겹치지 않도록 */
-  width: 55%;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    padding: 32px 28px 20px;
-  }
-`;
-
-const HeroTop = styled.div`
-  margin-bottom: 24px;
-`;
-
-const HeroLabel = styled.div<{ $isDark: boolean }>`
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 2px;
+/* ── 섹션 헤더 ── */
+const SectionEyebrow = styled.span<{ $isDark: boolean }>`
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
-  margin-bottom: 16px;
-  transition: color 0.3s ease;
+  display: block;
+  margin-bottom: 12px;
 `;
 
-const HeroName = styled.h3<{ $isDark: boolean }>`
-  font-size: 48px;
+const SectionTitle = styled.h2<{ $isDark: boolean }>`
+  font-size: 40px;
   font-weight: 700;
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 10px 0;
-  letter-spacing: -2px;
-  line-height: 1;
-  transition: color 0.3s ease;
+  margin: 0 0 48px 0;
+  letter-spacing: -1px;
+  line-height: 1.15;
 
   @media (max-width: 768px) {
-    font-size: 36px;
+    font-size: 30px;
+    margin-bottom: 36px;
   }
 `;
 
-const HeroBio = styled.p<{ $isDark: boolean }>`
-  font-size: 15px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.45)'};
-  line-height: 1.6;
-  margin: 0;
-  max-width: 340px;
-  transition: color 0.3s ease;
+/* ── 자기 소개 블록 ── */
+const IntroBlock = styled.div`
+  margin-bottom: 48px;
+  text-align: center;
+`;
+
+const IntroText = styled.p<{ $isDark: boolean }>`
+  font-size: 18px;
+  line-height: 1.75;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)'};
+  margin: 0 auto 24px;
+  max-width: 640px;
+  letter-spacing: -0.2px;
 
   @media (max-width: 768px) {
-    font-size: 14px;
+    font-size: 16px;
   }
 `;
 
-const HeroBottom = styled.div`
+const InfoRow = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 20px;
+  justify-content: center;
 `;
 
-const ContactItem = styled.div`
+const InfoItem = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 `;
 
-const ContactIcon = styled.div<{ $isDark: boolean }>`
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'};
+const InfoIcon = styled.div<{ $isDark: boolean }>`
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'};
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.3s ease;
 
   svg {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
     color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
   }
 `;
 
-const ContactText = styled.div``;
-
-const ContactLabel = styled.div<{ $isDark: boolean }>`
-  font-size: 10px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  margin-bottom: 1px;
-  transition: color 0.3s ease;
-`;
-
-const ContactValue = styled.div<{ $isDark: boolean }>`
-  font-size: 14px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.65)'};
+const InfoValue = styled.span<{ $isDark: boolean }>`
+  font-size: 13px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)'};
   letter-spacing: -0.1px;
-  transition: color 0.3s ease;
 `;
 
-/* ── Right column tiles ── */
-const RightStack = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  height: 100%;
+/* ── 구분선 ── */
+const Divider = styled.div<{ $isDark: boolean }>`
+  height: 1px;
+  background: ${p => p.$isDark
+    ? 'linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent)'
+    : 'linear-gradient(to right, transparent, rgba(0,0,0,0.08), transparent)'};
+  margin: 48px 0;
 `;
 
-const Tile = styled.div<{ $isDark: boolean; $flex?: boolean }>`
-  border-radius: 24px;
-  padding: 36px;
-  background: ${p => p.$isDark ? '#111111' : '#ffffff'};
-  box-shadow: ${p => p.$isDark ? 'none' : '0 2px 24px rgba(0,0,0,0.07)'};
-  transition: background 0.3s ease;
-  ${p => p.$flex && 'flex: 1;'}
+/* ── 기술 스택 (가운데 정렬 + 아이콘 그리드) ── */
+const SkillSection = styled.div`
+  text-align: center;
+`;
+
+const SkillEyebrow = styled.span<{ $isDark: boolean }>`
+  font-size: 14px;
+  font-weight: 400;
+  color: #007AFF;
+  display: block;
+  margin-bottom: 12px;
+`;
+
+const SkillTitle = styled.h3<{ $isDark: boolean }>`
+  font-size: 28px;
+  font-weight: 700;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  margin: 0 0 32px 0;
+  letter-spacing: -0.5px;
 
   @media (max-width: 768px) {
-    padding: 28px;
-    border-radius: 20px;
+    font-size: 22px;
+    margin-bottom: 24px;
   }
 `;
 
-const TileLabel = styled.div<{ $isDark: boolean }>`
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)'};
-  margin-bottom: 20px;
+const TabRow = styled.div<{ $isDark: boolean }>`
+  display: inline-flex;
+  gap: 0;
+  margin-bottom: 36px;
+  border-radius: 100px;
+  overflow: hidden;
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
 `;
 
-/* ── Skills ── */
-const SkillCategories = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+const Tab = styled.button<{ $isDark: boolean; $active: boolean }>`
+  padding: 10px 24px;
+  border: none;
+  background: ${p => p.$active
+    ? p.$isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)'
+    : 'transparent'};
+  color: ${p => p.$active
+    ? p.$isDark ? '#f5f5f7' : '#1d1d1f'
+    : p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.4)'};
+  font-size: 14px;
+  font-weight: ${p => p.$active ? 600 : 400};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+
+  &:hover {
+    background: ${p => !p.$active
+      ? p.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'
+      : ''};
+  }
+
+  @media (max-width: 768px) {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
 `;
 
-const SkillCategory = styled.div``;
-
-const CategoryName = styled.div<{ $isDark: boolean }>`
-  font-size: 11px;
-  font-weight: 500;
-  color: ${p => p.$isDark ? '#6e6e73' : '#aeaeb2'};
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
-`;
-
-const BadgeList = styled.div`
+const IconGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-`;
+  justify-content: center;
+  gap: 16px;
+  max-width: 500px;
+  margin: 0 auto;
+  padding-bottom: 28px;
 
-const CATEGORY_COLORS = {
-  frontend: { bg: 'rgba(0,122,255,0.1)',  border: 'rgba(0,122,255,0.25)', text: '#007AFF' },
-  backend:  { bg: 'rgba(52,199,89,0.1)',  border: 'rgba(52,199,89,0.25)', text: '#34C759' },
-  design:   { bg: 'rgba(255,45,85,0.1)',  border: 'rgba(255,45,85,0.25)', text: '#FF2D55' },
-  other:    { bg: 'rgba(88,86,214,0.1)',  border: 'rgba(88,86,214,0.25)', text: '#5856D6' },
-} as const;
-
-const SkillBadge = styled.span<{ $category: keyof typeof CATEGORY_COLORS }>`
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 11px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  background: ${p => CATEGORY_COLORS[p.$category].bg};
-  border: 1px solid ${p => CATEGORY_COLORS[p.$category].border};
-  color: ${p => CATEGORY_COLORS[p.$category].text};
-`;
-
-/* ── Career items ── */
-const CareerList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
-
-const CareerItem = styled.div<{ $isDark: boolean }>`
-  padding-bottom: 20px;
-  border-bottom: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'};
-
-  &:last-child {
-    padding-bottom: 0;
-    border-bottom: none;
+  @media (max-width: 768px) {
+    gap: 12px;
+    max-width: 360px;
   }
 `;
 
-const CareerRow = styled.div`
+const IconItem = styled.div<{ $isDark: boolean; $faded?: boolean }>`
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, opacity 0.3s ease, filter 0.3s ease;
+  cursor: default;
+  position: relative;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : '#ffffff'};
+  box-shadow: ${p => p.$isDark
+    ? '0 2px 8px rgba(0,0,0,0.3)'
+    : '0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03)'};
+  opacity: ${p => p.$faded ? 0.2 : 1};
+  filter: ${p => p.$faded ? 'grayscale(1)' : 'none'};
+
+  &:hover {
+    transform: scale(1.15);
+    z-index: 10;
+    box-shadow: ${p => p.$isDark
+      ? '0 4px 16px rgba(0,0,0,0.4)'
+      : '0 4px 16px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.04)'};
+  }
+
+  &:hover > span {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  img.icon-filled {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  img.icon-plain {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+  }
+
+  @media (max-width: 768px) {
+    width: 48px;
+    height: 48px;
+
+    img.icon-plain {
+      width: 32px;
+      height: 32px;
+    }
+  }
+`;
+
+const IconTooltip = styled.span<{ $isDark: boolean }>`
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  font-size: 11px;
+  font-weight: 500;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#ffffff'};
+  background: ${p => p.$isDark ? '#333' : '#1d1d1f'};
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.15s ease;
+  pointer-events: none;
+`;
+
+/** SVG 자체에 배경색이 있는 아이콘들 — 박스를 꽉 채움 */
+const FILLED_ICONS = new Set([
+  'JavaScript', 'TypeScript', 'HTML/CSS', 'HTML', 'CSS',
+  'Sass', 'SCSS',
+  'Photoshop', 'Illustrator', 'Storybook',
+  'Swagger', 'Postman',
+]);
+
+const SubTitle = styled.h3<{ $isDark: boolean }>`
+  font-size: 22px;
+  font-weight: 600;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  margin: 0 0 24px 0;
+  letter-spacing: -0.5px;
+
+  @media (max-width: 768px) {
+    font-size: 19px;
+  }
+`;
+
+/** 기술 이름 → devicon/simpleicons CDN URL 매핑 */
+const SKILL_ICONS: Record<string, string> = {
+  'JavaScript': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
+  'TypeScript': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+  'React': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+  'Next.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
+  'Vue.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
+  'HTML': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
+  'CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg',
+  'HTML/CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
+  'Styled-Components': 'https://cdn.simpleicons.org/styledcomponents/DB7093',
+  'Tailwind CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg',
+  'Sass': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg',
+  'SCSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg',
+  'Ant Design': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/antdesign/antdesign-original.svg',
+  'Storybook': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/storybook/storybook-original.svg',
+  'Node.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
+  'Express': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg',
+  'Supabase': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg',
+  'Firebase': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg',
+  'Webpack': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/webpack/webpack-original.svg',
+  'Vite': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg',
+  'npm': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg',
+  'Git': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg',
+  'Vercel': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg',
+  'Figma': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg',
+  'Photoshop': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-original.svg',
+  'Illustrator': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/illustrator/illustrator-plain.svg',
+  'Vue 3': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
+  'Redux': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redux/redux-original.svg',
+  'Nest.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nestjs/nestjs-original.svg',
+  'NestJS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nestjs/nestjs-original.svg',
+  'PostgreSQL': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',
+  'Swagger': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg',
+  'Postman': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-original.svg',
+  'Jira': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg',
+  'Notion': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/notion/notion-original.svg',
+  'Slack': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/slack/slack-original.svg',
+  'Docker': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg',
+  'MongoDB': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg',
+  'MySQL': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg',
+  'Python': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
+  'GitHub': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg',
+  'GitLab': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/gitlab/gitlab-original.svg',
+  'AWS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg',
+  'Zustand': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+  'Swagger / Postman': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg',
+  'Jira / Notion / Slack': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg',
+};
+
+/* ── 경력 타임라인 ── */
+const Timeline = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+`;
+
+const TimelineItem = styled.div<{ $isDark: boolean }>`
+  display: flex;
+  gap: 20px;
+  position: relative;
+
+  @media (max-width: 768px) {
+    gap: 16px;
+  }
+`;
+
+const TimelineLine = styled.div<{ $isDark: boolean; $isLast: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20px;
+  flex-shrink: 0;
+  padding-top: 6px;
+`;
+
+const TimelineDot = styled.div<{ $isDark: boolean }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)'};
+  flex-shrink: 0;
+`;
+
+const TimelineConnector = styled.div<{ $isDark: boolean; $isLast: boolean }>`
+  width: 1px;
+  flex: 1;
+  background: ${p => p.$isLast ? 'transparent' : p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'};
+  margin-top: 4px;
+`;
+
+const TimelineContent = styled.div`
+  flex: 1;
+  padding-bottom: 32px;
+`;
+
+const TimelineHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 4px;
+  flex-wrap: wrap;
 `;
 
-const CareerName = styled.div<{ $isDark: boolean }>`
+const TimelineTitle = styled.div<{ $isDark: boolean }>`
   font-size: 16px;
   font-weight: 600;
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   letter-spacing: -0.3px;
-  transition: color 0.3s ease;
 `;
 
-const CareerSub = styled.div`
-  font-size: 13px;
-  color: #86868b;
-  margin-bottom: 6px;
-`;
-
-const CareerPeriod = styled.div<{ $isDark: boolean }>`
-  font-size: 11px;
-  color: ${p => p.$isDark ? '#a1a1a6' : '#86868b'};
+const TimelinePeriod = styled.span<{ $isDark: boolean }>`
+  font-size: 12px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
   font-weight: 500;
   white-space: nowrap;
-  padding: 4px 10px;
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'};
-  border-radius: 20px;
   flex-shrink: 0;
 `;
 
-const CareerDesc = styled.p`
+const TimelineSub = styled.div`
   font-size: 13px;
   color: #86868b;
-  line-height: 1.6;
-  margin: 0;
+  margin-bottom: 8px;
 `;
 
-const AchievementList = styled.ul`
+const TimelineDesc = styled.p`
+  font-size: 13px;
+  color: #86868b;
+  line-height: 1.65;
+  margin: 0 0 8px 0;
+`;
+
+const DetailToggle = styled.button<{ $isDark: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'};
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 4px;
+  transition: color 0.15s;
+
+  &:hover {
+    color: ${p => p.$isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)'};
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+`;
+
+const slideDown = keyframes`
+  from { opacity: 0; max-height: 0; }
+  to   { opacity: 1; max-height: 300px; }
+`;
+
+const AchievementList = styled.ul<{ $open: boolean }>`
   list-style: none;
   padding: 0;
   margin: 8px 0 0 0;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
+  overflow: hidden;
+  ${p => p.$open
+    ? css`animation: ${slideDown} 0.3s ease forwards;`
+    : 'max-height: 0; opacity: 0;'}
 `;
 
 const AchievementItem = styled.li<{ $isDark: boolean }>`
   font-size: 12px;
-  color: ${p => p.$isDark ? '#c7c7cc' : '#6e6e73'};
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)'};
   padding-left: 14px;
   position: relative;
-  line-height: 1.55;
+  line-height: 1.6;
 
   &::before {
     content: '–';
@@ -377,12 +500,12 @@ const AchievementItem = styled.li<{ $isDark: boolean }>`
 `;
 
 /* ── Skeleton ── */
-const shimmerAnim = keyframes`
+const shimmer = keyframes`
   0%   { background-position: -400% 0; }
   100% { background-position:  400% 0; }
 `;
 
-const SkeletonBlock = styled.div<{ $isDark: boolean; $w?: string; $h?: string }>`
+const Skeleton = styled.div<{ $isDark: boolean; $w?: string; $h?: string }>`
   height: ${p => p.$h ?? '14px'};
   border-radius: 8px;
   width: ${p => p.$w ?? '100%'};
@@ -392,212 +515,272 @@ const SkeletonBlock = styled.div<{ $isDark: boolean; $w?: string; $h?: string }>
     ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
   );
   background-size: 400% 100%;
-  animation: ${shimmerAnim} 1.4s ease infinite;
+  animation: ${shimmer} 1.4s ease infinite;
 `;
 
 /* ── Translations ── */
 const translations = {
   ko: {
-    title: '소개',
-    jobTitle: '프론트엔드 개발자',
-    bio: '사용자 중심의 인터페이스를 설계하고, 섬세한 UI와 부드러운 경험을 만드는 것을 좋아합니다.',
+    eyebrow: 'ABOUT',
+    title: '안녕하세요,\n허정연입니다.',
+    bio: '사용자 중심의 인터페이스를 설계하고, 섬세한 UI와 부드러운 경험을 만드는 프론트엔드 개발자입니다. React와 TypeScript를 기반으로 웹 프론트엔드를 개발합니다.',
     skills: '기술 스택',
     education: '학력',
     experience: '경력',
-    birth: '생년월일', email: '이메일', phone: '연락처', location: '위치',
+    detail: '상세',
+    collapse: '접기',
+    all: '전체',
   },
   en: {
-    title: 'About',
-    jobTitle: 'Frontend Developer',
-    bio: 'I love designing user-centered interfaces and crafting delicate UI with smooth, thoughtful experiences.',
-    skills: 'Skills',
+    eyebrow: 'ABOUT',
+    title: 'Hello,\nI\'m Jungyeon Heo.',
+    bio: 'A frontend developer who designs user-centered interfaces and crafts delicate UI with smooth, thoughtful experiences. I build web frontends based on React and TypeScript.',
+    skills: 'Skills & Tools',
     education: 'Education',
     experience: 'Experience',
-    birth: 'Birth', email: 'Email', phone: 'Phone', location: 'Location',
+    detail: 'Details',
+    collapse: 'Collapse',
+    all: 'All',
   },
 };
 
-const categoryTranslations = {
+const categoryLabels = {
   ko: { frontend: '프론트엔드', backend: '백엔드', design: '디자인', other: '기타' },
-  en: { frontend: 'Frontend',   backend: 'Backend',  design: 'Design',  other: 'Other'  },
+  en: { frontend: 'Frontend', backend: 'Backend', design: 'Design', other: 'Other' },
 };
+
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); io.disconnect(); } },
+      { threshold }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return [ref, inView] as [React.RefObject<HTMLElement>, boolean];
+}
 
 export default function About() {
   const { isDark } = useTheme();
   const { language } = useLanguage();
   const { skills, education, experiences, loading } = useAbout();
   const t = translations[language];
-  const ct = categoryTranslations[language];
+  const cl = categoryLabels[language];
 
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string>(profilePhoto);
+  const [activeTab, setActiveTab] = useState<string>('all');
+  const [openExp, setOpenExp] = useState<Set<number>>(new Set());
 
-  useEffect(() => {
-    supabase
-      .from('site_settings')
-      .select('value')
-      .eq('key', 'profile_photo_url')
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data?.value) setProfilePhotoUrl(data.value);
-      });
-  }, []);
-
-  const groupedSkills = skills.reduce((acc, skill) => {
-    if (!acc[skill.category]) acc[skill.category] = [];
-    acc[skill.category].push(skill);
+  const groupedSkills = skills.reduce((acc, s) => {
+    if (!acc[s.category]) acc[s.category] = [];
+    acc[s.category].push(s);
     return acc;
   }, {} as Record<string, typeof skills>);
 
+  const categories = Object.keys(groupedSkills);
+
+  const toggleExp = (i: number) => {
+    setOpenExp(prev => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
+  };
+
+  const [introRef, introInView] = useInView(0.1);
+  const [skillsRef, skillsInView] = useInView(0.1);
+  const [expRef, expInView] = useInView(0.1);
+
   return (
-    <AboutSection id="about" $isDark={isDark}>
-      <Container>
-        <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
+    <>
+      {/* ── Screen 1: Intro ── */}
+      <SubScreen
+        id="about"
+        $isDark={isDark}
+        $inView={introInView}
+        ref={introRef as React.RefObject<HTMLElement>}
+      >
+        <Container>
+          <IntroBlock>
+            <SectionEyebrow $isDark={isDark}>{t.eyebrow}</SectionEyebrow>
+            <SectionTitle $isDark={isDark} style={{ whiteSpace: 'pre-line' }}>{t.title}</SectionTitle>
+            <IntroText $isDark={isDark}>{t.bio}</IntroText>
+            <InfoRow>
+              {[
+                { icon: <Calendar />, value: '2000.01.28' },
+                { icon: <Mail />, value: 'qazseeszaq3219@gmail.com' },
+                { icon: <Phone />, value: '010-2863-7447' },
+                { icon: <MapPin />, value: language === 'ko' ? '서울, 대한민국' : 'Seoul, Korea' },
+              ].map(({ icon, value }) => (
+                <InfoItem key={value}>
+                  <InfoIcon $isDark={isDark}>{icon}</InfoIcon>
+                  <InfoValue $isDark={isDark}>{value}</InfoValue>
+                </InfoItem>
+              ))}
+            </InfoRow>
+          </IntroBlock>
+        </Container>
+      </SubScreen>
 
-        <BentoGrid>
-          {/* ── 왼쪽: 허정연 + 기술스택 ── */}
-          <LeftStack>
-          <HeroTile $isDark={isDark}>
-            <HeroContent>
-              <HeroTop>
-                <HeroLabel $isDark={isDark}>{t.jobTitle}</HeroLabel>
-                <HeroName $isDark={isDark}>허정연</HeroName>
-                <HeroBio $isDark={isDark}>{t.bio}</HeroBio>
-              </HeroTop>
-
-              <HeroBottom>
-                {[
-                  { icon: <Calendar />, label: t.birth,    value: '2000.01.28' },
-                  { icon: <Mail />,     label: t.email,    value: 'qazseeszaq3219@gmail.com' },
-                  { icon: <Phone />,    label: t.phone,    value: '010-2863-7447' },
-                  { icon: <MapPin />,   label: t.location, value: '서울, 대한민국' },
-                ].map(({ icon, label, value }) => (
-                  <ContactItem key={label}>
-                    <ContactIcon $isDark={isDark}>{icon}</ContactIcon>
-                    <ContactText>
-                      <ContactLabel $isDark={isDark}>{label}</ContactLabel>
-                      <ContactValue $isDark={isDark}>{value}</ContactValue>
-                    </ContactText>
-                  </ContactItem>
+      {/* ── Screen 2: Skills ── */}
+      <SubScreen
+        $isDark={isDark}
+        $inView={skillsInView}
+        ref={skillsRef as React.RefObject<HTMLElement>}
+      >
+        <Container>
+          <SkillSection>
+            <SkillEyebrow $isDark={isDark}>{t.skills}</SkillEyebrow>
+            {loading ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center' }}>
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <Skeleton key={i} $isDark={isDark} $w="56px" $h="56px" style={{ borderRadius: 14 }} />
                 ))}
-              </HeroBottom>
-            </HeroContent>
+              </div>
+            ) : (
+              <>
+                <TabRow $isDark={isDark}>
+                  <Tab $isDark={isDark} $active={activeTab === 'all'} onClick={() => setActiveTab('all')}>
+                    {t.all}
+                  </Tab>
+                  {categories.map(cat => (
+                    <Tab
+                      key={cat}
+                      $isDark={isDark}
+                      $active={activeTab === cat}
+                      onClick={() => setActiveTab(cat)}
+                    >
+                      {cl[cat as keyof typeof cl] || cat}
+                    </Tab>
+                  ))}
+                </TabRow>
+                <IconGrid>
+                  {skills.map((s, i) => {
+                    const isFaded = activeTab !== 'all' && s.category !== activeTab;
+                    return (
+                      <IconItem key={i} $isDark={isDark} $faded={isFaded}>
+                        {SKILL_ICONS[s.name] ? (
+                          <img
+                            src={SKILL_ICONS[s.name]}
+                            alt={s.name}
+                            loading="lazy"
+                            className={FILLED_ICONS.has(s.name) ? 'icon-filled' : 'icon-plain'}
+                          />
+                        ) : (
+                          <span style={{ fontSize: 12, color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)' }}>{s.name}</span>
+                        )}
+                        <IconTooltip $isDark={isDark}>{s.name}</IconTooltip>
+                      </IconItem>
+                    );
+                  })}
+                </IconGrid>
+              </>
+            )}
+          </SkillSection>
+        </Container>
+      </SubScreen>
 
-            <HeroPhoto $isDark={isDark}>
-              <img
-                src={profilePhotoUrl}
-                alt="허정연"
-                onError={() => setProfilePhotoUrl(profilePhoto)}
-              />
-            </HeroPhoto>
-          </HeroTile>
-
-            {/* 기술 스택 */}
-            <Tile $isDark={isDark} $flex>
-              <TileLabel $isDark={isDark}>{t.skills}</TileLabel>
-              {loading ? (
-                <SkillCategories>
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <SkillCategory key={i}>
-                      <SkeletonBlock $isDark={isDark} $w="25%" $h="11px" style={{ marginBottom: 8 }} />
-                      <BadgeList>
-                        {Array.from({ length: 4 }).map((__, j) => (
-                          <SkeletonBlock key={j} $isDark={isDark} $w="68px" $h="26px" style={{ borderRadius: 20 }} />
-                        ))}
-                      </BadgeList>
-                    </SkillCategory>
-                  ))}
-                </SkillCategories>
-              ) : (
-                <SkillCategories>
-                  {Object.entries(groupedSkills).map(([category, categorySkills]) => (
-                    <SkillCategory key={category}>
-                      <CategoryName $isDark={isDark}>{ct[category as keyof typeof ct]}</CategoryName>
-                      <BadgeList>
-                        {categorySkills.map((skill, i) => (
-                          <SkillBadge key={i} $category={skill.category}>{skill.name}</SkillBadge>
-                        ))}
-                      </BadgeList>
-                    </SkillCategory>
-                  ))}
-                </SkillCategories>
-              )}
-            </Tile>
-          </LeftStack>
-
-          {/* ── 오른쪽: 학력 + 경력 ── */}
-          <RightStack>
-            {/* 학력 */}
-            <Tile $isDark={isDark}>
-              <TileLabel $isDark={isDark}>{t.education}</TileLabel>
-              {loading ? (
-                <CareerList>
-                  {Array.from({ length: 2 }).map((_, i) => (
-                    <CareerItem key={i} $isDark={isDark}>
-                      <SkeletonBlock $isDark={isDark} $w="55%" $h="16px" style={{ marginBottom: 6 }} />
-                      <SkeletonBlock $isDark={isDark} $w="40%" $h="13px" style={{ marginBottom: 8 }} />
-                      <SkeletonBlock $isDark={isDark} $w="85%" $h="12px" />
-                    </CareerItem>
-                  ))}
-                </CareerList>
-              ) : (
-                <CareerList>
-                  {education.map((edu, i) => (
-                    <CareerItem key={i} $isDark={isDark}>
-                      <CareerRow>
-                        <CareerName $isDark={isDark}>{edu.school[language]}</CareerName>
-                        <CareerPeriod $isDark={isDark}>{edu.period}</CareerPeriod>
-                      </CareerRow>
-                      <CareerSub>{edu.degree[language]} · {edu.major[language]}</CareerSub>
-                      {edu.description[language] && (
-                        <CareerDesc>{edu.description[language]}</CareerDesc>
-                      )}
-                    </CareerItem>
-                  ))}
-                </CareerList>
-              )}
-            </Tile>
-
-            {/* 경력 */}
-            <Tile $isDark={isDark} $flex>
-              <TileLabel $isDark={isDark}>{t.experience}</TileLabel>
-              {loading ? (
-                <CareerList>
-                  {Array.from({ length: 2 }).map((_, i) => (
-                    <CareerItem key={i} $isDark={isDark}>
-                      <SkeletonBlock $isDark={isDark} $w="50%" $h="16px" style={{ marginBottom: 6 }} />
-                      <SkeletonBlock $isDark={isDark} $w="35%" $h="13px" style={{ marginBottom: 8 }} />
-                      <SkeletonBlock $isDark={isDark} $w="90%" $h="12px" style={{ marginBottom: 4 }} />
-                      <SkeletonBlock $isDark={isDark} $w="75%" $h="12px" />
-                    </CareerItem>
-                  ))}
-                </CareerList>
-              ) : (
-                <CareerList>
-                  {experiences.map((exp, i) => (
-                    <CareerItem key={i} $isDark={isDark}>
-                      <CareerRow>
-                        <CareerName $isDark={isDark}>{exp.company[language]}</CareerName>
-                        <CareerPeriod $isDark={isDark}>{exp.period}</CareerPeriod>
-                      </CareerRow>
-                      <CareerSub>{exp.position[language]}</CareerSub>
+      {/* ── Screen 3: Experience + Education ── */}
+      <SubScreen
+        $isDark={isDark}
+        $inView={expInView}
+        $align="start"
+        ref={expRef as React.RefObject<HTMLElement>}
+      >
+        <Container>
+          {/* 경력 */}
+          <div>
+            <SubTitle $isDark={isDark}>{t.experience}</SubTitle>
+            {loading ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                {[1, 2].map(i => (
+                  <div key={i}>
+                    <Skeleton $isDark={isDark} $w="50%" $h="16px" style={{ marginBottom: 8 }} />
+                    <Skeleton $isDark={isDark} $w="35%" $h="13px" style={{ marginBottom: 8 }} />
+                    <Skeleton $isDark={isDark} $w="90%" $h="12px" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Timeline>
+                {experiences.map((exp, i) => (
+                  <TimelineItem key={i} $isDark={isDark}>
+                    <TimelineLine $isDark={isDark} $isLast={i === experiences.length - 1}>
+                      <TimelineDot $isDark={isDark} />
+                      <TimelineConnector $isDark={isDark} $isLast={i === experiences.length - 1} />
+                    </TimelineLine>
+                    <TimelineContent>
+                      <TimelineHeader>
+                        <TimelineTitle $isDark={isDark}>{exp.company[language]}</TimelineTitle>
+                        <TimelinePeriod $isDark={isDark}>{exp.period}</TimelinePeriod>
+                      </TimelineHeader>
+                      <TimelineSub>{exp.position[language]}</TimelineSub>
                       {exp.description[language] && (
-                        <CareerDesc>{exp.description[language]}</CareerDesc>
+                        <TimelineDesc>{exp.description[language]}</TimelineDesc>
                       )}
                       {exp.achievements[language].length > 0 && (
-                        <AchievementList>
-                          {exp.achievements[language].map((a, idx) => (
-                            <AchievementItem key={idx} $isDark={isDark}>{a}</AchievementItem>
-                          ))}
-                        </AchievementList>
+                        <>
+                          <DetailToggle $isDark={isDark} onClick={() => toggleExp(i)}>
+                            {openExp.has(i) ? t.collapse : t.detail}
+                            {openExp.has(i) ? <ChevronUp /> : <ChevronDown />}
+                          </DetailToggle>
+                          <AchievementList $open={openExp.has(i)}>
+                            {exp.achievements[language].map((a, idx) => (
+                              <AchievementItem key={idx} $isDark={isDark}>{a}</AchievementItem>
+                            ))}
+                          </AchievementList>
+                        </>
                       )}
-                    </CareerItem>
-                  ))}
-                </CareerList>
-              )}
-            </Tile>
-          </RightStack>
-        </BentoGrid>
-      </Container>
-    </AboutSection>
+                    </TimelineContent>
+                  </TimelineItem>
+                ))}
+              </Timeline>
+            )}
+          </div>
+
+          <Divider $isDark={isDark} />
+
+          {/* 학력 */}
+          <div>
+            <SubTitle $isDark={isDark}>{t.education}</SubTitle>
+            {loading ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                {[1, 2].map(i => (
+                  <div key={i}>
+                    <Skeleton $isDark={isDark} $w="55%" $h="16px" style={{ marginBottom: 8 }} />
+                    <Skeleton $isDark={isDark} $w="40%" $h="13px" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Timeline>
+                {education.map((edu, i) => (
+                  <TimelineItem key={i} $isDark={isDark}>
+                    <TimelineLine $isDark={isDark} $isLast={i === education.length - 1}>
+                      <TimelineDot $isDark={isDark} />
+                      <TimelineConnector $isDark={isDark} $isLast={i === education.length - 1} />
+                    </TimelineLine>
+                    <TimelineContent>
+                      <TimelineHeader>
+                        <TimelineTitle $isDark={isDark}>{edu.school[language]}</TimelineTitle>
+                        <TimelinePeriod $isDark={isDark}>{edu.period}</TimelinePeriod>
+                      </TimelineHeader>
+                      <TimelineSub>{edu.degree[language]} · {edu.major[language]}</TimelineSub>
+                      {edu.description[language] && (
+                        <TimelineDesc>{edu.description[language]}</TimelineDesc>
+                      )}
+                    </TimelineContent>
+                  </TimelineItem>
+                ))}
+              </Timeline>
+            )}
+          </div>
+        </Container>
+      </SubScreen>
+    </>
   );
 }

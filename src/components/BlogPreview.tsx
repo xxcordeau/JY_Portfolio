@@ -1,306 +1,273 @@
-import { useRef, useCallback } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useBlogPosts } from '../hooks/useBlogPosts';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowRight } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
+/* ── Keyframes ── */
+const shimmer = keyframes`
+  0% { background-position: -400% 0; }
+  100% { background-position: 400% 0; }
+`;
+
+/* ── Layout (matches Projects) ── */
 const BlogSection = styled.section<{ $isDark: boolean }>`
-  min-height: 100vh;
-  padding: 120px 0;
-  background: ${props => props.$isDark ? '#000000' : '#ffffff'};
+  padding: 120px 0 80px;
+  background: ${p => p.$isDark ? '#000000' : '#ffffff'};
   transition: background 0.3s ease;
-  display: flex;
-  align-items: center;
 
   @media (max-width: 768px) {
-    padding: 80px 0;
-    display: block;
+    padding: 80px 0 60px;
   }
 `;
 
-const Inner = styled.div`
-  width: 100%;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  padding: 0 12vw;
-  margin-bottom: 40px;
+const Container = styled.div`
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px;
 
   @media (max-width: 768px) {
     padding: 0 20px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 24px;
-    margin-bottom: 40px;
   }
+`;
+
+/* ── Header (same as Projects) ── */
+const SectionEyebrow = styled.span<{ $isDark: boolean }>`
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
+  margin-bottom: 12px;
 `;
 
 const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 52px;
+  font-size: 40px;
   font-weight: 700;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0;
-  letter-spacing: -1.5px;
-  line-height: 1;
-  transition: color 0.3s ease;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  margin: 0 0 48px 0;
+  letter-spacing: -1px;
+  line-height: 1.15;
 
   @media (max-width: 768px) {
-    font-size: 36px;
+    font-size: 30px;
+    margin-bottom: 36px;
   }
 `;
 
-const ViewAllButton = styled.button<{ $isDark: boolean }>`
-  background: transparent;
-  border: 2px solid ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  padding: 12px 24px;
-  border-radius: 24px;
-  font-size: 14px;
-  font-weight: 500;
+/* ── Grid (3 columns, same as Projects) ── */
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+`;
+
+/* ── Card (same hover pattern as Projects) ── */
+const CardWrapper = styled.article`
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  margin-bottom: 6px;
-
-  &:hover {
-    background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    color: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
-  }
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
 `;
 
-/* ── 가로 스크롤 트랙 ── */
-const ScrollTrack = styled.div`
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  padding: 10px 0 20px 12vw;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  cursor: grab;
-  user-select: none;
-  &::-webkit-scrollbar { display: none; }
-
-  @media (max-width: 768px) {
-    padding: 0 0 0 20px;
-  }
-`;
-
-const PostCard = styled.article<{ $isDark: boolean }>`
-  flex: 0 0 380px;
-  scroll-snap-align: start;
-  cursor: pointer;
-  border-radius: 24px;
+const ImageContainer = styled.div`
+  position: relative;
+  border-radius: 14px;
   overflow: hidden;
-  background: ${props => props.$isDark ? '#111111' : '#f5f5f7'};
-  transition: transform 0.3s ease;
-
-  &:hover {
-    transform: translateY(-6px);
-
-    img {
-      transform: scale(1.04);
-    }
-  }
-`;
-
-const PostThumbnail = styled.div`
-  width: 100%;
   aspect-ratio: 4 / 3;
-  overflow: hidden;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s ease;
+    display: block;
+    transition: transform 0.4s ease, filter 0.4s ease;
+  }
+
+  ${CardWrapper}:hover & img {
+    transform: scale(1.04);
+    filter: blur(3px) brightness(0.65);
   }
 `;
 
-const PostInfo = styled.div`
-  padding: 20px 22px 24px;
-`;
-
-const PostMeta = styled.div`
+const ImageOverlay = styled.div`
+  position: absolute;
+  inset: 0;
   display: flex;
-  gap: 14px;
-  margin-bottom: 8px;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+
+  ${CardWrapper}:hover & {
+    opacity: 1;
+  }
 `;
 
-const Category = styled.span<{ $isDark: boolean }>`
-  font-size: 11px;
-  color: ${props => props.$isDark ? '#a1a1a6' : '#86868b'};
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 500;
+const OverlayExcerpt = styled.p`
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
 
-const Date = styled.span`
-  font-size: 11px;
-  color: #86868b;
-  letter-spacing: 0.5px;
+const CardMeta = styled.div`
+  padding: 12px 2px 0;
 `;
 
 const PostTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 8px 0;
-  letter-spacing: -0.4px;
-  line-height: 1.3;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  transition: color 0.3s ease;
-
-  svg {
-    flex-shrink: 0;
-    margin-top: 2px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    width: 16px;
-    height: 16px;
-  }
-
-  ${PostCard}:hover & svg {
-    opacity: 1;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 18px;
-  }
-`;
-
-const PostExcerpt = styled.p`
-  font-size: 13px;
-  color: #86868b;
-  line-height: 1.5;
-  margin: 0 0 8px 0;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  margin: 0;
+  letter-spacing: -0.2px;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+`;
 
-  @media (max-width: 768px) {
-    font-size: 13px;
+const PostInfo = styled.span<{ $isDark: boolean }>`
+  display: block;
+  font-size: 12px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'};
+  margin-top: 3px;
+  font-weight: 400;
+`;
+
+/* ── View All (bottom, same as Projects) ── */
+const ViewAllBottom = styled.div`
+  text-align: center;
+  margin-top: 48px;
+`;
+
+const ViewAllButton = styled.button<{ $isDark: boolean }>`
+  background: none;
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
+  padding: 12px 32px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)'};
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+
+  svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+
+  &:hover {
+    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)'};
+    svg { transform: translateX(3px); }
   }
 `;
 
-const ReadTime = styled.span`
-  font-size: 12px;
-  color: #86868b;
-  font-weight: 500;
+/* ── Skeleton ── */
+const SkeletonBox = styled.div<{ $isDark: boolean }>`
+  border-radius: 14px;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(
+    90deg,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
+  );
+  background-size: 400% 100%;
+  animation: ${shimmer} 1.4s ease infinite;
 `;
 
+const SkeletonLine = styled.div<{ $isDark: boolean; $width?: string }>`
+  height: 14px;
+  border-radius: 7px;
+  width: ${p => p.$width ?? '100%'};
+  background: linear-gradient(
+    90deg,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
+  );
+  background-size: 400% 100%;
+  animation: ${shimmer} 1.4s ease infinite;
+`;
+
+/* ── Component ── */
 interface BlogPreviewProps {
   onPostClick: (blogId: string) => void;
   onViewAll: () => void;
 }
 
 const translations = {
-  ko: {
-    title: '블로그',
-    viewAll: '전체 보기'
-  },
-  en: {
-    title: 'Blog',
-    viewAll: 'View All'
-  }
+  ko: { eyebrow: 'BLOG', title: '블로그', viewAll: '전체 보기' },
+  en: { eyebrow: 'BLOG', title: 'Blog', viewAll: 'View All' },
 };
 
 export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
-  const { posts: blogPosts } = useBlogPosts();
+  const { posts: blogPosts, loading } = useBlogPosts();
   const t = translations[language];
-  const recentPosts = blogPosts.slice(0, 8);
-
-  const trackRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
-  const hasDragged = useRef(false);
-  const startX = useRef(0);
-  const scrollLeft = useRef(0);
-
-  const onMouseDown = useCallback((e: React.MouseEvent) => {
-    isDragging.current = true;
-    hasDragged.current = false;
-    startX.current = e.pageX - (trackRef.current?.offsetLeft ?? 0);
-    scrollLeft.current = trackRef.current?.scrollLeft ?? 0;
-    if (trackRef.current) trackRef.current.style.cursor = 'grabbing';
-  }, []);
-
-  const onMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging.current || !trackRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - trackRef.current.offsetLeft;
-    const walk = (x - startX.current) * 1.2;
-    if (Math.abs(walk) > 4) hasDragged.current = true;
-    trackRef.current.scrollLeft = scrollLeft.current - walk;
-  }, []);
-
-  const onMouseUp = useCallback(() => {
-    isDragging.current = false;
-    if (trackRef.current) trackRef.current.style.cursor = 'grab';
-  }, []);
+  const recentPosts = blogPosts.slice(0, 6);
 
   return (
     <BlogSection id="blog" $isDark={isDark}>
-      <Inner>
-        <Header>
-          <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
+      <Container>
+        <SectionEyebrow $isDark={isDark}>{t.eyebrow}</SectionEyebrow>
+        <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
+
+        <Grid>
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <div key={i}>
+                  <SkeletonBox $isDark={isDark} />
+                  <CardMeta>
+                    <SkeletonLine $isDark={isDark} $width="60%" style={{ height: 14, marginBottom: 6 }} />
+                    <SkeletonLine $isDark={isDark} $width="40%" style={{ height: 11 }} />
+                  </CardMeta>
+                </div>
+              ))
+            : recentPosts.map((post) => (
+                <CardWrapper key={post.id} onClick={() => onPostClick(post.id)}>
+                  <ImageContainer>
+                    <ImageWithFallback src={post.thumbnail} alt={post.title[language]} />
+                    <ImageOverlay>
+                      <OverlayExcerpt>{post.excerpt[language]}</OverlayExcerpt>
+                    </ImageOverlay>
+                  </ImageContainer>
+                  <CardMeta>
+                    <PostTitle $isDark={isDark}>{post.title[language]}</PostTitle>
+                    <PostInfo $isDark={isDark}>
+                      {post.category[language]} · {post.date}
+                    </PostInfo>
+                  </CardMeta>
+                </CardWrapper>
+              ))
+          }
+        </Grid>
+
+        <ViewAllBottom>
           <ViewAllButton $isDark={isDark} onClick={onViewAll}>
             {t.viewAll}
             <ArrowRight />
           </ViewAllButton>
-        </Header>
-        <ScrollTrack
-          ref={trackRef}
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          onMouseLeave={onMouseUp}
-        >
-          {recentPosts.map((post) => (
-            <PostCard
-              key={post.id}
-              $isDark={isDark}
-              onClick={() => { if (!hasDragged.current) onPostClick(post.id); }}
-            >
-              <PostThumbnail>
-                <ImageWithFallback
-                  src={post.thumbnail}
-                  alt={post.title[language]}
-                />
-              </PostThumbnail>
-              <PostInfo>
-                <PostMeta>
-                  <Category $isDark={isDark}>{post.category[language]}</Category>
-                  <Date>{post.date}</Date>
-                </PostMeta>
-                <PostTitle $isDark={isDark}>
-                  <span>{post.title[language]}</span>
-                  <ArrowRight size={20} />
-                </PostTitle>
-                <PostExcerpt>{post.excerpt[language]}</PostExcerpt>
-                <ReadTime>{post.readTime[language]}</ReadTime>
-              </PostInfo>
-            </PostCard>
-          ))}
-        </ScrollTrack>
-      </Inner>
+        </ViewAllBottom>
+      </Container>
     </BlogSection>
   );
 }

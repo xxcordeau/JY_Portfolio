@@ -4,14 +4,15 @@ import styled, { createGlobalStyle, keyframes, css } from 'styled-components';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { supabase } from './lib/supabase';
+import { Shield } from 'lucide-react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
 import Projects from './components/Projects';
 import BlogPreview from './components/BlogPreview';
-import Footer from './components/Footer';
 import Contact from './components/Contact';
 import Chatbot from './components/Chatbot';
+import ThankYouCTA from './components/ThankYouCTA';
 
 const ProjectsGallery = lazy(() => import('./components/ProjectsGallery'));
 const ProjectDetail = lazy(() => import('./components/ProjectDetail'));
@@ -34,6 +35,9 @@ const SiteSettingsEditor = lazy(() => import('./components/admin/SiteSettingsEdi
 const PresentationsManager = lazy(() => import('./components/admin/PresentationsManager'));
 const Presentations = lazy(() => import('./components/Presentations'));
 const PackageDemo = lazy(() => import('./components/PackageDemo'));
+
+// Module-level flag: skip enter animations when navigating back
+let __popNavFlag = false;
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -120,9 +124,45 @@ const SnapWrap = styled.div<{ $inView: boolean; $snap: boolean }>`
   }
 `;
 
-function SnapSection({ children, snap = true }: { children: ReactNode; snap?: boolean }) {
+/* Floating admin access button — fixed bottom-left */
+const AdminFloatBtn = styled.button<{ $isDark: boolean }>`
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'};
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
+  border-radius: 100px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)'};
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  &:hover {
+    background: ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'};
+    color: ${p => p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'};
+  }
+
+  svg { width: 13px; height: 13px; }
+
+  @media (max-width: 768px) {
+    bottom: 16px;
+    left: 16px;
+    padding: 7px 12px;
+  }
+`;
+
+function SnapSection({ children, snap = true, id }: { children: ReactNode; snap?: boolean; id?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
+  const [inView, setInView] = useState(() => __popNavFlag);
 
   useEffect(() => {
     const el = ref.current;
@@ -141,7 +181,7 @@ function SnapSection({ children, snap = true }: { children: ReactNode; snap?: bo
   }, []);
 
   return (
-    <SnapWrap ref={ref} $inView={inView} $snap={snap}>
+    <SnapWrap ref={ref} $inView={inView} $snap={snap} id={id}>
       {children}
     </SnapWrap>
   );
@@ -162,27 +202,38 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
     };
   }, []);
 
+  // Handle cross-page scroll: when arriving from another page via nav click
+  useEffect(() => {
+    const target = sessionStorage.getItem('scrollTarget');
+    if (!target) return;
+    sessionStorage.removeItem('scrollTarget');
+    const timer = setTimeout(() => {
+      const el = document.getElementById(target);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
       <SnapSection>
         <Hero />
       </SnapSection>
-      <SnapSection>
-        <About />
-      </SnapSection>
-      <SnapSection>
+      {/* About manages its own 3 snap sections internally */}
+      <About />
+      <SnapSection id="projects">
         <Projects
           onProjectClick={(id) => navigate(`/projects/${id}`)}
           onViewAll={() => navigate('/projects')}
         />
       </SnapSection>
-      <SnapSection>
+      <SnapSection id="blog">
         <BlogPreview
           onPostClick={(id) => navigate(`/blog/${id}`)}
           onViewAll={() => navigate('/blog')}
         />
       </SnapSection>
-      <SnapSection>
+      <SnapSection id="opensource">
         <Suspense fallback={<LoadingFallback $isDark={isDark}>Loading...</LoadingFallback>}>
           <OpenSource
             compact
@@ -192,7 +243,7 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
           />
         </Suspense>
       </SnapSection>
-      <Footer onContactClick={onContactClick} />
+      <ThankYouCTA onContactClick={onContactClick} githubUrl="https://github.com/hjyeon-n" />
     </>
   );
 }
@@ -334,9 +385,29 @@ function AppContent() {
   const location = useLocation();
   const navigationType = useNavigationType();
 
+  // Save scroll position on every scroll event
   useEffect(() => {
-    // POP = 브라우저 뒤로가기/앞으로가기 → 스크롤 위치 브라우저에게 맡김
-    if (navigationType !== 'POP') {
+    const save = () => {
+      sessionStorage.setItem(`sp:${location.pathname}`, String(window.scrollY));
+    };
+    window.addEventListener('scroll', save, { passive: true });
+    return () => {
+      save();
+      window.removeEventListener('scroll', save);
+    };
+  }, [location.pathname]);
+
+  // Restore or reset scroll on navigation
+  useEffect(() => {
+    if (navigationType === 'POP') {
+      __popNavFlag = true;
+      const saved = sessionStorage.getItem(`sp:${location.pathname}`);
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: saved ? parseInt(saved) : 0, behavior: 'instant' as ScrollBehavior });
+        setTimeout(() => { __popNavFlag = false; }, 100);
+      });
+    } else {
+      __popNavFlag = false;
       window.scrollTo(0, 0);
     }
   }, [location.pathname, navigationType]);
@@ -444,6 +515,10 @@ function AppContent() {
             onOpenChange={setContactModalOpen}
           />
           <Chatbot onContactClick={() => setContactModalOpen(true)} />
+          <AdminFloatBtn $isDark={isDark} onClick={() => navigate('/admin')}>
+            <Shield />
+            Admin
+          </AdminFloatBtn>
         </>
       )}
     </>
@@ -451,9 +526,9 @@ function AppContent() {
 }
 
 export default function App() {
-  // 브라우저 기본 스크롤 복원 활성화
+  // 수동으로 스크롤 복원 제어 (sessionStorage 기반)
   if ('scrollRestoration' in history) {
-    history.scrollRestoration = 'auto';
+    history.scrollRestoration = 'manual';
   }
 
   return (

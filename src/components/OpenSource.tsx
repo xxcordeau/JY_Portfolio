@@ -1,330 +1,235 @@
-import { useRef, useCallback } from 'react';
-import styled, { css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useOpenSource } from '../hooks/useOpenSource';
-import { Github, Package, Star, Download, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Github, Star, Download, ArrowRight, ArrowLeft } from 'lucide-react';
 
-const OpenSourceContainer = styled.div<{ $isDark: boolean; $compact: boolean }>`
-  min-height: 100vh;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
+/* ── Keyframes ── */
+const shimmer = keyframes`
+  0% { background-position: -400% 0; }
+  100% { background-position: 400% 0; }
+`;
+
+/* ── Layout (same as Projects) ── */
+const OpenSourceSection = styled.section<{ $isDark: boolean }>`
+  padding: 120px 0 80px;
+  background: ${p => p.$isDark ? '#000000' : '#ffffff'};
   transition: background 0.3s ease;
-  ${p => p.$compact ? css`
-    padding: 120px 0 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  ` : css`
-    padding-top: 80px;
-  `}
 
   @media (max-width: 768px) {
-    ${p => p.$compact && css`
-      padding: 80px 0 40px;
-      display: block;
-    `}
+    padding: 80px 0 60px;
   }
 `;
 
-const Hero = styled.div<{ $compact: boolean }>`
-  width: 100%;
-  ${p => p.$compact ? css`
-    padding: 0 40px 32px 12vw;
-    text-align: left;
-  ` : css`
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 80px 40px 60px;
-    text-align: center;
-  `}
-
-  @media (max-width: 768px) {
-    padding: ${p => p.$compact ? '0 20px 24px' : '60px 20px 40px'};
-  }
-`;
-
-const TitleRow = styled.div`
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 0 12vw;
-  margin-bottom: 48px;
+const Container = styled.div`
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px;
 
   @media (max-width: 768px) {
     padding: 0 20px;
-    margin-bottom: 32px;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
   }
 `;
 
-const Title = styled.h1<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '52px' : '56px'};
-  font-weight: ${p => p.$compact ? '700' : '700'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0;
-  letter-spacing: ${p => p.$compact ? '-1.5px' : '-1.5px'};
-  line-height: 1;
+/* ── Header (same as Projects) ── */
+const SectionEyebrow = styled.span<{ $isDark: boolean }>`
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
+  margin-bottom: 12px;
+`;
+
+const SectionTitle = styled.h2<{ $isDark: boolean }>`
+  font-size: 40px;
+  font-weight: 700;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  margin: 0 0 16px 0;
+  letter-spacing: -1px;
+  line-height: 1.15;
 
   @media (max-width: 768px) {
-    font-size: 36px;
+    font-size: 30px;
   }
 `;
 
-const Subtitle = styled.p<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '16px' : '21px'};
-  color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
-  max-width: 800px;
-  margin: 0 auto;
+const SectionSubtitle = styled.p<{ $isDark: boolean }>`
+  font-size: 16px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
+  margin: 0 0 48px 0;
   line-height: 1.5;
-  ${p => p.$compact && css`display: none;`}
 
   @media (max-width: 768px) {
-    font-size: ${p => p.$compact ? '14px' : '17px'};
+    font-size: 14px;
+    margin-bottom: 36px;
   }
 `;
 
-const ViewAllButton = styled.button<{ $isDark: boolean }>`
-  background: transparent;
-  border: 2px solid ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  padding: 12px 24px;
-  border-radius: 24px;
+const BackButton = styled.button<{ $isDark: boolean }>`
+  background: none;
+  border: none;
+  padding: 0;
   font-size: 14px;
   font-weight: 500;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  margin-bottom: 6px;
+  gap: 6px;
+  margin-bottom: 32px;
+  transition: color 0.2s;
+  font-family: inherit;
 
   &:hover {
-    background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    color: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
+    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   }
 
   svg { width: 16px; height: 16px; }
 `;
 
-/* ── 가로 스크롤 트랙 (compact) ── */
-const ScrollTrack = styled.div`
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  padding: 10px 0 80px 12vw;
-  scroll-snap-type: x proximity;
-  scroll-padding-left: 12vw;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  cursor: grab;
-  user-select: none;
-  &::-webkit-scrollbar { display: none; }
-
-  @media (max-width: 768px) {
-    padding: 0 0 0 20px;
-  }
-`;
-
-const ProjectsGrid = styled.div<{ $compact: boolean }>`
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  ${p => p.$compact ? css`
-    padding: 0 40px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px;
-  ` : css`
-    padding: 0 40px 100px;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 30px;
-  `}
+/* ── Grid (same as Projects: 3 columns) ── */
+const Grid = styled.div`
   display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 
-  @media (max-width: 768px) {
-    padding: ${p => p.$compact ? '0 20px' : '0 20px 60px'};
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 640px) {
     grid-template-columns: 1fr;
     gap: 20px;
   }
 `;
 
-const ProjectCard = styled.div<{ $isDark: boolean; $compact?: boolean }>`
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
-  border-radius: 20px;
-  overflow: hidden;
-  backdrop-filter: blur(20px);
-  transition: all 0.3s ease;
+/* ── Card (same hover pattern as Projects) ── */
+const CardWrapper = styled.div`
   cursor: pointer;
-  ${p => p.$compact && css`
-    flex: 0 0 380px;
-    scroll-snap-align: start;
-  `}
-
-  &:hover {
-    transform: translateY(-8px);
-    background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'};
-    box-shadow: ${props => props.$isDark
-      ? '0 20px 60px rgba(0, 0, 0, 0.4)'
-      : '0 20px 60px rgba(0, 0, 0, 0.1)'};
-  }
 `;
 
-const ProjectImage = styled.div<{ $image: string; $compact: boolean }>`
-  width: 100%;
-  height: ${p => p.$compact ? '140px' : '200px'};
-  background-image: url(${props => props.$image});
-  background-size: cover;
-  background-position: center;
+const ImageContainer = styled.div<{ $image: string }>`
   position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
 
-  &::after {
+  &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+    background-image: url(${p => p.$image});
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.4s ease, filter 0.4s ease;
+  }
+
+  ${CardWrapper}:hover &::before {
+    transform: scale(1.04);
+    filter: blur(3px) brightness(0.65);
   }
 `;
 
-const ProjectContent = styled.div<{ $compact: boolean }>`
-  padding: ${p => p.$compact ? '18px 20px' : '24px'};
-`;
-
-const ProjectHeader = styled.div<{ $compact: boolean }>`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: ${p => p.$compact ? '10px' : '16px'};
-  gap: 12px;
-`;
-
-const ProjectName = styled.h3<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '18px' : '22px'};
-  font-weight: ${p => p.$compact ? '600' : '700'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0;
-  letter-spacing: -0.4px;
-`;
-
-const Category = styled.span<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '11px' : '12px'};
-  color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'};
-  padding: ${p => p.$compact ? '3px 10px' : '4px 12px'};
-  border-radius: 12px;
-  white-space: nowrap;
-  font-weight: 500;
-`;
-
-const ProjectDescription = styled.p<{ $isDark: boolean; $compact: boolean }>`
-  font-size: ${p => p.$compact ? '13px' : '15px'};
-  color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
-  margin: 0 0 ${p => p.$compact ? '12px' : '20px'} 0;
-  line-height: 1.5;
-  ${p => p.$compact && css`
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  `}
-`;
-
-const StatsRow = styled.div<{ $compact: boolean }>`
-  display: flex;
-  gap: ${p => p.$compact ? '12px' : '16px'};
-  margin-bottom: ${p => p.$compact ? '10px' : '16px'};
-  flex-wrap: wrap;
-`;
-
-const Stat = styled.div<{ $isDark: boolean; $compact: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: ${p => p.$compact ? '12px' : '13px'};
-  color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
-
-  svg {
-    width: ${p => p.$compact ? '12px' : '14px'};
-    height: ${p => p.$compact ? '12px' : '14px'};
-    color: ${props => props.$isDark ? '#4ECDC4' : '#007AFF'};
-  }
-`;
-
-const Tags = styled.div<{ $compact: boolean }>`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${p => p.$compact ? '6px' : '8px'};
-  margin-bottom: ${p => p.$compact ? '10px' : '16px'};
-`;
-
-const Tag = styled.span<{ $isDark: boolean }>`
-  font-size: 11px;
-  color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'};
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-weight: 500;
-`;
-
-const ViewMore = styled.div<{ $isDark: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  color: ${props => props.$isDark ? '#4ECDC4' : '#007AFF'};
-  font-weight: 600;
-
-  svg {
-    width: 16px;
-    height: 16px;
-    transition: transform 0.3s ease;
-  }
-
-  ${ProjectCard}:hover & svg {
-    transform: translateX(4px);
-  }
-`;
-
-// ── Skeleton ─────────────────────────────────────
-const shimmer = `
-  @keyframes sk-shimmer {
-    0%   { background-position: -400% 0; }
-    100% { background-position:  400% 0; }
-  }
-`;
-const SkeletonCard = styled.div<{ $isDark: boolean; $compact?: boolean }>`
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'};
-  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
-  border-radius: 20px;
-  overflow: hidden;
-  ${p => p.$compact && css`
-    flex: 0 0 380px;
-  `}
-`;
-const SkeletonImg = styled.div<{ $isDark: boolean }>`
-  width: 100%; height: 200px;
-  background: linear-gradient(
-    90deg,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
-  );
-  background-size: 400% 100%;
-  animation: sk-shimmer 1.4s ease infinite;
-  ${shimmer}
-`;
-const SkeletonBody = styled.div`
-  padding: 24px;
+const ImageOverlay = styled.div`
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+
+  ${CardWrapper}:hover & {
+    opacity: 1;
+  }
 `;
-const SkeletonLine = styled.div<{ $isDark: boolean; $w?: string }>`
-  height: 14px;
-  border-radius: 6px;
-  width: ${p => p.$w ?? '100%'};
+
+const OverlayText = styled.p`
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  text-align: center;
+  max-width: 280px;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const CardMeta = styled.div`
+  padding: 12px 2px 0;
+`;
+
+const ProjectName = styled.h3<{ $isDark: boolean }>`
+  font-size: 15px;
+  font-weight: 600;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  margin: 0;
+  letter-spacing: -0.2px;
+`;
+
+const ProjectInfo = styled.div<{ $isDark: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+`;
+
+const ProjectCategory = styled.span<{ $isDark: boolean }>`
+  font-size: 12px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'};
+  font-weight: 400;
+`;
+
+const Stat = styled.span<{ $isDark: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)'};
+
+  svg { width: 11px; height: 11px; }
+`;
+
+/* ── View All (bottom, same as Projects) ── */
+const ViewAllBottom = styled.div`
+  text-align: center;
+  margin-top: 48px;
+`;
+
+const ViewAllButton = styled.button<{ $isDark: boolean }>`
+  background: none;
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
+  padding: 12px 32px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)'};
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+
+  svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+
+  &:hover {
+    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)'};
+    svg { transform: translateX(3px); }
+  }
+`;
+
+/* ── Skeleton ── */
+const SkeletonBox = styled.div<{ $isDark: boolean }>`
+  border-radius: 14px;
+  aspect-ratio: 4 / 3;
   background: linear-gradient(
     90deg,
     ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
@@ -332,71 +237,49 @@ const SkeletonLine = styled.div<{ $isDark: boolean; $w?: string }>`
     ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
   );
   background-size: 400% 100%;
-  animation: sk-shimmer 1.4s ease infinite;
-  ${shimmer}
-`;
-// ─────────────────────────────────────────────────
-
-const BackButton = styled.button<{ $isDark: boolean }>`
-  position: fixed;
-  top: 100px;
-  left: 40px;
-  background: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  border: none;
-  padding: 12px 24px;
-  border-radius: 24px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  z-index: 100;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  @media (max-width: 768px) {
-    position: fixed;
-    top: auto;
-    bottom: 24px;
-    left: 20px;
-    padding: 10px 18px;
-    font-size: 13px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  }
+  animation: ${shimmer} 1.4s ease infinite;
 `;
 
-interface OpenSourceProps {
-  onProjectClick: (id: string) => void;
-  /** Home preview mode: left-aligned title, no subtitle, compact cards, limited count */
-  compact?: boolean;
-  /** Max number of items to show in compact mode */
-  limit?: number;
-  /** Callback for "View All" button in compact mode */
-  onViewAll?: () => void;
-  onBack?: () => void;
-}
+const SkeletonLine = styled.div<{ $isDark: boolean; $width?: string }>`
+  height: 14px;
+  border-radius: 7px;
+  width: ${p => p.$width ?? '100%'};
+  background: linear-gradient(
+    90deg,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
+  );
+  background-size: 400% 100%;
+  animation: ${shimmer} 1.4s ease infinite;
+`;
 
+/* ── Translations ── */
 const translations = {
   ko: {
     back: '뒤로가기',
+    eyebrow: 'OPEN SOURCE',
     title: '컴포넌트 라이브러리',
     subtitle: '직접 만들고 공개한 라이브러리, 컴포넌트, 그리고 작은 실험들',
-    viewDetails: '자세히 보기',
-    viewAll: '전체보기'
+    viewAll: '전체 보기',
   },
   en: {
     back: 'Back',
+    eyebrow: 'OPEN SOURCE',
     title: 'Component Library',
-    subtitle: 'Libraries, components, and small experiments I\'ve built and open-sourced',
-    viewDetails: 'View Details',
-    viewAll: 'View All'
-  }
+    subtitle: "Libraries, components, and small experiments I've built and open-sourced",
+    viewAll: 'View All',
+  },
 };
+
+/* ── Component ── */
+interface OpenSourceProps {
+  onProjectClick: (id: string) => void;
+  compact?: boolean;
+  limit?: number;
+  onViewAll?: () => void;
+  onBack?: () => void;
+}
 
 export default function OpenSource({
   onProjectClick,
@@ -409,194 +292,73 @@ export default function OpenSource({
   const { language } = useLanguage();
   const { projects: openSourceProjects, loading } = useOpenSource();
   const t = translations[language];
+
   const displayProjects =
     compact && typeof limit === 'number'
       ? openSourceProjects.slice(0, limit)
       : openSourceProjects;
 
-  const trackRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
-  const hasDragged = useRef(false);
-  const startX = useRef(0);
-  const scrollLeft = useRef(0);
+  const skeletonCount = compact && typeof limit === 'number' ? limit : 3;
 
-  const onMouseDown = useCallback((e: React.MouseEvent) => {
-    isDragging.current = true;
-    hasDragged.current = false;
-    startX.current = e.pageX - (trackRef.current?.offsetLeft ?? 0);
-    scrollLeft.current = trackRef.current?.scrollLeft ?? 0;
-    if (trackRef.current) trackRef.current.style.cursor = 'grabbing';
-  }, []);
+  return (
+    <OpenSourceSection $isDark={isDark}>
+      <Container>
+        {/* Back button — full page only */}
+        {!compact && onBack && (
+          <BackButton $isDark={isDark} onClick={onBack}>
+            <ArrowLeft />
+            {t.back}
+          </BackButton>
+        )}
 
-  const onMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging.current || !trackRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - trackRef.current.offsetLeft;
-    const walk = (x - startX.current) * 1.2;
-    if (Math.abs(walk) > 4) hasDragged.current = true;
-    trackRef.current.scrollLeft = scrollLeft.current - walk;
-  }, []);
+        <SectionEyebrow $isDark={isDark}>{t.eyebrow}</SectionEyebrow>
+        <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
+        {!compact && <SectionSubtitle $isDark={isDark}>{t.subtitle}</SectionSubtitle>}
+        {compact && <div style={{ marginBottom: 48 }} />}
 
-  const onMouseUp = useCallback(() => {
-    isDragging.current = false;
-    if (trackRef.current) trackRef.current.style.cursor = 'grab';
-  }, []);
+        <Grid>
+          {loading
+            ? Array.from({ length: skeletonCount }).map((_, i) => (
+                <div key={i}>
+                  <SkeletonBox $isDark={isDark} />
+                  <CardMeta>
+                    <SkeletonLine $isDark={isDark} $width="50%" style={{ height: 14, marginBottom: 6 }} />
+                    <SkeletonLine $isDark={isDark} $width="30%" style={{ height: 11 }} />
+                  </CardMeta>
+                </div>
+              ))
+            : displayProjects.map((project) => (
+                <CardWrapper key={project.id} onClick={() => onProjectClick(project.id)}>
+                  <ImageContainer $image={project.image}>
+                    <ImageOverlay>
+                      <OverlayText>{project.description[language]}</OverlayText>
+                    </ImageOverlay>
+                  </ImageContainer>
+                  <CardMeta>
+                    <ProjectName $isDark={isDark}>{project.name}</ProjectName>
+                    <ProjectInfo $isDark={isDark}>
+                      <ProjectCategory $isDark={isDark}>
+                        {project.category[language]}
+                      </ProjectCategory>
+                      <Stat $isDark={isDark}><Star /> {project.stats.stars}</Stat>
+                      <Stat $isDark={isDark}><Download /> {project.stats.downloads}</Stat>
+                      <Stat $isDark={isDark}><Github /> {project.stats.contributors}</Stat>
+                    </ProjectInfo>
+                  </CardMeta>
+                </CardWrapper>
+              ))
+          }
+        </Grid>
 
-  if (compact) {
-    return (
-      <OpenSourceContainer $isDark={isDark} $compact={compact}>
-        <TitleRow>
-          <Title $isDark={isDark} $compact={compact}>{t.title}</Title>
-          {onViewAll && (
+        {compact && onViewAll && (
+          <ViewAllBottom>
             <ViewAllButton $isDark={isDark} onClick={onViewAll}>
               {t.viewAll}
               <ArrowRight />
             </ViewAllButton>
-          )}
-        </TitleRow>
-
-        <ScrollTrack
-          ref={trackRef}
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          onMouseLeave={onMouseUp}
-        >
-          {loading ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <SkeletonCard key={i} $isDark={isDark} $compact>
-                <SkeletonImg $isDark={isDark} />
-                <SkeletonBody>
-                  <SkeletonLine $isDark={isDark} $w="60%" style={{ height: 20 }} />
-                  <SkeletonLine $isDark={isDark} $w="90%" />
-                  <SkeletonLine $isDark={isDark} $w="75%" />
-                  <SkeletonLine $isDark={isDark} $w="40%" />
-                </SkeletonBody>
-              </SkeletonCard>
-            ))
-          ) : displayProjects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              $isDark={isDark}
-              $compact
-              onClick={() => { if (!hasDragged.current) onProjectClick(project.id); }}
-            >
-              <ProjectImage $image={project.image} $compact={compact} />
-              <ProjectContent $compact={compact}>
-                <ProjectHeader $compact={compact}>
-                  <ProjectName $isDark={isDark} $compact={compact}>{project.name}</ProjectName>
-                  <Category $isDark={isDark} $compact={compact}>{project.category[language]}</Category>
-                </ProjectHeader>
-
-                <ProjectDescription $isDark={isDark} $compact={compact}>
-                  {project.description[language]}
-                </ProjectDescription>
-
-                <StatsRow $compact={compact}>
-                  <Stat $isDark={isDark} $compact={compact}>
-                    <Star />
-                    {project.stats.stars}
-                  </Stat>
-                  <Stat $isDark={isDark} $compact={compact}>
-                    <Download />
-                    {project.stats.downloads}
-                  </Stat>
-                  <Stat $isDark={isDark} $compact={compact}>
-                    <Github />
-                    {project.stats.contributors}
-                  </Stat>
-                </StatsRow>
-
-                <Tags $compact={compact}>
-                  {project.tags.map((tag) => (
-                    <Tag key={tag} $isDark={isDark}>{tag}</Tag>
-                  ))}
-                </Tags>
-
-                <ViewMore $isDark={isDark}>
-                  {t.viewDetails}
-                  <ArrowRight />
-                </ViewMore>
-              </ProjectContent>
-            </ProjectCard>
-          ))}
-        </ScrollTrack>
-      </OpenSourceContainer>
-    );
-  }
-
-  return (
-    <OpenSourceContainer $isDark={isDark} $compact={compact}>
-      {onBack && (
-        <BackButton $isDark={isDark} onClick={onBack}>
-          <ArrowLeft size={16} />
-          {t.back}
-        </BackButton>
-      )}
-      <Hero $compact={compact}>
-        <Title $isDark={isDark} $compact={compact}>{t.title}</Title>
-        <Subtitle $isDark={isDark} $compact={compact}>{t.subtitle}</Subtitle>
-      </Hero>
-
-      <ProjectsGrid $compact={compact}>
-        {loading ? (
-          Array.from({ length: 3 }).map((_, i) => (
-            <SkeletonCard key={i} $isDark={isDark}>
-              <SkeletonImg $isDark={isDark} />
-              <SkeletonBody>
-                <SkeletonLine $isDark={isDark} $w="60%" style={{ height: 20 }} />
-                <SkeletonLine $isDark={isDark} $w="90%" />
-                <SkeletonLine $isDark={isDark} $w="75%" />
-                <SkeletonLine $isDark={isDark} $w="40%" />
-              </SkeletonBody>
-            </SkeletonCard>
-          ))
-        ) : displayProjects.map((project) => (
-          <ProjectCard
-            key={project.id}
-            $isDark={isDark}
-            onClick={() => onProjectClick(project.id)}
-          >
-            <ProjectImage $image={project.image} $compact={compact} />
-            <ProjectContent $compact={compact}>
-              <ProjectHeader $compact={compact}>
-                <ProjectName $isDark={isDark} $compact={compact}>{project.name}</ProjectName>
-                <Category $isDark={isDark} $compact={compact}>{project.category[language]}</Category>
-              </ProjectHeader>
-
-              <ProjectDescription $isDark={isDark} $compact={compact}>
-                {project.description[language]}
-              </ProjectDescription>
-
-              <StatsRow $compact={compact}>
-                <Stat $isDark={isDark} $compact={compact}>
-                  <Star />
-                  {project.stats.stars}
-                </Stat>
-                <Stat $isDark={isDark} $compact={compact}>
-                  <Download />
-                  {project.stats.downloads}
-                </Stat>
-                <Stat $isDark={isDark} $compact={compact}>
-                  <Github />
-                  {project.stats.contributors}
-                </Stat>
-              </StatsRow>
-
-              <Tags $compact={compact}>
-                {project.tags.map((tag) => (
-                  <Tag key={tag} $isDark={isDark}>{tag}</Tag>
-                ))}
-              </Tags>
-
-              <ViewMore $isDark={isDark}>
-                {t.viewDetails}
-                <ArrowRight />
-              </ViewMore>
-            </ProjectContent>
-          </ProjectCard>
-        ))}
-      </ProjectsGrid>
-    </OpenSourceContainer>
+          </ViewAllBottom>
+        )}
+      </Container>
+    </OpenSourceSection>
   );
 }

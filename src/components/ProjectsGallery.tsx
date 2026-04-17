@@ -1,194 +1,295 @@
-import styled from 'styled-components';
+import { useCallback } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useProjects } from '../hooks/useProjects';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+
+/** Tech name to devicon CDN URL mapping */
+const TECH_ICONS: Record<string, string> = {
+  'JavaScript': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
+  'TypeScript': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+  'React': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+  'Next.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
+  'Vue.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
+  'Vue 3': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
+  'HTML/CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
+  'Styled-Components': 'https://cdn.simpleicons.org/styledcomponents/DB7093',
+  'Tailwind CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg',
+  'Sass': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg',
+  'SCSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg',
+  'Ant Design': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/antdesign/antdesign-original.svg',
+  'Storybook': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/storybook/storybook-original.svg',
+  'Node.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
+  'Express': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg',
+  'Supabase': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg',
+  'Firebase': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg',
+  'Webpack': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/webpack/webpack-original.svg',
+  'Vite': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg',
+  'Git': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg',
+  'Figma': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg',
+  'Redux': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redux/redux-original.svg',
+  'Nest.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nestjs/nestjs-original.svg',
+  'NestJS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nestjs/nestjs-original.svg',
+  'PostgreSQL': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',
+  'MongoDB': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg',
+  'MySQL': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg',
+  'Docker': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg',
+  'Python': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
+  'AWS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg',
+  'Vercel': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg',
+  'Photoshop': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-original.svg',
+  'Illustrator': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/illustrator/illustrator-plain.svg',
+  'Swagger': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg',
+  'Postman': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-original.svg',
+};
+
+/* ── Keyframes ── */
+
+const shimmer = keyframes`
+  0% { background-position: -400% 0; }
+  100% { background-position: 400% 0; }
+`;
+
+/* ── Layout ── */
 
 const GallerySection = styled.section<{ $isDark: boolean }>`
   min-height: 100vh;
-  padding: 160px 40px 120px 40px;
-  background: ${props => props.$isDark ? '#000000' : '#ffffff'};
+  padding: 160px 0 120px;
+  background: ${p => p.$isDark ? '#000000' : '#ffffff'};
   transition: background 0.3s ease;
 
   @media (max-width: 768px) {
-    padding: 120px 20px 80px 20px;
+    padding: 120px 0 80px;
   }
 `;
 
 const Container = styled.div`
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-`;
-
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 60px;
+  padding: 0 40px;
 
   @media (max-width: 768px) {
-    margin-bottom: 40px;
+    padding: 0 20px;
   }
+`;
+
+/* ── Header ── */
+
+const SectionEyebrow = styled.span<{ $isDark: boolean }>`
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
+  margin-bottom: 12px;
 `;
 
 const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 56px;
-  font-weight: 600;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0;
-  letter-spacing: -1.5px;
-  transition: color 0.3s ease;
+  font-size: 40px;
+  font-weight: 700;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  margin: 0 0 48px 0;
+  letter-spacing: -1px;
+  line-height: 1.15;
 
   @media (max-width: 768px) {
-    font-size: 36px;
-    letter-spacing: -1px;
+    font-size: 30px;
+    margin-bottom: 36px;
   }
 `;
 
+/* ── Back button (fixed pill) ── */
+
 const BackButton = styled.button<{ $isDark: boolean }>`
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 100;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 24px;
-  background: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  border: none;
-  border-radius: 24px;
-  font-size: 15px;
+  padding: 10px 22px;
+  background: ${p => p.$isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)'};
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
+  border-radius: 100px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 14px;
   font-weight: 500;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)'};
   cursor: pointer;
-  transition: all 0.3s ease;
-  letter-spacing: -0.2px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+  }
 
   &:hover {
-    background: ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-    transform: translateX(-4px);
+    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)'};
+    svg { transform: translateX(-3px); }
   }
 
   @media (max-width: 768px) {
-    font-size: 14px;
-    padding: 10px 20px;
+    top: 16px;
+    left: 16px;
+    padding: 8px 18px;
+    font-size: 13px;
   }
 `;
 
-const ProjectGrid = styled.div`
+/* ── Grid: 3 columns ── */
+
+const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 40px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 640px) {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 20px;
   }
 `;
 
-const ProjectCard = styled.div<{ $isDark: boolean }>`
+/* ── Card ── */
+
+const CardWrapper = styled.div`
   cursor: pointer;
-  border-radius: 16px;
-  overflow: hidden;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-8px);
-    
-    img {
-      transform: scale(1.05);
-    }
-  }
 `;
 
-const ProjectImage = styled.div`
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  background: #e5e5e7;
+const ImageContainer = styled.div`
+  position: relative;
+  border-radius: 14px;
   overflow: hidden;
+  aspect-ratio: 4 / 3;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    display: block;
+    transition: transform 0.4s ease, filter 0.4s ease;
+  }
+
+  ${CardWrapper}:hover & > img {
+    transform: scale(1.04);
+    filter: blur(3px) brightness(0.65);
   }
 `;
 
-const ProjectInfo = styled.div`
-  padding: 24px;
+const ImageOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+
+  ${CardWrapper}:hover & {
+    opacity: 1;
+  }
+`;
+
+const OverlayDescription = styled.p`
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 12px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const OverlayTechIcons = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`;
+
+const TechIcon = styled.div`
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    filter: none;
+    transform: none;
+  }
+`;
+
+/* ── Card meta below image ── */
+
+const CardMeta = styled.div`
+  padding: 12px 2px 0;
 `;
 
 const ProjectTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 24px;
-  font-weight: 600;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 12px 0;
-  letter-spacing: -0.5px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: color 0.3s ease;
-
-  svg {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  ${ProjectCard}:hover & svg {
-    opacity: 1;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 20px;
-  }
-`;
-
-const ProjectDescription = styled.p`
   font-size: 15px;
-  color: #86868b;
-  line-height: 1.6;
-  margin: 0 0 16px 0;
-  font-weight: 400;
+  font-weight: 600;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  margin: 0;
   letter-spacing: -0.2px;
-
-  @media (max-width: 768px) {
-    font-size: 14px;
-  }
 `;
 
-const ProjectTags = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-`;
-
-const Tag = styled.span<{ $isDark: boolean }>`
-  background: ${props => props.$isDark ? '#1d1d1f' : '#ffffff'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  padding: 6px 12px;
-  border-radius: 16px;
+const ProjectMeta = styled.span<{ $isDark: boolean }>`
+  display: block;
   font-size: 12px;
-  font-weight: 500;
-  letter-spacing: -0.2px;
-  transition: all 0.3s ease;
-
-  @media (max-width: 768px) {
-    font-size: 11px;
-    padding: 5px 10px;
-  }
-`;
-
-const ProjectCount = styled.p<{ $isDark: boolean }>`
-  font-size: 17px;
-  color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
-  margin: 0 0 40px 0;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'};
+  margin-top: 3px;
   font-weight: 400;
-  letter-spacing: -0.2px;
-
-  @media (max-width: 768px) {
-    font-size: 15px;
-    margin-bottom: 30px;
-  }
 `;
+
+/* ── Skeleton ── */
+
+const SkeletonBox = styled.div<{ $isDark: boolean }>`
+  border-radius: 14px;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(
+    90deg,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
+  );
+  background-size: 400% 100%;
+  animation: ${shimmer} 1.4s ease infinite;
+`;
+
+const SkeletonLine = styled.div<{ $isDark: boolean; $width?: string }>`
+  height: 14px;
+  border-radius: 7px;
+  width: ${p => p.$width ?? '100%'};
+  background: linear-gradient(
+    90deg,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
+    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
+  );
+  background-size: 400% 100%;
+  animation: ${shimmer} 1.4s ease infinite;
+`;
+
+/* ── Component ── */
 
 interface ProjectsGalleryProps {
   onProjectClick: (projectId: string) => void;
@@ -197,62 +298,94 @@ interface ProjectsGalleryProps {
 
 const translations = {
   ko: {
+    eyebrow: 'PROJECTS',
     title: '모든 프로젝트',
     back: '홈으로',
-    count: (num: number) => `총 ${num}개의 프로젝트`
   },
   en: {
+    eyebrow: 'PROJECTS',
     title: 'All Projects',
     back: 'Back to Home',
-    count: (num: number) => `${num} Projects`
-  }
+  },
 };
 
 export default function ProjectsGallery({ onProjectClick, onBack }: ProjectsGalleryProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
-  const { projects } = useProjects();
+  const { projects, loading } = useProjects();
   const t = translations[language];
+
+  const handleCardClick = useCallback(
+    (projectId: string) => () => onProjectClick(projectId),
+    [onProjectClick],
+  );
+
+  /** Collect all tech names from a project's techStack */
+  const getTechNames = (project: typeof projects[0]) => {
+    const ts = project.techStack;
+    if (!ts) return [];
+    return [
+      ...(ts.frontend ?? []),
+      ...(ts.backend ?? []),
+      ...(ts.design ?? []),
+      ...(ts.others ?? []),
+    ];
+  };
 
   return (
     <GallerySection $isDark={isDark}>
+      <BackButton $isDark={isDark} onClick={onBack}>
+        <ArrowLeft />
+        {t.back}
+      </BackButton>
+
       <Container>
-        <Header>
-          <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
-          <BackButton $isDark={isDark} onClick={onBack}>
-            <ArrowLeft size={18} />
-            {t.back}
-          </BackButton>
-        </Header>
-        <ProjectCount $isDark={isDark}>{t.count(projects.length)}</ProjectCount>
-        <ProjectGrid>
-          {projects.map((project) => (
-            <ProjectCard 
-              key={project.id} 
-              $isDark={isDark}
-              onClick={() => onProjectClick(project.id)}
-            >
-              <ProjectImage>
-                <ImageWithFallback
-                  src={project.image}
-                  alt={project.title[language]}
-                />
-              </ProjectImage>
-              <ProjectInfo>
-                <ProjectTitle $isDark={isDark}>
-                  {project.title[language]}
-                  <ArrowRight size={20} />
-                </ProjectTitle>
-                <ProjectDescription>{project.description[language]}</ProjectDescription>
-                <ProjectTags>
-                  {project.tags.map((tag, tagIndex) => (
-                    <Tag key={tagIndex} $isDark={isDark}>{tag}</Tag>
-                  ))}
-                </ProjectTags>
-              </ProjectInfo>
-            </ProjectCard>
-          ))}
-        </ProjectGrid>
+        <SectionEyebrow $isDark={isDark}>{t.eyebrow}</SectionEyebrow>
+        <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
+
+        <Grid>
+          {loading
+            ? Array.from({ length: 9 }).map((_, i) => (
+                <div key={i}>
+                  <SkeletonBox $isDark={isDark} />
+                  <CardMeta>
+                    <SkeletonLine $isDark={isDark} $width="50%" style={{ height: 14, marginBottom: 6 }} />
+                    <SkeletonLine $isDark={isDark} $width="30%" style={{ height: 11 }} />
+                  </CardMeta>
+                </div>
+              ))
+            : projects.map((project) => {
+                const techNames = getTechNames(project);
+                return (
+                  <CardWrapper key={project.id} onClick={handleCardClick(project.id)}>
+                    <ImageContainer>
+                      <ImageWithFallback src={project.image} alt={project.title[language]} />
+                      <ImageOverlay>
+                        <OverlayDescription>{project.description[language]}</OverlayDescription>
+                        <OverlayTechIcons>
+                          {techNames.slice(0, 8).map((tech, i) =>
+                            TECH_ICONS[tech] ? (
+                              <TechIcon key={i} title={tech}>
+                                <img src={TECH_ICONS[tech]} alt={tech} loading="lazy" />
+                              </TechIcon>
+                            ) : null,
+                          )}
+                        </OverlayTechIcons>
+                      </ImageOverlay>
+                    </ImageContainer>
+                    <CardMeta>
+                      <ProjectTitle $isDark={isDark}>{project.title[language]}</ProjectTitle>
+                      {(project.year || project.role) && (
+                        <ProjectMeta $isDark={isDark}>
+                          {[project.year, project.role?.[language]].filter(Boolean).join(' \u00b7 ')}
+                        </ProjectMeta>
+                      )}
+                    </CardMeta>
+                  </CardWrapper>
+                );
+              })
+          }
+        </Grid>
       </Container>
     </GallerySection>
   );

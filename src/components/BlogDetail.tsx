@@ -7,6 +7,8 @@ import { ArrowLeft } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import Footer from './Footer';
 import { useState } from 'react';
+
+import { FILLED_ICONS, resolveIcon } from '../lib/techIcons';
 import ReactMarkdown from 'react-markdown';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
@@ -53,24 +55,27 @@ const DetailContainer = styled.div<{ $isDark: boolean }>`
 
 const BackButton = styled.button<{ $isDark: boolean }>`
   position: fixed;
-  top: 100px;
+  top: 80px;
   left: 40px;
-  background: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
+  background: ${props => props.$isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)'};
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  border: none;
-  padding: 12px 24px;
-  border-radius: 24px;
+  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
+  padding: 10px 22px;
+  border-radius: 100px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
+  gap: 6px;
+  transition: all 0.2s ease;
   z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-family: inherit;
 
   &:hover {
-    opacity: 0.8;
+    border-color: ${props => props.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)'};
   }
 
   @media (max-width: 768px) {
@@ -80,7 +85,6 @@ const BackButton = styled.button<{ $isDark: boolean }>`
     left: 20px;
     padding: 10px 18px;
     font-size: 13px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   }
 `;
 
@@ -97,7 +101,7 @@ const Article = styled.article`
 const HeaderImage = styled.div`
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 24px;
+  border-radius: 14px;
   overflow: hidden;
   margin-bottom: 60px;
 
@@ -108,7 +112,7 @@ const HeaderImage = styled.div`
   }
 
   @media (max-width: 768px) {
-    border-radius: 16px;
+    border-radius: 14px;
     margin-bottom: 40px;
   }
 `;
@@ -121,11 +125,11 @@ const Meta = styled.div`
 `;
 
 const Category = styled.span<{ $isDark: boolean }>`
-  font-size: 12px;
-  color: ${props => props.$isDark ? '#a1a1a6' : '#86868b'};
+  font-size: 13px;
+  color: ${props => props.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'};
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 500;
+  letter-spacing: 1.5px;
+  font-weight: 600;
 `;
 
 const Date = styled.span`
@@ -141,11 +145,11 @@ const ReadTime = styled.span`
 `;
 
 const Title = styled.h1<{ $isDark: boolean }>`
-  font-size: 48px;
-  font-weight: 600;
+  font-size: 40px;
+  font-weight: 700;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   margin: 0 0 40px 0;
-  letter-spacing: -1.5px;
+  letter-spacing: -1px;
   line-height: 1.2;
   transition: color 0.3s ease;
 
@@ -158,9 +162,10 @@ const Title = styled.h1<{ $isDark: boolean }>`
 
 const Tags = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 60px;
   flex-wrap: wrap;
+  align-items: center;
 `;
 
 const Tag = styled.span<{ $isDark: boolean }>`
@@ -171,6 +176,62 @@ const Tag = styled.span<{ $isDark: boolean }>`
   font-size: 13px;
   font-weight: 500;
   transition: all 0.3s ease;
+`;
+
+const TagIconWrapper = styled.div<{ $isDark: boolean }>`
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: default;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : '#ffffff'};
+  box-shadow: ${p => p.$isDark
+    ? '0 2px 8px rgba(0,0,0,0.3)'
+    : '0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03)'};
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.15);
+    z-index: 10;
+  }
+
+  &:hover > span {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  img.icon-filled {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 9px;
+  }
+
+  img.icon-plain {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+`;
+
+const TagIconTooltip = styled.span<{ $isDark: boolean }>`
+  position: absolute;
+  bottom: -26px;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  font-size: 11px;
+  font-weight: 500;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#ffffff'};
+  background: ${p => p.$isDark ? '#333' : '#1d1d1f'};
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.15s ease;
+  pointer-events: none;
 `;
 
 const Content = styled.div<{ $isDark: boolean }>`
@@ -611,9 +672,16 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
         <Title $isDark={isDark}>{post.title[language]}</Title>
 
         <Tags>
-          {post.tags.map((tag, index) => (
-            <Tag key={index} $isDark={isDark}>{tag}</Tag>
-          ))}
+          {post.tags.map((tag, index) =>
+            resolveIcon(tag) ? (
+              <TagIconWrapper key={index} $isDark={isDark}>
+                <img src={resolveIcon(tag)} alt={tag} loading="lazy" className={FILLED_ICONS.has(tag) ? 'icon-filled' : 'icon-plain'} />
+                <TagIconTooltip $isDark={isDark}>{tag}</TagIconTooltip>
+              </TagIconWrapper>
+            ) : (
+              <Tag key={index} $isDark={isDark}>{tag}</Tag>
+            )
+          )}
         </Tags>
 
         <Content $isDark={isDark}>

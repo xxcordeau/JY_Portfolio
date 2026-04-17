@@ -469,23 +469,33 @@ const blogPosts = [
 ];
 
 // ============================================
-// Skills (14)
+// Skills (24)
 // ============================================
 const skills = [
-  { name: 'Vue 3', level: 95, category: 'frontend', sort_order: 0 },
-  { name: 'React', level: 85, category: 'frontend', sort_order: 1 },
-  { name: 'TypeScript', level: 85, category: 'frontend', sort_order: 2 },
-  { name: 'JavaScript', level: 90, category: 'frontend', sort_order: 3 },
-  { name: 'Redux', level: 80, category: 'frontend', sort_order: 4 },
-  { name: 'Node.js', level: 80, category: 'backend', sort_order: 5 },
-  { name: 'Nest.js', level: 80, category: 'backend', sort_order: 6 },
-  { name: 'PostgreSQL', level: 75, category: 'backend', sort_order: 7 },
-  { name: 'Figma', level: 95, category: 'design', sort_order: 8 },
-  { name: 'Illustrator', level: 90, category: 'design', sort_order: 9 },
-  { name: 'Photoshop', level: 90, category: 'design', sort_order: 10 },
-  { name: 'Git', level: 80, category: 'other', sort_order: 11 },
-  { name: 'Swagger / Postman', level: 85, category: 'other', sort_order: 12 },
-  { name: 'Jira / Notion / Slack', level: 80, category: 'other', sort_order: 13 },
+  { name: 'Vue 3',              level: 95, category: 'frontend', sort_order: 0 },
+  { name: 'React',              level: 85, category: 'frontend', sort_order: 1 },
+  { name: 'TypeScript',         level: 85, category: 'frontend', sort_order: 2 },
+  { name: 'JavaScript',         level: 90, category: 'frontend', sort_order: 3 },
+  { name: 'Redux',              level: 80, category: 'frontend', sort_order: 4 },
+  { name: 'Next.js',            level: 82, category: 'frontend', sort_order: 5 },
+  { name: 'Styled-Components',  level: 88, category: 'frontend', sort_order: 6 },
+  { name: 'Tailwind CSS',       level: 85, category: 'frontend', sort_order: 7 },
+  { name: 'Ant Design',         level: 80, category: 'frontend', sort_order: 8 },
+  { name: 'Storybook',          level: 75, category: 'frontend', sort_order: 9 },
+  { name: 'Sass',               level: 85, category: 'frontend', sort_order: 10 },
+  { name: 'Node.js',            level: 80, category: 'backend',  sort_order: 11 },
+  { name: 'Nest.js',            level: 80, category: 'backend',  sort_order: 12 },
+  { name: 'PostgreSQL',         level: 75, category: 'backend',  sort_order: 13 },
+  { name: 'Figma',              level: 95, category: 'design',   sort_order: 14 },
+  { name: 'Illustrator',        level: 90, category: 'design',   sort_order: 15 },
+  { name: 'Photoshop',          level: 90, category: 'design',   sort_order: 16 },
+  { name: 'Git',                level: 80, category: 'other',    sort_order: 17 },
+  { name: 'Webpack',            level: 72, category: 'other',    sort_order: 18 },
+  { name: 'npm',                level: 85, category: 'other',    sort_order: 19 },
+  { name: 'Vercel',             level: 80, category: 'other',    sort_order: 20 },
+  { name: 'Vite',               level: 82, category: 'other',    sort_order: 21 },
+  { name: 'Swagger / Postman',  level: 85, category: 'other',    sort_order: 22 },
+  { name: 'Jira / Notion / Slack', level: 80, category: 'other', sort_order: 23 },
 ].map(s => ({ ...s, id: crypto.randomUUID() }));
 
 // ============================================

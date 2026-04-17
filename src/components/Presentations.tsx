@@ -18,100 +18,242 @@ const spin = keyframes`from { transform: rotate(0deg); } to { transform: rotate(
 // ─── Layout ───────────────────────────────────────────────────────────────────
 const PageWrap = styled.div<{ $isDark: boolean }>`
   min-height: 100vh;
-  background: ${p => p.$isDark ? '#000' : '#fff'};
+  background: ${p => p.$isDark ? '#000' : '#ffffff'};
+  transition: background 0.3s ease;
 `;
 
 const Container = styled.div`
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 120px 24px 80px;
+  padding: 160px 40px 80px;
+
+  @media (max-width: 768px) {
+    padding: 120px 20px 60px;
+  }
 `;
 
 const BackBtn = styled.button<{ $isDark: boolean }>`
-  display: inline-flex; align-items: center; gap: 6px;
-  background: none; border: none;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'};
-  font-size: 14px; cursor: pointer; font-family: inherit;
-  padding: 6px 0; margin-bottom: 28px; transition: color 0.15s;
-  &:hover { color: #0c8ce9; }
-  svg { width: 18px; height: 18px; }
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: ${p => p.$isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)'};
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
+  border-radius: 100px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: 14px;
+  font-weight: 500;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)'};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+
+  svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+
+  &:hover {
+    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)'};
+    svg { transform: translateX(-3px); }
+  }
+
+  @media (max-width: 768px) {
+    top: 16px; left: 16px;
+    padding: 8px 18px; font-size: 13px;
+  }
+`;
+
+const SectionEyebrow = styled.span<{ $isDark: boolean }>`
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
+  margin-bottom: 12px;
 `;
 
 const PageTitle = styled.h1<{ $isDark: boolean }>`
-  font-size: 42px; font-weight: 700;
+  font-size: 40px;
+  font-weight: 700;
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  letter-spacing: -1px; margin-bottom: 8px;
+  letter-spacing: -1px;
+  margin: 0 0 16px 0;
+  line-height: 1.15;
+
+  @media (max-width: 768px) {
+    font-size: 30px;
+  }
 `;
 
-const PageSubtitle = styled.p`
-  font-size: 17px; color: #86868b; margin-bottom: 40px;
+const PageSubtitle = styled.p<{ $isDark: boolean }>`
+  font-size: 16px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
+  margin: 0 0 48px 0;
+  line-height: 1.5;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    margin-bottom: 36px;
+  }
 `;
 
-const FilterRow = styled.div`
-  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px;
+const FilterRow = styled.div<{ $isDark: boolean }>`
+  display: inline-flex;
+  gap: 0;
+  margin-bottom: 36px;
+  border-radius: 100px;
+  overflow: hidden;
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
 `;
 
 const FilterTag = styled.button<{ $isDark: boolean; $active: boolean }>`
-  height: 34px; padding: 0 16px; font-size: 13px;
-  font-weight: ${p => p.$active ? '600' : '500'};
-  border-radius: 99px;
-  border: 1px solid ${p => p.$active ? '#0c8ce9' : p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
-  background: ${p => p.$active ? 'rgba(12,140,233,0.1)' : 'transparent'};
-  color: ${p => p.$active ? '#0c8ce9' : p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)'};
-  cursor: pointer; font-family: inherit; transition: all 0.15s;
-  &:hover { border-color: #0c8ce9; }
+  padding: 10px 24px;
+  border: none;
+  background: ${p => p.$active
+    ? p.$isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)'
+    : 'transparent'};
+  color: ${p => p.$active
+    ? p.$isDark ? '#f5f5f7' : '#1d1d1f'
+    : p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.4)'};
+  font-size: 14px;
+  font-weight: ${p => p.$active ? 600 : 400};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+
+  &:hover {
+    background: ${p => !p.$active
+      ? p.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'
+      : ''};
+  }
+
+  @media (max-width: 768px) {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
 `;
 
 // ─── Cards ────────────────────────────────────────────────────────────────────
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-`;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 
-const Card = styled.div<{ $isDark: boolean }>`
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : '#ffffff'};
-  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'};
-  border-radius: 16px; overflow: hidden; cursor: pointer; transition: all 0.25s;
-  box-shadow: ${p => p.$isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.04)'};
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 48px ${p => p.$isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.1)'};
-    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.14)'};
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 `;
 
-const CardThumb = styled.div<{ $isDark: boolean }>`
-  width: 100%; height: 180px;
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.05)' : '#f5f5f7'};
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
-  img { width: 100%; height: 100%; object-fit: cover; }
-  svg { width: 44px; height: 44px; color: ${p => p.$isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)'}; }
+const CardWrapper = styled.div`
+  cursor: pointer;
 `;
 
-const CardBody = styled.div` padding: 16px 18px 20px; `;
+const CardThumb = styled.div<{ $isDark: boolean }>`
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.05)' : '#f5f5f7'};
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease, filter 0.4s ease;
+  }
+
+  svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    color: ${p => p.$isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)'};
+  }
+
+  ${CardWrapper}:hover & img {
+    transform: scale(1.04);
+    filter: blur(3px) brightness(0.65);
+  }
+`;
+
+const ThumbOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+
+  ${CardWrapper}:hover & {
+    opacity: 1;
+  }
+`;
+
+const OverlayText = styled.p`
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  text-align: center;
+  max-width: 280px;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const CardMeta = styled.div`
+  padding: 12px 2px 0;
+`;
 
 const CardTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 15px; font-weight: 600;
+  font-size: 15px;
+  font-weight: 600;
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin-bottom: 6px; letter-spacing: -0.3px;
+  margin: 0;
+  letter-spacing: -0.2px;
 `;
 
-const CardDesc = styled.p`
-  font-size: 13px; color: #86868b; line-height: 1.5;
-  display: -webkit-box; -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px;
+const CardInfo = styled.div<{ $isDark: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
 `;
 
-const CardMeta = styled.div` display: flex; gap: 8px; align-items: center; `;
-const MetaTag = styled.span`
-  padding: 2px 10px; font-size: 11px; font-weight: 600;
-  border-radius: 99px; background: rgba(12,140,233,0.1); color: #0c8ce9;
+const MetaTag = styled.span<{ $isDark: boolean }>`
+  font-size: 12px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'};
+  font-weight: 400;
 `;
-const MetaDate = styled.span` font-size: 12px; color: #86868b; `;
+
+const MetaDate = styled.span<{ $isDark: boolean }>`
+  font-size: 12px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'};
+  font-weight: 400;
+`;
 
 const EmptyMsg = styled.div<{ $isDark: boolean }>`
-  text-align: center; padding: 80px 20px; color: #86868b; font-size: 16px;
+  text-align: center;
+  padding: 80px 20px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
+  font-size: 16px;
 `;
 
 // ─── PDF Viewer ───────────────────────────────────────────────────────────────
@@ -373,26 +515,28 @@ export default function Presentations({ onBack }: Props) {
   return (
     <>
       <PageWrap $isDark={isDark}>
-        <Container>
-          {onBack && (
-            <BackBtn $isDark={isDark} onClick={onBack}>
-              <ChevronLeft /> 돌아가기
-            </BackBtn>
-          )}
+        {onBack && (
+          <BackBtn $isDark={isDark} onClick={onBack}>
+            <ChevronLeft />
+            {language === 'ko' ? '홈으로' : 'Back to Home'}
+          </BackBtn>
+        )}
 
+        <Container>
+          <SectionEyebrow $isDark={isDark}>PRESENTATIONS</SectionEyebrow>
           <PageTitle $isDark={isDark}>
             {language === 'ko' ? 'PT 자료' : 'Presentations'}
           </PageTitle>
-          <PageSubtitle>
+          <PageSubtitle $isDark={isDark}>
             {language === 'ko'
               ? '발표 자료와 디자인 작업물을 모아봤습니다'
               : 'A collection of my presentations and design works'}
           </PageSubtitle>
 
           {categories.length > 0 && (
-            <FilterRow>
+            <FilterRow $isDark={isDark}>
               <FilterTag $isDark={isDark} $active={filter === null} onClick={() => setFilter(null)}>
-                전체
+                {language === 'ko' ? '전체' : 'All'}
               </FilterTag>
               {categories.map(cat => (
                 <FilterTag key={cat} $isDark={isDark} $active={filter === cat} onClick={() => setFilter(cat)}>
@@ -403,7 +547,9 @@ export default function Presentations({ onBack }: Props) {
           )}
 
           {loading ? (
-            <EmptyMsg $isDark={isDark}>불러오는 중...</EmptyMsg>
+            <EmptyMsg $isDark={isDark}>
+              {language === 'ko' ? '불러오는 중...' : 'Loading...'}
+            </EmptyMsg>
           ) : filtered.length === 0 ? (
             <EmptyMsg $isDark={isDark}>
               {language === 'ko' ? 'PT 자료가 없습니다' : 'No presentations yet'}
@@ -411,21 +557,24 @@ export default function Presentations({ onBack }: Props) {
           ) : (
             <Grid>
               {filtered.map(p => (
-                <Card key={p.id} $isDark={isDark} onClick={() => setViewing(p)}>
+                <CardWrapper key={p.id} onClick={() => setViewing(p)}>
                   <CardThumb $isDark={isDark}>
                     {p.thumbnail_url ? <img src={p.thumbnail_url} alt="" /> : <FileText />}
-                  </CardThumb>
-                  <CardBody>
-                    <CardTitle $isDark={isDark}>{t(p.title_ko, p.title_en)}</CardTitle>
                     {(p.description_ko || p.description_en) && (
-                      <CardDesc>{t(p.description_ko, p.description_en)}</CardDesc>
+                      <ThumbOverlay>
+                        <OverlayText>{t(p.description_ko, p.description_en)}</OverlayText>
+                      </ThumbOverlay>
                     )}
-                    <CardMeta>
-                      {p.category_tag && <MetaTag>{p.category_tag}</MetaTag>}
-                      <MetaDate>{p.date}</MetaDate>
-                    </CardMeta>
-                  </CardBody>
-                </Card>
+                  </CardThumb>
+                  <CardMeta>
+                    <CardTitle $isDark={isDark}>{t(p.title_ko, p.title_en)}</CardTitle>
+                    <CardInfo $isDark={isDark}>
+                      {p.category_tag && <MetaTag $isDark={isDark}>{p.category_tag}</MetaTag>}
+                      {p.category_tag && p.date && <span style={{ color: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)' }}>·</span>}
+                      <MetaDate $isDark={isDark}>{p.date}</MetaDate>
+                    </CardInfo>
+                  </CardMeta>
+                </CardWrapper>
               ))}
             </Grid>
           )}

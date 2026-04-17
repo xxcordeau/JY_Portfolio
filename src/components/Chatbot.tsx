@@ -37,34 +37,40 @@ const ChatbotContainer = styled.div<{ $isOpen: boolean }>`
 `;
 
 const ChatWindow = styled.div<{ $isDark: boolean; $isOpen: boolean }>`
-  width: 380px;
-  max-height: 600px;
-  background: ${props => props.$isDark ? '#1d1d1f' : '#ffffff'};
-  border-radius: 20px;
-  box-shadow: 0 8px 32px ${props => props.$isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.12)'};
-  border: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
+  width: 360px;
+  max-height: 580px;
+  background: ${props => props.$isDark
+    ? 'rgba(22, 22, 24, 0.88)'
+    : 'rgba(255, 255, 255, 0.88)'};
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  border-radius: 24px;
+  box-shadow: ${props => props.$isDark
+    ? '0 16px 48px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)'
+    : '0 16px 48px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05)'};
+  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)'};
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transform: ${props => props.$isOpen ? 'scale(1)' : 'scale(0.8)'};
+  transform: ${props => props.$isOpen ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(12px)'};
   opacity: ${props => props.$isOpen ? '1' : '0'};
   visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
   pointer-events: ${props => props.$isOpen ? 'auto' : 'none'};
   position: ${props => props.$isOpen ? 'relative' : 'absolute'};
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: bottom right;
 
   @media (max-width: 768px) {
     width: calc(100vw - 40px);
-    max-width: 380px;
+    max-width: 360px;
     max-height: 70vh;
   }
 `;
 
 const ChatHeader = styled.div<{ $isDark: boolean }>`
-  padding: 20px 24px;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
-  border-bottom: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
+  padding: 18px 20px;
+  background: transparent;
+  border-bottom: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -89,7 +95,7 @@ const BackButton = styled.button<{ $isDark: boolean }>`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
+    background: ${props => props.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
   }
 
   svg {
@@ -118,7 +124,7 @@ const CloseButton = styled.button<{ $isDark: boolean }>`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
+    background: ${props => props.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
   }
 
   svg {
@@ -151,12 +157,12 @@ const ChatBody = styled.div`
 
 const CategoryButton = styled.button<{ $isDark: boolean }>`
   width: 100%;
-  padding: 16px 20px;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
-  border: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-  border-radius: 12px;
+  padding: 14px 18px;
+  background: ${props => props.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'};
+  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'};
+  border-radius: 16px;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -164,14 +170,15 @@ const CategoryButton = styled.button<{ $isDark: boolean }>`
   align-items: center;
   gap: 12px;
   text-align: left;
+  font-family: inherit;
 
   &:hover {
-    background: ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-    transform: translateX(4px);
+    background: ${props => props.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
+    border-color: ${props => props.$isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.12)'};
   }
 
   &:active {
-    transform: translateX(4px) scale(0.98);
+    transform: scale(0.98);
   }
 `;
 
@@ -185,67 +192,79 @@ const CategoryIcon = styled.span`
 
 const QuestionButton = styled.button<{ $isDark: boolean }>`
   width: 100%;
-  padding: 14px 16px;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
-  border: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-  border-radius: 12px;
+  padding: 12px 16px;
+  background: ${props => props.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'};
+  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'};
+  border-radius: 14px;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13.5px;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
-  line-height: 1.5;
+  line-height: 1.55;
+  font-family: inherit;
+  letter-spacing: -0.1px;
 
   &:hover {
-    background: ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-    transform: translateX(4px);
+    background: ${props => props.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
+    border-color: ${props => props.$isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.12)'};
   }
 
   &:active {
-    transform: translateX(4px) scale(0.98);
+    transform: scale(0.99);
   }
 `;
 
 const AnswerBox = styled.div<{ $isDark: boolean }>`
   width: 100%;
-  padding: 20px;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
-  border: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-  border-radius: 12px;
-  color: ${props => props.$isDark ? '#d4d4d8' : '#1d1d1f'};
+  padding: 18px 20px;
+  background: ${props => props.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'};
+  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.07)'};
+  border-radius: 16px;
+  color: ${props => props.$isDark ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.7)'};
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.75;
   white-space: pre-line;
+  letter-spacing: -0.1px;
 `;
 
 const ToggleButton = styled.button<{ $isDark: boolean; $isOpen: boolean }>`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  color: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
-  border: none;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 100px;
+  background: ${props => props.$isDark
+    ? 'rgba(22, 22, 24, 0.85)'
+    : 'rgba(255, 255, 255, 0.85)'};
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px ${props => props.$isDark ? 'rgba(245, 245, 247, 0.3)' : 'rgba(0, 0, 0, 0.15)'};
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  box-shadow: ${props => props.$isDark
+    ? '0 4px 24px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3)'
+    : '0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05)'};
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: ${props => props.$isOpen ? 'rotate(90deg)' : 'rotate(0deg)'};
 
   &:hover {
-    transform: ${props => props.$isOpen ? 'rotate(90deg) scale(1.05)' : 'scale(1.05)'};
-    box-shadow: 0 6px 24px ${props => props.$isDark ? 'rgba(245, 245, 247, 0.4)' : 'rgba(0, 0, 0, 0.2)'};
+    transform: scale(1.02);
+    border-color: ${props => props.$isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)'};
   }
 
   &:active {
-    transform: ${props => props.$isOpen ? 'rotate(90deg) scale(0.95)' : 'scale(0.95)'};
+    transform: scale(0.97);
   }
 
   svg {
-    width: 28px;
-    height: 28px;
+    width: 18px;
+    height: 18px;
   }
 `;
 
@@ -454,6 +473,7 @@ export default function Chatbot({ onContactClick }: ChatbotProps) {
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <X /> : <MessageCircle />}
+          {isOpen ? (language === 'ko' ? '닫기' : 'Close') : (language === 'ko' ? '문의하기' : 'Ask me')}
         </ToggleButton>
       </ChatbotContainer>
     </>
