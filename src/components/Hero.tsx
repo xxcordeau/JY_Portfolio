@@ -294,38 +294,97 @@ export default function Hero() {
         psize[i] = 0;
       }
 
-      let targetX = faceX;
-      let targetY = faceY;
-      let targetSize = faceSize;
+      let nextX = faceX;
+      let nextY = faceY;
+      let nextSize = faceSize;
+      // 파티클별 현재 타겟 (웨이브 전환용)
+      const curTargetX = new Float32Array(count);
+      const curTargetY = new Float32Array(count);
+      const curTargetSize = new Float32Array(count);
+      for (let i = 0; i < count; i++) {
+        curTargetX[i] = faceX[i];
+        curTargetY[i] = faceY[i];
+        curTargetSize[i] = faceSize[i];
+      }
+
+      // 파티클별 전환 순서 (거리 + 랜덤으로 자연스럽게)
+      const cx = w / 2, cy = h / 2;
+      const waveOrder = new Float32Array(count);
+      let maxVal = 0;
+      for (let i = 0; i < count; i++) {
+        const dx = faceX[i] - cx;
+        const dy = faceY[i] - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        // 거리 70% + 랜덤 30% → 대체로 중심부터지만 불규칙하게
+        waveOrder[i] = dist * 0.7 + Math.random() * maxVal * 0.5;
+        if (waveOrder[i] > maxVal) maxVal = waveOrder[i];
+      }
+      // 두번째 패스에서 정규화
+      maxVal = 0;
+      for (let i = 0; i < count; i++) {
+        const dx = faceX[i] - cx;
+        const dy = faceY[i] - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        waveOrder[i] = dist * 0.65 + Math.random() * 300;
+        if (waveOrder[i] > maxVal) maxVal = waveOrder[i];
+      }
+      if (maxVal > 0) {
+        for (let i = 0; i < count; i++) waveOrder[i] /= maxVal;
+      }
+
       let showingFace = true;
       let lastSwitch = performance.now();
+      let transitioning = false;
+      let transitionStart = 0;
+      const WAVE_DURATION = 1200; // 웨이브가 퍼져나가는 시간
 
       function loop(now: number) {
         animFrameRef.current = requestAnimationFrame(loop);
 
         if (!isVisibleRef.current) return;
 
-        // 일정 시간마다 타겟만 전환 → 스프링이 자연스럽게 모핑
-        if (now - lastSwitch >= HOLD_DURATION) {
+        // 전환 트리거
+        if (!transitioning && now - lastSwitch >= HOLD_DURATION) {
+          transitioning = true;
+          transitionStart = now;
           if (showingFace) {
-            targetX = textX;
-            targetY = textY;
-            targetSize = textSize;
+            nextX = textX;
+            nextY = textY;
+            nextSize = textSize;
           } else {
-            targetX = faceX;
-            targetY = faceY;
-            targetSize = faceSize;
+            nextX = faceX;
+            nextY = faceY;
+            nextSize = faceSize;
           }
           showingFace = !showingFace;
-          lastSwitch = now;
+        }
+
+        // 웨이브 전환: 중심→바깥 순서로 파티클별 타겟 교체
+        if (transitioning) {
+          const elapsed = now - transitionStart;
+          const waveProgress = Math.min(elapsed / WAVE_DURATION, 1);
+
+          for (let i = 0; i < count; i++) {
+            // 중심 파티클(dist=0)이 먼저, 바깥(dist=1)이 나중에
+            if (waveOrder[i] <= waveProgress) {
+              curTargetX[i] = nextX[i];
+              curTargetY[i] = nextY[i];
+              curTargetSize[i] = nextSize[i];
+            }
+          }
+
+          if (waveProgress >= 1) {
+            transitioning = false;
+            lastSwitch = now;
+          }
         }
 
         const mx = mouseRef.current.x;
         const my = mouseRef.current.y;
 
         for (let i = 0; i < count; i++) {
-          const tx = targetX[i];
-          const ty = targetY[i];
+          const tx = curTargetX[i];
+          const ty = curTargetY[i];
 
           pvx[i] += (tx - px[i]) * SPRING;
           pvy[i] += (ty - py[i]) * SPRING;
@@ -350,7 +409,7 @@ export default function Hero() {
 
           px[i] += pvx[i];
           py[i] += pvy[i];
-          psize[i] += (targetSize[i] - psize[i]) * SIZE_LERP;
+          psize[i] += (curTargetSize[i] - psize[i]) * SIZE_LERP;
         }
 
         const dark = isDarkRef.current;
