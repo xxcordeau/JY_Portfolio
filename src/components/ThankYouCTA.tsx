@@ -3,10 +3,22 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Section = styled.section<{ $isDark: boolean }>`
-  padding: 120px 0 100px;
+  min-height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: ${p => p.$isDark ? '#000' : '#ffffff'};
   text-align: center;
   transition: background 0.3s ease;
+  padding: 80px 0;
+
+  @media (max-width: 768px) {
+    min-height: auto;
+    scroll-snap-align: none;
+    padding: 80px 0;
+  }
 `;
 
 const Container = styled.div`

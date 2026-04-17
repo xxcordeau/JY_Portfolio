@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="46" fill="#1d1d1f"/>
+  <circle cx="50" cy="50" r="28" fill="#1d1d1f"/>
   <style>
     @media (prefers-color-scheme: dark) {
       circle { fill: #f5f5f7; }

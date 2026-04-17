@@ -8,42 +8,29 @@ const LoginContainer = styled.div<{ $isDark: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
+  background: ${props => props.$isDark ? '#000' : '#ffffff'};
   padding: 20px;
   transition: background 0.3s ease;
 `;
 
 const LoginCard = styled.div<{ $isDark: boolean }>`
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(255, 255, 255, 0.8)'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
+  background: ${props => props.$isDark
+    ? 'rgba(22, 22, 24, 0.88)'
+    : 'rgba(255, 255, 255, 0.88)'};
+  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.07)'};
   border-radius: 24px;
   padding: 48px;
   width: 100%;
   max-width: 420px;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  box-shadow: ${props => props.$isDark
+    ? '0 16px 48px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)'
+    : '0 16px 48px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)'};
   transition: all 0.3s ease;
 
   @media (max-width: 768px) {
     padding: 32px 24px;
-  }
-`;
-
-const IconWrapper = styled.div<{ $isDark: boolean }>`
-  width: 64px;
-  height: 64px;
-  background: ${props => props.$isDark
-    ? 'linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%)'
-    : 'linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%)'};
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 24px;
-
-  svg {
-    width: 32px;
-    height: 32px;
-    color: white;
   }
 `;
 
@@ -92,17 +79,18 @@ const InputIcon = styled.div`
 const Input = styled.input<{ $isDark: boolean; $hasLeftIcon?: boolean }>`
   width: 100%;
   padding: ${props => props.$hasLeftIcon ? '16px 48px 16px 44px' : '16px 48px 16px 16px'};
-  font-size: 16px;
+  font-size: 15px;
   background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'};
   border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'};
-  border-radius: 12px;
+  border-radius: 14px;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   transition: all 0.3s ease;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  box-sizing: border-box;
 
   &:focus {
     outline: none;
-    border-color: #0c8ce9;
+    border-color: ${props => props.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)'};
     background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'};
   }
 
@@ -111,7 +99,7 @@ const Input = styled.input<{ $isDark: boolean; $hasLeftIcon?: boolean }>`
   }
 `;
 
-const ToggleButton = styled.button`
+const ToggleButton = styled.button<{ $isDark: boolean }>`
   position: absolute;
   right: 16px;
   top: 50%;
@@ -127,41 +115,41 @@ const ToggleButton = styled.button`
   transition: color 0.2s ease;
 
   &:hover {
-    color: #0c8ce9;
+    color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   }
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 `;
 
 const SubmitButton = styled.button<{ $isDark: boolean }>`
   width: 100%;
   padding: 16px;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
-  color: white;
-  background: ${props => props.$isDark
-    ? 'linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%)'
-    : 'linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%)'};
+  color: ${props => props.$isDark ? '#000' : '#fff'};
+  background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   border: none;
-  border-radius: 12px;
+  border-radius: 100px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   letter-spacing: -0.3px;
   margin-top: 4px;
 
   &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px ${props => props.$isDark
-      ? 'rgba(78, 205, 196, 0.3)'
-      : 'rgba(0, 122, 255, 0.3)'};
+    opacity: 0.85;
+    transform: scale(1.01);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.35;
     cursor: not-allowed;
   }
 `;
@@ -208,9 +196,6 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
   return (
     <LoginContainer $isDark={isDark}>
       <LoginCard $isDark={isDark}>
-        <IconWrapper $isDark={isDark}>
-          <Lock />
-        </IconWrapper>
         <Title $isDark={isDark}>관리자 로그인</Title>
         <Subtitle>포트폴리오 관리자 페이지에 로그인하세요</Subtitle>
 
@@ -243,6 +228,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
             />
             <ToggleButton
               type="button"
+              $isDark={isDark}
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff /> : <Eye />}
