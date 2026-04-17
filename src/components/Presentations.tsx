@@ -75,6 +75,7 @@ const SectionEyebrow = styled.span<{ $isDark: boolean }>`
   letter-spacing: 1.5px;
   color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
   margin-bottom: 12px;
+  text-align: center;
 `;
 
 const PageTitle = styled.h1<{ $isDark: boolean }>`
@@ -84,6 +85,7 @@ const PageTitle = styled.h1<{ $isDark: boolean }>`
   letter-spacing: -1px;
   margin: 0 0 16px 0;
   line-height: 1.15;
+  text-align: center;
 
   @media (max-width: 768px) {
     font-size: 30px;
@@ -95,6 +97,7 @@ const PageSubtitle = styled.p<{ $isDark: boolean }>`
   color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
   margin: 0 0 48px 0;
   line-height: 1.5;
+  text-align: center;
 
   @media (max-width: 768px) {
     font-size: 14px;

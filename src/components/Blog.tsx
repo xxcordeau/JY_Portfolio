@@ -115,6 +115,7 @@ const Subtitle = styled.p<{ $isDark: boolean }>`
   color: ${p => (p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)')};
   margin: 0 0 48px;
   line-height: 1.5;
+  text-align: center;
 `;
 
 /* ── Grid ────────────────────────────────────────── */

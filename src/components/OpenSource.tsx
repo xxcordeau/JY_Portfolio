@@ -62,6 +62,7 @@ const SectionSubtitle = styled.p<{ $isDark: boolean }>`
   color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
   margin: 0 0 48px 0;
   line-height: 1.5;
+  text-align: center;
 
   @media (max-width: 768px) {
     font-size: 14px;

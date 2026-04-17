@@ -41,6 +41,7 @@ const SectionEyebrow = styled.span<{ $isDark: boolean }>`
   letter-spacing: 1.5px;
   color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
   margin-bottom: 12px;
+  text-align: center;
 `;
 
 const SectionTitle = styled.h2<{ $isDark: boolean }>`
@@ -50,6 +51,7 @@ const SectionTitle = styled.h2<{ $isDark: boolean }>`
   margin: 0 0 48px 0;
   letter-spacing: -1px;
   line-height: 1.15;
+  text-align: center;
 
   @media (max-width: 768px) {
     font-size: 30px;
