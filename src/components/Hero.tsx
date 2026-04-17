@@ -39,8 +39,8 @@ const translations = {
   },
 };
 
-const MAX_PARTICLES = 5000;
-const SAMPLE_INTERVAL = 4;
+const MAX_PARTICLES = 3000;
+const SAMPLE_INTERVAL = 6;
 const SPRING = 0.045;
 const FRICTION = 0.82;
 const SIZE_LERP = 0.08;
