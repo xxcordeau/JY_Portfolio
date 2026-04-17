@@ -1,379 +1,407 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { motion } from 'motion/react';
-import { Paintbrush, Eraser, Trash2, Palette, PenTool } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import faceImg from '../assets/face.png';
 
-const HeroSection = styled.section<{ $isDark: boolean }>`
+const HeroSection = styled.section`
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 0 40px;
-  text-align: center;
-  background: ${props => props.$isDark ? '#000000' : '#ffffff'};
-  transition: background 0.3s ease;
   position: relative;
   overflow: hidden;
-
-  @media (max-width: 768px) {
-    padding: 0 20px;
-  }
 `;
 
-const DrawingCanvas = styled.canvas<{ $isDrawingMode: boolean }>`
-  position: absolute;
-  top: 0;
-  left: 0;
+const Canvas = styled.canvas`
+  display: block;
   width: 100%;
-  height: 100%;
-  cursor: ${props => props.$isDrawingMode ? 'crosshair' : 'default'};
-  touch-action: ${props => props.$isDrawingMode ? 'none' : 'auto'};
-  pointer-events: ${props => props.$isDrawingMode ? 'auto' : 'none'};
-  z-index: 0;
+  height: 100vh;
 `;
 
-const ContentWrapper = styled.div`
-  position: relative;
-  z-index: 2;
-  pointer-events: none;
-`;
-
-const Title = styled.h1<{ $isDark: boolean }>`
-  font-size: 80px;
-  font-weight: 600;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0;
-  letter-spacing: -2px;
-  line-height: 1.1;
-  transition: color 0.3s ease;
-
-  @media (max-width: 768px) {
-    font-size: 48px;
-    letter-spacing: -1px;
-  }
-`;
-
-const AnimatedChar = styled(motion.span)<{ $isDark: boolean }>`
-  display: inline-block;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-`;
-
-const Subtitle = styled.p<{ $isDark: boolean }>`
-  font-size: 24px;
-  color: ${props => props.$isDark ? '#86868b' : '#86868b'};
-  margin: 20px 0 0 0;
-  font-weight: 400;
-  letter-spacing: -0.5px;
-  transition: color 0.3s ease;
-
-  @media (max-width: 768px) {
-    font-size: 18px;
-  }
-`;
-
-const Description = styled(motion.div)<{ $isDark: boolean }>`
-  font-size: 18px;
-  color: ${props => props.$isDark ? '#a1a1a6' : '#1d1d1f'};
-  max-width: 600px;
-  margin: 40px auto 0;
-  line-height: 1.6;
-  font-weight: 400;
-  letter-spacing: -0.3px;
-  transition: color 0.3s ease;
-  cursor: default;
-
-  @media (max-width: 768px) {
-    font-size: 16px;
-    margin-top: 30px;
-  }
-`;
-
-const AnimatedDescChar = styled(motion.span)<{ $isDark: boolean }>`
-  display: inline-block;
-  color: ${props => props.$isDark ? '#a1a1a6' : '#1d1d1f'};
-  transition: color 0.3s ease;
-`;
-
-const DrawingTools = styled.div<{ $isDark: boolean; $isVisible: boolean }>`
-  position: fixed;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%) translateY(${props => props.$isVisible ? '0' : '150px'});
-  background: ${props => props.$isDark ? 'rgba(29, 29, 31, 0.8)' : 'rgba(255, 255, 255, 0.8)'};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 16px 24px;
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid ${props => props.$isDark ? 'rgba(245, 245, 247, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
-  z-index: 100;
-  pointer-events: ${props => props.$isVisible ? 'auto' : 'none'};
-  opacity: ${props => props.$isVisible ? '1' : '0'};
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-  @media (max-width: 768px) {
-    bottom: 20px;
-    padding: 12px 16px;
-    gap: 12px;
-    flex-wrap: wrap;
-    max-width: calc(100% - 40px);
-  }
-`;
-
-const DrawingModeToggle = styled.button<{ $isDark: boolean; $isDrawingMode: boolean; $isVisible: boolean }>`
+const SrOnly = styled.div`
   position: absolute;
-  top: 100px;
-  right: 40px;
-  background: ${props => props.$isDrawingMode
-    ? (props.$isDark ? '#f5f5f7' : '#1d1d1f')
-    : (props.$isDark ? 'rgba(29, 29, 31, 0.8)' : 'rgba(255, 255, 255, 0.8)')};
-  color: ${props => props.$isDrawingMode
-    ? (props.$isDark ? '#1d1d1f' : '#f5f5f7')
-    : (props.$isDark ? '#f5f5f7' : '#1d1d1f')};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid ${props => props.$isDark ? 'rgba(245, 245, 247, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
-  border-radius: 12px;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-  pointer-events: ${props => props.$isVisible ? 'auto' : 'none'};
-  opacity: ${props => props.$isVisible ? '1' : '0'};
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  }
-
-  svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  @media (max-width: 768px) {
-    top: 80px;
-    right: 20px;
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-`;
-
-const ToolButton = styled.button<{ $isDark: boolean; $active?: boolean }>`
-  background: ${props => props.$active
-    ? (props.$isDark ? '#f5f5f7' : '#1d1d1f')
-    : 'transparent'};
-  color: ${props => props.$active
-    ? (props.$isDark ? '#1d1d1f' : '#f5f5f7')
-    : (props.$isDark ? '#f5f5f7' : '#1d1d1f')};
-  border: none;
-  border-radius: 12px;
-  padding: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: ${props => props.$isDark ? 'rgba(245, 245, 247, 0.2)' : 'rgba(29, 29, 31, 0.1)'};
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-`;
-
-const ColorPicker = styled.input`
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background: transparent;
-
-  &::-webkit-color-swatch-wrapper {
-    padding: 0;
-    border-radius: 12px;
-  }
-
-  &::-webkit-color-swatch {
-    border: 2px solid rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-  }
-`;
-
-const Slider = styled.input<{ $isDark: boolean }>`
-  -webkit-appearance: none;
-  width: 100px;
-  height: 6px;
-  border-radius: 3px;
-  background: ${props => props.$isDark ? 'rgba(245, 245, 247, 0.2)' : 'rgba(29, 29, 31, 0.1)'};
-  outline: none;
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    cursor: pointer;
-  }
-
-  &::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    cursor: pointer;
-    border: none;
-  }
-
-  @media (max-width: 768px) {
-    width: 80px;
-  }
-`;
-
-const DrawingHint = styled.p<{ $isDark: boolean; $visible: boolean }>`
-  position: absolute;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 15px;
-  color: ${props => props.$isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)'};
-  letter-spacing: 0.5px;
-  font-weight: 400;
-  pointer-events: none;
-  opacity: ${props => props.$visible ? 1 : 0};
-  transition: opacity 0.5s ease;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
-  animation: ${props => props.$visible ? 'blink 2.5s ease-in-out infinite' : 'none'};
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.2; }
-  }
-
-  @media (max-width: 768px) {
-    font-size: 13px;
-    bottom: 80px;
-  }
+  border: 0;
 `;
 
 const translations = {
   ko: {
     title: '안녕하세요',
     subtitle: '디자인과 코드를 잇는 프론트엔드 개발자',
-    description: '감각적인 디자인과 견고한 구조로 아름다움과 기능이 공존하는 인터페이스를 만듭니다.',
-    drawingHint: 'Try doodling on this blank canvas!'
   },
   en: {
     title: 'Hello',
     subtitle: 'Frontend Developer Bridging Design and Code',
-    description: 'Creating interfaces where beauty and functionality coexist through sophisticated design and robust architecture.',
-    drawingHint: 'Try doodling on this blank canvas!'
-  }
-};
-
-const charVariants = {
-  hidden: {
-    opacity: 0,
-    y: 50,
-    scale: 0.5,
-    rotate: -10
   },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    rotate: 0,
-    transition: {
-      delay: i * 0.05,
-      duration: 0.5,
-      ease: [0.6, 0.05, 0.01, 0.9],
-      type: 'spring',
-      stiffness: 100
-    }
-  })
 };
 
-const descContainerVariants = {
-  rest: {},
-  hover: {
-    transition: {
-      staggerChildren: 0.02
-    }
-  }
-};
+const MAX_PARTICLES = 5000;
+const SAMPLE_INTERVAL = 4;
+const SPRING = 0.045;
+const FRICTION = 0.82;
+const SIZE_LERP = 0.08;
+const JITTER = 0.1;
+const HOLD_DURATION = 3000;
+const MOUSE_RADIUS = 50;
+const MOUSE_FORCE = 3;
 
-const descCharVariants = {
-  rest: {
-    y: 0
-  },
-  hover: {
-    y: [0, -8, 0, 8, 0, -5, 0, 3, 0],
-    transition: {
-      duration: 0.6,
-      ease: 'easeInOut'
+interface SampledPoint {
+  x: number;
+  y: number;
+  size: number;
+}
+
+/**
+ * face.png는 투명 배경 + 얼굴만 있는 이미지.
+ * alpha < 30인 투명 영역을 스킵하면 얼굴 부분만 샘플링된다.
+ */
+function sampleImage(
+  img: HTMLImageElement,
+  canvasW: number,
+  canvasH: number,
+): SampledPoint[] {
+  const maxW = Math.min(canvasW * 0.4, 420);
+  const maxH = Math.min(canvasH * 0.65, 560);
+  const scale = Math.min(maxW / img.width, maxH / img.height);
+  const drawW = img.width * scale;
+  const drawH = img.height * scale;
+
+  const offscreen = document.createElement('canvas');
+  offscreen.width = canvasW;
+  offscreen.height = canvasH;
+  const ctx = offscreen.getContext('2d')!;
+  const ox = (canvasW - drawW) / 2;
+  const oy = (canvasH - drawH) / 2;
+  ctx.drawImage(img, ox, oy, drawW, drawH);
+
+  const imageData = ctx.getImageData(0, 0, canvasW, canvasH);
+  const data = imageData.data;
+  const points: SampledPoint[] = [];
+
+  for (let y = 0; y < canvasH; y += SAMPLE_INTERVAL) {
+    for (let x = 0; x < canvasW; x += SAMPLE_INTERVAL) {
+      const idx = (y * canvasW + x) * 4;
+      const r = data[idx];
+      const g = data[idx + 1];
+      const b = data[idx + 2];
+      const a = data[idx + 3];
+      // 투명 영역 스킵 (배경)
+      if (a < 30) continue;
+      const brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+      // 밝은 피부 영역을 과감히 제거 → 이목구비·머리카락만 남김
+      if (brightness > 0.72) continue;
+      // 어두울수록 큰 점, 중간 밝기는 작은 점
+      const t = 1 - brightness / 0.72; // 0 (밝음) ~ 1 (어두움)
+      const size = t * t * (SAMPLE_INTERVAL * 1.0) + 0.4;
+      points.push({ x, y, size });
     }
   }
-};
+  return points;
+}
+
+function sampleFallbackFace(canvasW: number, canvasH: number): SampledPoint[] {
+  const points: SampledPoint[] = [];
+  const cx = canvasW / 2;
+  const cy = canvasH / 2;
+  const count = 1500;
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const radius = Math.random() * Math.min(canvasW, canvasH) * 0.25;
+    points.push({
+      x: cx + Math.cos(angle) * radius,
+      y: cy + Math.sin(angle) * radius,
+      size: Math.random() * 3 + 0.5,
+    });
+  }
+  return points;
+}
+
+function sampleText(
+  text: string,
+  canvasW: number,
+  canvasH: number,
+): SampledPoint[] {
+  const offscreen = document.createElement('canvas');
+  offscreen.width = canvasW;
+  offscreen.height = canvasH;
+  const ctx = offscreen.getContext('2d')!;
+
+  let fontSize = Math.min(canvasW * 0.12, 140);
+  if (text.length <= 5) {
+    fontSize = Math.min(canvasW * 0.16, 180);
+  }
+  ctx.font = `900 ${fontSize}px Pretendard, -apple-system, BlinkMacSystemFont, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#000';
+  ctx.fillText(text, canvasW / 2, canvasH / 2);
+
+  const imageData = ctx.getImageData(0, 0, canvasW, canvasH);
+  const data = imageData.data;
+  const points: SampledPoint[] = [];
+
+  for (let y = 0; y < canvasH; y += SAMPLE_INTERVAL) {
+    for (let x = 0; x < canvasW; x += SAMPLE_INTERVAL) {
+      const idx = (y * canvasW + x) * 4;
+      const a = data[idx + 3];
+      if (a < 30) continue;
+      const size = (a / 255) * (SAMPLE_INTERVAL * 0.45) + 0.3;
+      points.push({ x, y, size });
+    }
+  }
+  return points;
+}
+
+/** 위치 기반 정렬: 같은 영역의 파티클끼리 매칭되어 이동 거리 최소화 */
+function sortByPosition(arr: SampledPoint[], cx: number, cy: number) {
+  arr.sort((a, b) => {
+    const angleA = Math.atan2(a.y - cy, a.x - cx);
+    const angleB = Math.atan2(b.y - cy, b.x - cx);
+    return angleA - angleB;
+  });
+}
+
+function normalizeAndPad(
+  facePoints: SampledPoint[],
+  textPoints: SampledPoint[],
+  max: number,
+  canvasW: number,
+  canvasH: number,
+): { face: SampledPoint[]; text: SampledPoint[] } {
+  let face = facePoints;
+  let text = textPoints;
+
+  if (face.length > max) face = subsample(face, max);
+  if (text.length > max) text = subsample(text, max);
+
+  const count = Math.max(face.length, text.length);
+
+  while (face.length < count) {
+    face.push({ x: canvasW / 2, y: canvasH / 2, size: 0 });
+  }
+  while (text.length < count) {
+    text.push({ x: canvasW / 2, y: canvasH / 2, size: 0 });
+  }
+
+  // 같은 방향의 파티클끼리 매칭 → 모서리로 날아가지 않음
+  const cx = canvasW / 2;
+  const cy = canvasH / 2;
+  sortByPosition(face, cx, cy);
+  sortByPosition(text, cx, cy);
+
+  return { face, text };
+}
+
+function subsample(arr: SampledPoint[], target: number): SampledPoint[] {
+  const result: SampledPoint[] = [];
+  const step = arr.length / target;
+  for (let i = 0; i < target; i++) {
+    result.push(arr[Math.floor(i * step)]);
+  }
+  return result;
+}
+
+function shuffleArray(arr: SampledPoint[]) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+  }
+}
 
 export default function Hero() {
   const { isDark } = useTheme();
   const { language } = useLanguage();
   const t = translations[language];
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [tool, setTool] = useState<'brush' | 'eraser'>('brush');
-  const [color, setColor] = useState('#3b82f6');
-  const [brushSize, setBrushSize] = useState(3);
-  const [isDrawingMode, setIsDrawingMode] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
+  const isDarkRef = useRef(isDark);
+  const animFrameRef = useRef(0);
+  const isVisibleRef = useRef(true);
+  const mouseRef = useRef({ x: -9999, y: -9999 });
+  const initKeyRef = useRef('');
 
-  useEffect(() => {
+  isDarkRef.current = isDark;
+
+  const initParticles = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // 캔버스 크기 설정
-    const updateCanvasSize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    const key = `${w}x${h}x${language}`;
+    if (key === initKeyRef.current) return;
+    initKeyRef.current = key;
+
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = 0;
+    }
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = faceImg;
+
+    const startAnimation = (faceRaw: SampledPoint[]) => {
+      const textRaw = sampleText(t.title, w, h);
+      const { face, text } = normalizeAndPad(faceRaw, textRaw, MAX_PARTICLES, w, h);
+      const count = face.length;
+
+      const px = new Float32Array(count);
+      const py = new Float32Array(count);
+      const pvx = new Float32Array(count);
+      const pvy = new Float32Array(count);
+      const psize = new Float32Array(count);
+
+      const faceX = new Float32Array(count);
+      const faceY = new Float32Array(count);
+      const faceSize = new Float32Array(count);
+
+      const textX = new Float32Array(count);
+      const textY = new Float32Array(count);
+      const textSize = new Float32Array(count);
+
+      for (let i = 0; i < count; i++) {
+        faceX[i] = face[i].x;
+        faceY[i] = face[i].y;
+        faceSize[i] = face[i].size;
+
+        textX[i] = text[i].x;
+        textY[i] = text[i].y;
+        textSize[i] = text[i].size;
+
+        // 처음 위치: 랜덤 산개
+        px[i] = w / 2 + (Math.random() - 0.5) * w * 0.8;
+        py[i] = h / 2 + (Math.random() - 0.5) * h * 0.8;
+        pvx[i] = 0;
+        pvy[i] = 0;
+        psize[i] = 0;
+      }
+
+      let targetX = faceX;
+      let targetY = faceY;
+      let targetSize = faceSize;
+      let showingFace = true;
+      let lastSwitch = performance.now();
+
+      function loop(now: number) {
+        animFrameRef.current = requestAnimationFrame(loop);
+
+        if (!isVisibleRef.current) return;
+
+        // 일정 시간마다 타겟만 전환 → 스프링이 자연스럽게 모핑
+        if (now - lastSwitch >= HOLD_DURATION) {
+          if (showingFace) {
+            targetX = textX;
+            targetY = textY;
+            targetSize = textSize;
+          } else {
+            targetX = faceX;
+            targetY = faceY;
+            targetSize = faceSize;
+          }
+          showingFace = !showingFace;
+          lastSwitch = now;
+        }
+
+        const mx = mouseRef.current.x;
+        const my = mouseRef.current.y;
+
+        for (let i = 0; i < count; i++) {
+          const tx = targetX[i];
+          const ty = targetY[i];
+
+          pvx[i] += (tx - px[i]) * SPRING;
+          pvy[i] += (ty - py[i]) * SPRING;
+
+          pvx[i] *= FRICTION;
+          pvy[i] *= FRICTION;
+
+          pvx[i] += (Math.random() - 0.5) * JITTER;
+          pvy[i] += (Math.random() - 0.5) * JITTER;
+
+          // 마우스 반발력
+          if (mx > -9000) {
+            const dx = px[i] - mx;
+            const dy = py[i] - my;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < MOUSE_RADIUS && dist > 0) {
+              const force = ((MOUSE_RADIUS - dist) / MOUSE_RADIUS) * MOUSE_FORCE;
+              pvx[i] += (dx / dist) * force;
+              pvy[i] += (dy / dist) * force;
+            }
+          }
+
+          px[i] += pvx[i];
+          py[i] += pvy[i];
+          psize[i] += (targetSize[i] - psize[i]) * SIZE_LERP;
+        }
+
+        const dark = isDarkRef.current;
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = dark ? 'rgba(220,220,225,0.92)' : 'rgba(30,30,35,0.92)';
+
+        for (let i = 0; i < count; i++) {
+          const s = psize[i];
+          if (s < 0.15) continue;
+          ctx.beginPath();
+          ctx.arc(px[i], py[i], s, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      animFrameRef.current = requestAnimationFrame(loop);
     };
 
-    updateCanvasSize();
+    img.onload = () => {
+      const faceRaw = sampleImage(img, w, h);
+      startAnimation(faceRaw.length > 0 ? faceRaw : sampleFallbackFace(w, h));
+    };
+
+    img.onerror = () => {
+      startAnimation(sampleFallbackFace(w, h));
+    };
+  }, [language, t.title]);
+
+  useEffect(() => {
+    initParticles();
 
     let resizeTimer: ReturnType<typeof setTimeout>;
     const handleResize = () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(updateCanvasSize, 150);
+      resizeTimer = setTimeout(() => {
+        initKeyRef.current = '';
+        initParticles();
+      }, 200);
     };
 
     window.addEventListener('resize', handleResize);
-
     return () => {
       window.removeEventListener('resize', handleResize);
       clearTimeout(resizeTimer);
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = 0;
+      }
+      initKeyRef.current = '';
     };
-  }, []);
+  }, [initParticles]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -382,194 +410,61 @@ export default function Hero() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          setIsVisible(entry.isIntersecting);
+          isVisibleRef.current = entry.isIntersecting;
         });
       },
-      {
-        threshold: 0.1, // 10% 이상 보이면 활성화
-      }
+      { threshold: 0.05 },
     );
 
     observer.observe(section);
+    return () => observer.unobserve(section);
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const getPos = (e: MouseEvent | Touch) => {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      mouseRef.current = getPos(e);
+    };
+    const onMouseLeave = () => {
+      mouseRef.current = { x: -9999, y: -9999 };
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) mouseRef.current = getPos(e.touches[0]);
+    };
+    const onTouchEnd = () => {
+      mouseRef.current = { x: -9999, y: -9999 };
+    };
+
+    canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('mouseleave', onMouseLeave);
+    canvas.addEventListener('touchmove', onTouchMove, { passive: true });
+    canvas.addEventListener('touchend', onTouchEnd);
 
     return () => {
-      observer.unobserve(section);
+      canvas.removeEventListener('mousemove', onMouseMove);
+      canvas.removeEventListener('mouseleave', onMouseLeave);
+      canvas.removeEventListener('touchmove', onTouchMove);
+      canvas.removeEventListener('touchend', onTouchEnd);
     };
   }, []);
 
-  const startDrawing = (e: React.MouseEvent | React.TouchEvent) => {
-    setIsDrawing(true);
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  };
-
-  const draw = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDrawing) return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
-
-    ctx.lineWidth = brushSize;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    if (tool === 'brush') {
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.strokeStyle = color;
-    } else {
-      ctx.globalCompositeOperation = 'destination-out';
-    }
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const stopDrawing = () => {
-    setIsDrawing(false);
-  };
-
-  const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  };
-
-  const renderAnimatedText = (text: string) => {
-    return text.split('').map((char, index) => (
-      <AnimatedChar
-        key={`${char}-${index}`}
-        $isDark={isDark}
-        custom={index}
-        initial="hidden"
-        animate="visible"
-        variants={charVariants}
-      >
-        {char === ' ' ? '\u00A0' : char}
-      </AnimatedChar>
-    ));
-  };
-
-  const renderWavyText = (text: string) => {
-    return text.split('').map((char, index) => (
-      <AnimatedDescChar
-        key={`desc-${char}-${index}`}
-        $isDark={isDark}
-        variants={descCharVariants}
-      >
-        {char === ' ' ? '\u00A0' : char}
-      </AnimatedDescChar>
-    ));
-  };
-
   return (
-    <HeroSection ref={sectionRef} $isDark={isDark}>
-      <DrawingCanvas
-        ref={canvasRef}
-        $isDrawingMode={isDrawingMode}
-        aria-label="Drawing canvas"
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-        onTouchStart={startDrawing}
-        onTouchMove={draw}
-        onTouchEnd={stopDrawing}
-      />
-
-      <ContentWrapper>
-        <Title $isDark={isDark}>
-          {renderAnimatedText(t.title)}
-        </Title>
-        <Subtitle $isDark={isDark}>{t.subtitle}</Subtitle>
-        <Description
-          $isDark={isDark}
-          initial="rest"
-          whileHover="hover"
-          variants={descContainerVariants}
-        >
-          {renderWavyText(t.description)}
-        </Description>
-      </ContentWrapper>
-
-      <DrawingHint $isDark={isDark} $visible={!isDrawingMode}>
-        {t.drawingHint}
-      </DrawingHint>
-
-      <DrawingModeToggle
-        $isDark={isDark}
-        $isDrawingMode={isDrawingMode}
-        $isVisible={isVisible}
-        onClick={() => setIsDrawingMode(!isDrawingMode)}
-      >
-        <PenTool />
-        {isDrawingMode ? (language === 'ko' ? '그리기 종료' : 'Exit Drawing') : (language === 'ko' ? '그리기 시작' : 'Start Drawing')}
-      </DrawingModeToggle>
-
-      <DrawingTools $isDark={isDark} $isVisible={isVisible && isDrawingMode}>
-        <ToolButton
-          $isDark={isDark}
-          $active={tool === 'brush'}
-          onClick={() => setTool('brush')}
-          title="브러시"
-        >
-          <Paintbrush />
-        </ToolButton>
-
-        <ToolButton
-          $isDark={isDark}
-          $active={tool === 'eraser'}
-          onClick={() => setTool('eraser')}
-          title="지우개"
-        >
-          <Eraser />
-        </ToolButton>
-
-        <ColorPicker
-          type="color"
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-          title="색상 선택"
-        />
-
-        <Slider
-          $isDark={isDark}
-          type="range"
-          min="1"
-          max="20"
-          value={brushSize}
-          onChange={(e) => setBrushSize(Number(e.target.value))}
-          title={`브러시 크기: ${brushSize}`}
-        />
-
-        <ToolButton
-          $isDark={isDark}
-          onClick={clearCanvas}
-          title="전체 지우기"
-        >
-          <Trash2 />
-        </ToolButton>
-      </DrawingTools>
+    <HeroSection ref={sectionRef}>
+      <Canvas ref={canvasRef} />
+      <SrOnly>
+        <h1>{t.title}</h1>
+        <p>{t.subtitle}</p>
+      </SrOnly>
     </HeroSection>
   );
 }
