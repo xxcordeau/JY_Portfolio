@@ -199,7 +199,7 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
     const html = document.documentElement;
     const prev = html.style.scrollSnapType;
     const isPopNav = __popNavFlag;
-    const delay = isPopNav ? 550 : 0;
+    const delay = isPopNav ? 1100 : 0;
     const t = setTimeout(() => { html.style.scrollSnapType = 'y proximity'; }, delay);
     return () => {
       clearTimeout(t);
@@ -390,11 +390,35 @@ function AppContent() {
   const location = useLocation();
   const navigationType = useNavigationType();
 
-  // Save scroll position on every scroll event
+  // Save scroll position + nearest visible section anchor on every scroll
   useEffect(() => {
+    const SECTION_IDS = ['projects', 'blog', 'opensource'];
+
+    const getNearestSection = () => {
+      const vh = window.innerHeight;
+      let best = '';
+      let bestOverlap = 0;
+      for (const id of SECTION_IDS) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > vh) continue;
+        const overlap = Math.min(vh, r.bottom) - Math.max(0, r.top);
+        if (overlap > bestOverlap) { bestOverlap = overlap; best = id; }
+      }
+      return bestOverlap > vh * 0.25 ? best : '';
+    };
+
     const save = () => {
       sessionStorage.setItem(`sp:${location.pathname}`, String(window.scrollY));
+      const sectionId = getNearestSection();
+      if (sectionId) {
+        sessionStorage.setItem(`sp:${location.pathname}:section`, sectionId);
+      } else {
+        sessionStorage.removeItem(`sp:${location.pathname}:section`);
+      }
     };
+
     window.addEventListener('scroll', save, { passive: true });
     return () => {
       save();
@@ -407,6 +431,7 @@ function AppContent() {
     if (navigationType === 'POP') {
       __popNavFlag = true;
       const saved = sessionStorage.getItem(`sp:${location.pathname}`);
+      const sectionId = sessionStorage.getItem(`sp:${location.pathname}:section`);
       const target = saved ? parseInt(saved, 10) : 0;
 
       if (target === 0) {
@@ -414,18 +439,26 @@ function AppContent() {
         return;
       }
 
-      // Scroll to saved position; retry a few times in case async data
-      // hasn't finished rendering yet (Supabase lists, lazy components, etc.)
-      const tryScroll = () =>
+      // 섹션 ID로 scrollIntoView — 데이터 로드 후 레이아웃 변해도 정확함
+      // 픽셀 fallback: 섹션 없거나 아직 렌더링 전
+      const tryScroll = () => {
+        if (sectionId) {
+          const el = document.getElementById(sectionId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'start' });
+            return;
+          }
+        }
         window.scrollTo({ top: target, behavior: 'instant' as ScrollBehavior });
+      };
 
-      // immediate + two retries to cover slow data loads
       tryScroll();
-      const t1 = setTimeout(tryScroll, 120);
-      const t2 = setTimeout(tryScroll, 350);
-      const t3 = setTimeout(() => { __popNavFlag = false; }, 500);
+      const t1 = setTimeout(tryScroll, 200);
+      const t2 = setTimeout(tryScroll, 500);
+      const t3 = setTimeout(tryScroll, 900);
+      const t4 = setTimeout(() => { __popNavFlag = false; }, 1000);
 
-      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
     } else {
       __popNavFlag = false;
       window.scrollTo(0, 0);
