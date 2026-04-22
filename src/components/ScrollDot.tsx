@@ -37,7 +37,7 @@ const FR = 0.76;   // 감쇠 (높을수록 진동 적음)
 const ANCHOR_IDS = [
   'dot-about',
   'dot-skills',
-  'dot-experience',
+
   'dot-projects',
   'dot-blog',
   'dot-opensource',

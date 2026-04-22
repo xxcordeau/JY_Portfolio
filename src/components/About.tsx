@@ -708,7 +708,7 @@ export default function About() {
         <Container>
           {/* 경력 */}
           <div>
-            <SubTitle id="dot-experience" $isDark={isDark} data-dot-anchor>{t.experience}</SubTitle>
+            <SubTitle $isDark={isDark}>{t.experience}</SubTitle>
             {loading ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 {[1, 2].map(i => (
