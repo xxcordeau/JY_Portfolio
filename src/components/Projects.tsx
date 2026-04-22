@@ -316,7 +316,7 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
   return (
     <ProjectsSection id="projects" $isDark={isDark}>
       <Container>
-        <SectionEyebrow $isDark={isDark}>{t.eyebrow}</SectionEyebrow>
+        <SectionEyebrow id="dot-projects" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
         <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
 
         <Grid>

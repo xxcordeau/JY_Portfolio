@@ -230,7 +230,7 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
   return (
     <BlogSection id="blog" $isDark={isDark}>
       <Container>
-        <SectionEyebrow $isDark={isDark}>{t.eyebrow}</SectionEyebrow>
+        <SectionEyebrow id="dot-blog" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
         <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
 
         <Grid>

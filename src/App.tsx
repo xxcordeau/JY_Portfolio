@@ -7,6 +7,7 @@ import { supabase } from './lib/supabase';
 import { Shield } from 'lucide-react';
 import Header from './components/Header';
 import Hero from './components/Hero';
+import ScrollDot from './components/ScrollDot';
 import About from './components/About';
 import Projects from './components/Projects';
 import BlogPreview from './components/BlogPreview';
@@ -529,6 +530,7 @@ function AppContent() {
 
       {!isAdminPage && (
         <>
+          <ScrollDot />
           <Contact
             isOpen={contactModalOpen}
             onOpenChange={setContactModalOpen}

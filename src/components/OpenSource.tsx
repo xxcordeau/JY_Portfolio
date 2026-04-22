@@ -314,7 +314,7 @@ export default function OpenSource({
           </BackButton>
         )}
 
-        <SectionEyebrow $isDark={isDark}>{t.eyebrow}</SectionEyebrow>
+        <SectionEyebrow id="dot-opensource" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
         <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
         {!compact && <SectionSubtitle $isDark={isDark}>{t.subtitle}</SectionSubtitle>}
         {compact && <div style={{ marginBottom: 48 }} />}

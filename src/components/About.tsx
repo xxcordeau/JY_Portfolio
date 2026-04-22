@@ -617,7 +617,7 @@ export default function About() {
       >
         <Container>
           <IntroBlock>
-            <SectionEyebrow $isDark={isDark}>{t.eyebrow}</SectionEyebrow>
+            <SectionEyebrow id="dot-about" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
             <SectionTitle $isDark={isDark} style={{ whiteSpace: 'pre-line' }}>{t.title}</SectionTitle>
             <IntroText $isDark={isDark}>{t.bio}</IntroText>
             <InfoRow>
@@ -639,13 +639,14 @@ export default function About() {
 
       {/* ── Screen 2: Skills ── */}
       <SubScreen
+        id="skills"
         $isDark={isDark}
         $inView={skillsInView}
         ref={skillsRef as React.RefObject<HTMLElement>}
       >
         <Container>
           <SkillSection>
-            <SkillEyebrow $isDark={isDark}>{t.skillsEyebrow}</SkillEyebrow>
+            <SkillEyebrow id="dot-skills" $isDark={isDark} data-dot-anchor>{t.skillsEyebrow}</SkillEyebrow>
             <SkillTitle $isDark={isDark}>{t.skills}</SkillTitle>
             {loading ? (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center' }}>
@@ -698,6 +699,7 @@ export default function About() {
 
       {/* ── Screen 3: Experience + Education ── */}
       <SubScreen
+        id="experience"
         $isDark={isDark}
         $inView={expInView}
         $align="start"
@@ -706,7 +708,7 @@ export default function About() {
         <Container>
           {/* 경력 */}
           <div>
-            <SubTitle $isDark={isDark}>{t.experience}</SubTitle>
+            <SubTitle id="dot-experience" $isDark={isDark} data-dot-anchor>{t.experience}</SubTitle>
             {loading ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 {[1, 2].map(i => (
