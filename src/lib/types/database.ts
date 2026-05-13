@@ -27,6 +27,7 @@ export interface DbBlogPost {
 // --- Projects ---
 export interface DbProject {
   id: string;
+  project_type?: 'freelance' | 'personal';
   title_ko: string;
   title_en: string;
   description_ko: string;

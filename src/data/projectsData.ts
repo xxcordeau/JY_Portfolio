@@ -4,6 +4,7 @@ import { winnticket } from './projects/winnticket';
 
 export interface Project {
   id: string;
+  type?: 'freelance' | 'personal';
   title: {
     ko: string;
     en: string;

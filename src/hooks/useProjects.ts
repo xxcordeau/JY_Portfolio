@@ -16,6 +16,7 @@ function toProject(row: DbProject): Project {
   const others = row.tech_others ?? [];
   return {
     id: row.id,
+    type: row.project_type ?? 'personal',
     title: { ko: row.title_ko, en: row.title_en },
     description: { ko: row.description_ko, en: row.description_en },
     fullDescription: { ko: row.full_description_ko, en: row.full_description_en },

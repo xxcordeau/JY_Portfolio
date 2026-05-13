@@ -14,6 +14,7 @@ const TECH_ICONS: Record<string, string> = {
   'Next.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
   'Vue.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
   'Vue 3': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
+  'Nuxt 3': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nuxtjs/nuxtjs-original.svg',
   'HTML/CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
   'Styled-Components': 'https://cdn.simpleicons.org/styledcomponents/DB7093',
   'Tailwind CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg',
@@ -43,17 +44,16 @@ const TECH_ICONS: Record<string, string> = {
   'Illustrator': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/illustrator/illustrator-plain.svg',
   'Swagger': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg',
   'Postman': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-original.svg',
+  'Spring Boot': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg',
 };
 
 /* ── Keyframes ── */
-
 const shimmer = keyframes`
   0% { background-position: -400% 0; }
   100% { background-position: 400% 0; }
 `;
 
 /* ── Layout ── */
-
 const GallerySection = styled.section<{ $isDark: boolean }>`
   min-height: 100vh;
   padding: 160px 0 120px;
@@ -75,9 +75,8 @@ const Container = styled.div`
   }
 `;
 
-/* ── Header ── */
-
-const SectionEyebrow = styled.span<{ $isDark: boolean }>`
+/* ── Page Header ── */
+const PageEyebrow = styled.span<{ $isDark: boolean }>`
   display: block;
   font-size: 13px;
   font-weight: 400;
@@ -88,23 +87,65 @@ const SectionEyebrow = styled.span<{ $isDark: boolean }>`
   text-align: center;
 `;
 
-const SectionTitle = styled.h2<{ $isDark: boolean }>`
+const PageTitle = styled.h1<{ $isDark: boolean }>`
   font-size: 40px;
   font-weight: 700;
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 48px 0;
+  margin: 0 0 64px 0;
   letter-spacing: -1px;
   line-height: 1.15;
   text-align: center;
 
   @media (max-width: 768px) {
     font-size: 30px;
-    margin-bottom: 36px;
+    margin-bottom: 48px;
   }
 `;
 
-/* ── Back button (fixed pill) ── */
+/* ── Group (외주 / 개인) ── */
+const GroupWrapper = styled.div`
+  margin-bottom: 72px;
 
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+`;
+
+const GroupEyebrow = styled.span<{ $isDark: boolean }>`
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
+  margin-bottom: 12px;
+  text-align: center;
+`;
+
+const GroupTitle = styled.h2<{ $isDark: boolean }>`
+  font-size: 32px;
+  font-weight: 700;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  margin: 0 0 36px 0;
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+    margin-bottom: 28px;
+  }
+`;
+
+/* ── Divider between groups ── */
+const SectionDivider = styled.div<{ $isDark: boolean }>`
+  width: 40px;
+  height: 1px;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
+  margin: 0 auto 72px;
+`;
+
+/* ── Back button (fixed pill) ── */
 const BackButton = styled.button<{ $isDark: boolean }>`
   position: fixed;
   top: 24px;
@@ -147,7 +188,6 @@ const BackButton = styled.button<{ $isDark: boolean }>`
 `;
 
 /* ── Grid: 3 columns ── */
-
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -164,7 +204,6 @@ const Grid = styled.div`
 `;
 
 /* ── Card ── */
-
 const CardWrapper = styled.div`
   cursor: pointer;
 `;
@@ -240,8 +279,6 @@ const TechIcon = styled.div`
   }
 `;
 
-/* ── Card meta below image ── */
-
 const CardMeta = styled.div`
   padding: 12px 2px 0;
 `;
@@ -263,7 +300,6 @@ const ProjectMeta = styled.span<{ $isDark: boolean }>`
 `;
 
 /* ── Skeleton ── */
-
 const SkeletonBox = styled.div<{ $isDark: boolean }>`
   border-radius: 14px;
   aspect-ratio: 4 / 3;
@@ -292,7 +328,6 @@ const SkeletonLine = styled.div<{ $isDark: boolean; $width?: string }>`
 `;
 
 /* ── Component ── */
-
 interface ProjectsGalleryProps {
   onProjectClick: (projectId: string) => void;
   onBack: () => void;
@@ -303,11 +338,19 @@ const translations = {
     eyebrow: 'PROJECTS',
     title: '모든 프로젝트',
     back: '홈으로',
+    freelanceEyebrow: 'CLIENT WORK',
+    freelanceTitle: '외주 프로젝트',
+    personalEyebrow: 'PERSONAL',
+    personalTitle: '개인 프로젝트',
   },
   en: {
     eyebrow: 'PROJECTS',
     title: 'All Projects',
     back: 'Back to Home',
+    freelanceEyebrow: 'CLIENT WORK',
+    freelanceTitle: 'Freelance Projects',
+    personalEyebrow: 'PERSONAL',
+    personalTitle: 'Personal Projects',
   },
 };
 
@@ -317,12 +360,14 @@ export default function ProjectsGallery({ onProjectClick, onBack }: ProjectsGall
   const { projects, loading } = useProjects();
   const t = translations[language];
 
+  const freelance = projects.filter(p => p.type === 'freelance');
+  const personal  = projects.filter(p => p.type !== 'freelance');
+
   const handleCardClick = useCallback(
     (projectId: string) => () => onProjectClick(projectId),
     [onProjectClick],
   );
 
-  /** Collect all tech names from a project's techStack */
   const getTechNames = (project: typeof projects[0]) => {
     const ts = project.techStack;
     if (!ts) return [];
@@ -334,6 +379,49 @@ export default function ProjectsGallery({ onProjectClick, onBack }: ProjectsGall
     ];
   };
 
+  const renderCards = (list: typeof projects) =>
+    list.map((project) => {
+      const techNames = getTechNames(project);
+      return (
+        <CardWrapper key={project.id} onClick={handleCardClick(project.id)}>
+          <ImageContainer>
+            <ImageWithFallback src={project.image} alt={project.title[language]} />
+            <ImageOverlay>
+              <OverlayDescription>{project.description[language]}</OverlayDescription>
+              <OverlayTechIcons>
+                {techNames.slice(0, 8).map((tech, i) =>
+                  TECH_ICONS[tech] ? (
+                    <TechIcon key={i} title={tech}>
+                      <img src={TECH_ICONS[tech]} alt={tech} loading="lazy" />
+                    </TechIcon>
+                  ) : null,
+                )}
+              </OverlayTechIcons>
+            </ImageOverlay>
+          </ImageContainer>
+          <CardMeta>
+            <ProjectTitle $isDark={isDark}>{project.title[language]}</ProjectTitle>
+            {(project.year || project.role) && (
+              <ProjectMeta $isDark={isDark}>
+                {[project.year, project.role?.[language]].filter(Boolean).join(' · ')}
+              </ProjectMeta>
+            )}
+          </CardMeta>
+        </CardWrapper>
+      );
+    });
+
+  const renderSkeletons = (count: number) =>
+    Array.from({ length: count }).map((_, i) => (
+      <div key={i}>
+        <SkeletonBox $isDark={isDark} />
+        <CardMeta>
+          <SkeletonLine $isDark={isDark} $width="50%" style={{ height: 14, marginBottom: 6 }} />
+          <SkeletonLine $isDark={isDark} $width="30%" style={{ height: 11 }} />
+        </CardMeta>
+      </div>
+    ));
+
   return (
     <GallerySection $isDark={isDark}>
       <BackButton $isDark={isDark} onClick={onBack}>
@@ -342,52 +430,35 @@ export default function ProjectsGallery({ onProjectClick, onBack }: ProjectsGall
       </BackButton>
 
       <Container>
-        <SectionEyebrow $isDark={isDark}>{t.eyebrow}</SectionEyebrow>
-        <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
+        <PageEyebrow $isDark={isDark}>{t.eyebrow}</PageEyebrow>
+        <PageTitle $isDark={isDark}>{t.title}</PageTitle>
 
-        <Grid>
-          {loading
-            ? Array.from({ length: 9 }).map((_, i) => (
-                <div key={i}>
-                  <SkeletonBox $isDark={isDark} />
-                  <CardMeta>
-                    <SkeletonLine $isDark={isDark} $width="50%" style={{ height: 14, marginBottom: 6 }} />
-                    <SkeletonLine $isDark={isDark} $width="30%" style={{ height: 11 }} />
-                  </CardMeta>
-                </div>
-              ))
-            : projects.map((project) => {
-                const techNames = getTechNames(project);
-                return (
-                  <CardWrapper key={project.id} onClick={handleCardClick(project.id)}>
-                    <ImageContainer>
-                      <ImageWithFallback src={project.image} alt={project.title[language]} />
-                      <ImageOverlay>
-                        <OverlayDescription>{project.description[language]}</OverlayDescription>
-                        <OverlayTechIcons>
-                          {techNames.slice(0, 8).map((tech, i) =>
-                            TECH_ICONS[tech] ? (
-                              <TechIcon key={i} title={tech}>
-                                <img src={TECH_ICONS[tech]} alt={tech} loading="lazy" />
-                              </TechIcon>
-                            ) : null,
-                          )}
-                        </OverlayTechIcons>
-                      </ImageOverlay>
-                    </ImageContainer>
-                    <CardMeta>
-                      <ProjectTitle $isDark={isDark}>{project.title[language]}</ProjectTitle>
-                      {(project.year || project.role) && (
-                        <ProjectMeta $isDark={isDark}>
-                          {[project.year, project.role?.[language]].filter(Boolean).join(' \u00b7 ')}
-                        </ProjectMeta>
-                      )}
-                    </CardMeta>
-                  </CardWrapper>
-                );
-              })
-          }
-        </Grid>
+        {/* ── CLIENT WORK ── */}
+        {(loading || freelance.length > 0) && (
+          <GroupWrapper>
+            <GroupEyebrow $isDark={isDark}>{t.freelanceEyebrow}</GroupEyebrow>
+            <GroupTitle $isDark={isDark}>{t.freelanceTitle}</GroupTitle>
+            <Grid>
+              {loading ? renderSkeletons(3) : renderCards(freelance)}
+            </Grid>
+          </GroupWrapper>
+        )}
+
+        {/* ── Divider ── */}
+        {!loading && freelance.length > 0 && personal.length > 0 && (
+          <SectionDivider $isDark={isDark} />
+        )}
+
+        {/* ── PERSONAL ── */}
+        {!loading && personal.length > 0 && (
+          <GroupWrapper>
+            <GroupEyebrow $isDark={isDark}>{t.personalEyebrow}</GroupEyebrow>
+            <GroupTitle $isDark={isDark}>{t.personalTitle}</GroupTitle>
+            <Grid>
+              {renderCards(personal)}
+            </Grid>
+          </GroupWrapper>
+        )}
       </Container>
     </GallerySection>
   );

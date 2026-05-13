@@ -14,6 +14,7 @@ const TECH_ICONS: Record<string, string> = {
   'Next.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
   'Vue.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
   'Vue 3': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
+  'Nuxt 3': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nuxtjs/nuxtjs-original.svg',
   'HTML/CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
   'Styled-Components': 'https://cdn.simpleicons.org/styledcomponents/DB7093',
   'Tailwind CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg',
@@ -43,21 +44,21 @@ const TECH_ICONS: Record<string, string> = {
   'Illustrator': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/illustrator/illustrator-plain.svg',
   'Swagger': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg',
   'Postman': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-original.svg',
+  'Spring Boot': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg',
 };
 
 /* ── Keyframes ── */
-
 const shimmer = keyframes`
   0% { background-position: -400% 0; }
   100% { background-position: 400% 0; }
 `;
 
 /* ── Layout ── */
-
 const ProjectsSection = styled.section<{ $isDark: boolean }>`
   padding: 120px 0 80px;
   background: ${p => p.$isDark ? '#000000' : '#ffffff'};
   transition: background 0.3s ease;
+  position: relative;
 
   @media (max-width: 768px) {
     padding: 80px 0 60px;
@@ -74,9 +75,16 @@ const Container = styled.div`
   }
 `;
 
-/* ── Header ── */
+/* ── Group (외주 / 개인) ── */
+const GroupWrapper = styled.div`
+  margin-bottom: 72px;
 
-const SectionEyebrow = styled.span<{ $isDark: boolean }>`
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+`;
+
+const GroupEyebrow = styled.span<{ $isDark: boolean }>`
   display: block;
   font-size: 13px;
   font-weight: 400;
@@ -87,23 +95,22 @@ const SectionEyebrow = styled.span<{ $isDark: boolean }>`
   text-align: center;
 `;
 
-const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 40px;
+const GroupTitle = styled.h2<{ $isDark: boolean }>`
+  font-size: 32px;
   font-weight: 700;
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 48px 0;
-  letter-spacing: -1px;
+  margin: 0 0 36px 0;
+  letter-spacing: -0.8px;
   line-height: 1.15;
   text-align: center;
 
   @media (max-width: 768px) {
-    font-size: 30px;
-    margin-bottom: 36px;
+    font-size: 24px;
+    margin-bottom: 28px;
   }
 `;
 
 /* ── Grid: 3 columns ── */
-
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -120,7 +127,6 @@ const Grid = styled.div`
 `;
 
 /* ── Card ── */
-
 const CardWrapper = styled.div`
   cursor: pointer;
 `;
@@ -216,8 +222,15 @@ const ProjectMeta = styled.span<{ $isDark: boolean }>`
   font-weight: 400;
 `;
 
-/* ── View All (bottom) ── */
+/* ── Divider between sections ── */
+const SectionDivider = styled.div<{ $isDark: boolean }>`
+  width: 40px;
+  height: 1px;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
+  margin: 0 auto 72px;
+`;
 
+/* ── View All (bottom) ── */
 const ViewAllBottom = styled.div`
   text-align: center;
   margin-top: 48px;
@@ -248,7 +261,6 @@ const ViewAllButton = styled.button<{ $isDark: boolean }>`
 `;
 
 /* ── Skeleton ── */
-
 const SkeletonBox = styled.div<{ $isDark: boolean }>`
   border-radius: 14px;
   aspect-ratio: 4 / 3;
@@ -277,31 +289,50 @@ const SkeletonLine = styled.div<{ $isDark: boolean; $width?: string }>`
 `;
 
 /* ── Component ── */
-
 interface ProjectsProps {
   onProjectClick: (projectId: string) => void;
   onViewAll?: () => void;
-  showAll?: boolean;
 }
 
+const MAX_PER_GROUP = 3;
+
 const translations = {
-  ko: { eyebrow: 'PROJECTS', title: '프로젝트', viewAll: '전체 보기' },
-  en: { eyebrow: 'PROJECTS', title: 'Projects', viewAll: 'View All' },
+  ko: {
+    freelanceEyebrow: 'CLIENT WORK',
+    freelanceTitle: '외주 프로젝트',
+    personalEyebrow: 'PERSONAL',
+    personalTitle: '개인 프로젝트',
+    viewAll: '전체 보기',
+  },
+  en: {
+    freelanceEyebrow: 'CLIENT WORK',
+    freelanceTitle: 'Freelance Projects',
+    personalEyebrow: 'PERSONAL',
+    personalTitle: 'Personal Projects',
+    viewAll: 'View All',
+  },
 };
 
-export default function Projects({ onProjectClick, onViewAll, showAll = false }: ProjectsProps) {
+export default function Projects({ onProjectClick, onViewAll }: ProjectsProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
   const { projects, loading } = useProjects();
   const t = translations[language];
-  const displayProjects = showAll ? projects : projects.slice(0, 6);
+
+  const freelance = projects.filter(p => p.type === 'freelance');
+  const personal  = projects.filter(p => p.type !== 'freelance');
+
+  const freelanceShow = freelance.slice(0, MAX_PER_GROUP);
+  const personalShow  = personal.slice(0, MAX_PER_GROUP);
+
+  const hasMore =
+    freelance.length > MAX_PER_GROUP || personal.length > MAX_PER_GROUP;
 
   const handleCardClick = useCallback(
     (projectId: string) => () => onProjectClick(projectId),
     [onProjectClick]
   );
 
-  /** Collect all tech names from a project's techStack */
   const getTechNames = (project: typeof projects[0]) => {
     const ts = project.techStack;
     if (!ts) return [];
@@ -313,57 +344,87 @@ export default function Projects({ onProjectClick, onViewAll, showAll = false }:
     ];
   };
 
+  const renderCards = (list: typeof projects) =>
+    list.map((project) => {
+      const techNames = getTechNames(project);
+      return (
+        <CardWrapper key={project.id} onClick={handleCardClick(project.id)}>
+          <ImageContainer>
+            <ImageWithFallback src={project.image} alt={project.title[language]} />
+            <ImageOverlay>
+              <OverlayDescription>{project.description[language]}</OverlayDescription>
+              <OverlayTechIcons>
+                {techNames.slice(0, 8).map((tech, i) =>
+                  TECH_ICONS[tech] ? (
+                    <TechIcon key={i} title={tech}>
+                      <img src={TECH_ICONS[tech]} alt={tech} loading="lazy" />
+                    </TechIcon>
+                  ) : null
+                )}
+              </OverlayTechIcons>
+            </ImageOverlay>
+          </ImageContainer>
+          <CardMeta>
+            <ProjectTitle $isDark={isDark}>{project.title[language]}</ProjectTitle>
+            {(project.year || project.role) && (
+              <ProjectMeta $isDark={isDark}>
+                {[project.year, project.role?.[language]].filter(Boolean).join(' · ')}
+              </ProjectMeta>
+            )}
+          </CardMeta>
+        </CardWrapper>
+      );
+    });
+
+  const renderSkeletons = (count: number) =>
+    Array.from({ length: count }).map((_, i) => (
+      <div key={i}>
+        <SkeletonBox $isDark={isDark} />
+        <CardMeta>
+          <SkeletonLine $isDark={isDark} $width="50%" style={{ height: 14, marginBottom: 6 }} />
+          <SkeletonLine $isDark={isDark} $width="30%" style={{ height: 11 }} />
+        </CardMeta>
+      </div>
+    ));
+
   return (
     <ProjectsSection id="projects" $isDark={isDark}>
+      {/* scroll-dot anchor */}
+      <span id="dot-projects" data-dot-anchor style={{ position: 'absolute', top: 0 }} />
+
       <Container>
-        <SectionEyebrow id="dot-projects" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
-        <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
+        {/* ── CLIENT WORK ── */}
+        {(loading || freelanceShow.length > 0) && (
+          <GroupWrapper>
+            <GroupEyebrow $isDark={isDark}>{t.freelanceEyebrow}</GroupEyebrow>
+            <GroupTitle $isDark={isDark}>{t.freelanceTitle}</GroupTitle>
+            <Grid>
+              {loading
+                ? renderSkeletons(3)
+                : renderCards(freelanceShow)
+              }
+            </Grid>
+          </GroupWrapper>
+        )}
 
-        <Grid>
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i}>
-                  <SkeletonBox $isDark={isDark} />
-                  <CardMeta>
-                    <SkeletonLine $isDark={isDark} $width="50%" style={{ height: 14, marginBottom: 6 }} />
-                    <SkeletonLine $isDark={isDark} $width="30%" style={{ height: 11 }} />
-                  </CardMeta>
-                </div>
-              ))
-            : displayProjects.map((project) => {
-                const techNames = getTechNames(project);
-                return (
-                  <CardWrapper key={project.id} onClick={handleCardClick(project.id)}>
-                    <ImageContainer>
-                      <ImageWithFallback src={project.image} alt={project.title[language]} />
-                      <ImageOverlay>
-                        <OverlayDescription>{project.description[language]}</OverlayDescription>
-                        <OverlayTechIcons>
-                          {techNames.slice(0, 8).map((tech, i) =>
-                            TECH_ICONS[tech] ? (
-                              <TechIcon key={i} title={tech}>
-                                <img src={TECH_ICONS[tech]} alt={tech} loading="lazy" />
-                              </TechIcon>
-                            ) : null
-                          )}
-                        </OverlayTechIcons>
-                      </ImageOverlay>
-                    </ImageContainer>
-                    <CardMeta>
-                      <ProjectTitle $isDark={isDark}>{project.title[language]}</ProjectTitle>
-                      {(project.year || project.role) && (
-                        <ProjectMeta $isDark={isDark}>
-                          {[project.year, project.role?.[language]].filter(Boolean).join(' · ')}
-                        </ProjectMeta>
-                      )}
-                    </CardMeta>
-                  </CardWrapper>
-                );
-              })
-          }
-        </Grid>
+        {/* ── Divider ── */}
+        {!loading && freelanceShow.length > 0 && personalShow.length > 0 && (
+          <SectionDivider $isDark={isDark} />
+        )}
 
-        {onViewAll && (
+        {/* ── PERSONAL ── */}
+        {!loading && personalShow.length > 0 && (
+          <GroupWrapper>
+            <GroupEyebrow $isDark={isDark}>{t.personalEyebrow}</GroupEyebrow>
+            <GroupTitle $isDark={isDark}>{t.personalTitle}</GroupTitle>
+            <Grid>
+              {renderCards(personalShow)}
+            </Grid>
+          </GroupWrapper>
+        )}
+
+        {/* ── View All ── */}
+        {onViewAll && hasMore && (
           <ViewAllBottom>
             <ViewAllButton $isDark={isDark} onClick={onViewAll}>
               {t.viewAll}
