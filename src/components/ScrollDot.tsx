@@ -38,7 +38,8 @@ const ANCHOR_IDS = [
   'dot-about',
   'dot-skills',
 
-  'dot-projects',
+  'dot-freelance',
+  'dot-personal',
   'dot-blog',
   'dot-opensource',
 ];

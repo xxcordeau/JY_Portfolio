@@ -53,20 +53,28 @@ const shimmer = keyframes`
   100% { background-position: 400% 0; }
 `;
 
-/* ── Layout ── */
-const GallerySection = styled.section<{ $isDark: boolean }>`
+/* ── Full-viewport section per group ── */
+const GroupSection = styled.section<{ $isDark: boolean }>`
   min-height: 100vh;
-  padding: 160px 0 120px;
+  display: flex;
+  align-items: center;
   background: ${p => p.$isDark ? '#000000' : '#ffffff'};
   transition: background 0.3s ease;
+  padding: 80px 0;
+`;
+
+/* ── First section needs extra top padding for header ── */
+const FirstSection = styled(GroupSection)`
+  padding-top: 160px;
 
   @media (max-width: 768px) {
-    padding: 120px 0 80px;
+    padding-top: 120px;
   }
 `;
 
 const Container = styled.div`
   max-width: 1100px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 40px;
 
@@ -75,42 +83,7 @@ const Container = styled.div`
   }
 `;
 
-/* ── Page Header ── */
-const PageEyebrow = styled.span<{ $isDark: boolean }>`
-  display: block;
-  font-size: 13px;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
-  margin-bottom: 12px;
-  text-align: center;
-`;
-
-const PageTitle = styled.h1<{ $isDark: boolean }>`
-  font-size: 40px;
-  font-weight: 700;
-  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 64px 0;
-  letter-spacing: -1px;
-  line-height: 1.15;
-  text-align: center;
-
-  @media (max-width: 768px) {
-    font-size: 30px;
-    margin-bottom: 48px;
-  }
-`;
-
-/* ── Group (외주 / 개인) ── */
-const GroupWrapper = styled.div`
-  margin-bottom: 72px;
-
-  &:last-of-type {
-    margin-bottom: 0;
-  }
-`;
-
+/* ── Group header ── */
 const GroupEyebrow = styled.span<{ $isDark: boolean }>`
   display: block;
   font-size: 13px;
@@ -123,26 +96,18 @@ const GroupEyebrow = styled.span<{ $isDark: boolean }>`
 `;
 
 const GroupTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 32px;
+  font-size: 40px;
   font-weight: 700;
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 36px 0;
-  letter-spacing: -0.8px;
+  margin: 0 0 48px 0;
+  letter-spacing: -1px;
   line-height: 1.15;
   text-align: center;
 
   @media (max-width: 768px) {
-    font-size: 24px;
-    margin-bottom: 28px;
+    font-size: 30px;
+    margin-bottom: 36px;
   }
-`;
-
-/* ── Divider between groups ── */
-const SectionDivider = styled.div<{ $isDark: boolean }>`
-  width: 40px;
-  height: 1px;
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
-  margin: 0 auto 72px;
 `;
 
 /* ── Back button (fixed pill) ── */
@@ -335,8 +300,6 @@ interface ProjectsGalleryProps {
 
 const translations = {
   ko: {
-    eyebrow: 'PROJECTS',
-    title: '모든 프로젝트',
     back: '홈으로',
     freelanceEyebrow: 'CLIENT WORK',
     freelanceTitle: '외주 프로젝트',
@@ -344,8 +307,6 @@ const translations = {
     personalTitle: '개인 프로젝트',
   },
   en: {
-    eyebrow: 'PROJECTS',
-    title: 'All Projects',
     back: 'Back to Home',
     freelanceEyebrow: 'CLIENT WORK',
     freelanceTitle: 'Freelance Projects',
@@ -423,43 +384,37 @@ export default function ProjectsGallery({ onProjectClick, onBack }: ProjectsGall
     ));
 
   return (
-    <GallerySection $isDark={isDark}>
+    <>
       <BackButton $isDark={isDark} onClick={onBack}>
         <ArrowLeft />
         {t.back}
       </BackButton>
 
-      <Container>
-        <PageEyebrow $isDark={isDark}>{t.eyebrow}</PageEyebrow>
-        <PageTitle $isDark={isDark}>{t.title}</PageTitle>
-
-        {/* ── CLIENT WORK ── */}
-        {(loading || freelance.length > 0) && (
-          <GroupWrapper>
+      {/* ── CLIENT WORK — full viewport ── */}
+      {(loading || freelance.length > 0) && (
+        <FirstSection $isDark={isDark}>
+          <Container>
             <GroupEyebrow $isDark={isDark}>{t.freelanceEyebrow}</GroupEyebrow>
             <GroupTitle $isDark={isDark}>{t.freelanceTitle}</GroupTitle>
             <Grid>
               {loading ? renderSkeletons(3) : renderCards(freelance)}
             </Grid>
-          </GroupWrapper>
-        )}
+          </Container>
+        </FirstSection>
+      )}
 
-        {/* ── Divider ── */}
-        {!loading && freelance.length > 0 && personal.length > 0 && (
-          <SectionDivider $isDark={isDark} />
-        )}
-
-        {/* ── PERSONAL ── */}
-        {!loading && personal.length > 0 && (
-          <GroupWrapper>
+      {/* ── PERSONAL — full viewport ── */}
+      {!loading && personal.length > 0 && (
+        <GroupSection $isDark={isDark}>
+          <Container>
             <GroupEyebrow $isDark={isDark}>{t.personalEyebrow}</GroupEyebrow>
             <GroupTitle $isDark={isDark}>{t.personalTitle}</GroupTitle>
             <Grid>
               {renderCards(personal)}
             </Grid>
-          </GroupWrapper>
-        )}
-      </Container>
-    </GallerySection>
+          </Container>
+        </GroupSection>
+      )}
+    </>
   );
 }

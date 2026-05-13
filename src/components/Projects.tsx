@@ -53,20 +53,20 @@ const shimmer = keyframes`
   100% { background-position: 400% 0; }
 `;
 
-/* ── Layout ── */
-const ProjectsSection = styled.section<{ $isDark: boolean }>`
-  padding: 120px 0 80px;
+/* ── Full-viewport section per group ── */
+const GroupSection = styled.section<{ $isDark: boolean }>`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
   background: ${p => p.$isDark ? '#000000' : '#ffffff'};
   transition: background 0.3s ease;
-  position: relative;
-
-  @media (max-width: 768px) {
-    padding: 80px 0 60px;
-  }
+  padding: 80px 0;
+  scroll-snap-align: start;
 `;
 
 const Container = styled.div`
   max-width: 1100px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 40px;
 
@@ -75,15 +75,7 @@ const Container = styled.div`
   }
 `;
 
-/* ── Group (외주 / 개인) ── */
-const GroupWrapper = styled.div`
-  margin-bottom: 72px;
-
-  &:last-of-type {
-    margin-bottom: 0;
-  }
-`;
-
+/* ── Group header ── */
 const GroupEyebrow = styled.span<{ $isDark: boolean }>`
   display: block;
   font-size: 13px;
@@ -96,17 +88,17 @@ const GroupEyebrow = styled.span<{ $isDark: boolean }>`
 `;
 
 const GroupTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 32px;
+  font-size: 40px;
   font-weight: 700;
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 36px 0;
-  letter-spacing: -0.8px;
+  margin: 0 0 48px 0;
+  letter-spacing: -1px;
   line-height: 1.15;
   text-align: center;
 
   @media (max-width: 768px) {
-    font-size: 24px;
-    margin-bottom: 28px;
+    font-size: 30px;
+    margin-bottom: 36px;
   }
 `;
 
@@ -222,14 +214,6 @@ const ProjectMeta = styled.span<{ $isDark: boolean }>`
   font-weight: 400;
 `;
 
-/* ── Divider between sections ── */
-const SectionDivider = styled.div<{ $isDark: boolean }>`
-  width: 40px;
-  height: 1px;
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
-  margin: 0 auto 72px;
-`;
-
 /* ── View All (bottom) ── */
 const ViewAllBottom = styled.div`
   text-align: center;
@@ -325,8 +309,8 @@ export default function Projects({ onProjectClick, onViewAll }: ProjectsProps) {
   const freelanceShow = freelance.slice(0, MAX_PER_GROUP);
   const personalShow  = personal.slice(0, MAX_PER_GROUP);
 
-  const hasMore =
-    freelance.length > MAX_PER_GROUP || personal.length > MAX_PER_GROUP;
+  const showViewAllInFreelance = !loading && personalShow.length === 0 && !!onViewAll;
+  const showViewAllInPersonal  = !loading && personalShow.length > 0 && !!onViewAll;
 
   const handleCardClick = useCallback(
     (projectId: string) => () => onProjectClick(projectId),
@@ -388,51 +372,52 @@ export default function Projects({ onProjectClick, onViewAll }: ProjectsProps) {
     ));
 
   return (
-    <ProjectsSection id="projects" $isDark={isDark}>
-      {/* scroll-dot anchor */}
-      <span id="dot-projects" data-dot-anchor style={{ position: 'absolute', top: 0 }} />
-
-      <Container>
-        {/* ── CLIENT WORK ── */}
-        {(loading || freelanceShow.length > 0) && (
-          <GroupWrapper>
-            <GroupEyebrow $isDark={isDark}>{t.freelanceEyebrow}</GroupEyebrow>
+    <>
+      {/* ── CLIENT WORK — full viewport ── */}
+      {(loading || freelanceShow.length > 0) && (
+        <GroupSection id="projects" $isDark={isDark}>
+          <Container>
+            <GroupEyebrow id="dot-freelance" data-dot-anchor $isDark={isDark}>
+              {t.freelanceEyebrow}
+            </GroupEyebrow>
             <GroupTitle $isDark={isDark}>{t.freelanceTitle}</GroupTitle>
             <Grid>
-              {loading
-                ? renderSkeletons(3)
-                : renderCards(freelanceShow)
-              }
+              {loading ? renderSkeletons(3) : renderCards(freelanceShow)}
             </Grid>
-          </GroupWrapper>
-        )}
+            {showViewAllInFreelance && (
+              <ViewAllBottom>
+                <ViewAllButton $isDark={isDark} onClick={onViewAll}>
+                  {t.viewAll}
+                  <ArrowRight />
+                </ViewAllButton>
+              </ViewAllBottom>
+            )}
+          </Container>
+        </GroupSection>
+      )}
 
-        {/* ── Divider ── */}
-        {!loading && freelanceShow.length > 0 && personalShow.length > 0 && (
-          <SectionDivider $isDark={isDark} />
-        )}
-
-        {/* ── PERSONAL ── */}
-        {!loading && personalShow.length > 0 && (
-          <GroupWrapper>
-            <GroupEyebrow $isDark={isDark}>{t.personalEyebrow}</GroupEyebrow>
+      {/* ── PERSONAL — full viewport ── */}
+      {!loading && personalShow.length > 0 && (
+        <GroupSection $isDark={isDark}>
+          <Container>
+            <GroupEyebrow id="dot-personal" data-dot-anchor $isDark={isDark}>
+              {t.personalEyebrow}
+            </GroupEyebrow>
             <GroupTitle $isDark={isDark}>{t.personalTitle}</GroupTitle>
             <Grid>
               {renderCards(personalShow)}
             </Grid>
-          </GroupWrapper>
-        )}
-
-        {/* ── View All ── */}
-        {onViewAll && hasMore && (
-          <ViewAllBottom>
-            <ViewAllButton $isDark={isDark} onClick={onViewAll}>
-              {t.viewAll}
-              <ArrowRight />
-            </ViewAllButton>
-          </ViewAllBottom>
-        )}
-      </Container>
-    </ProjectsSection>
+            {showViewAllInPersonal && (
+              <ViewAllBottom>
+                <ViewAllButton $isDark={isDark} onClick={onViewAll}>
+                  {t.viewAll}
+                  <ArrowRight />
+                </ViewAllButton>
+              </ViewAllBottom>
+            )}
+          </Container>
+        </GroupSection>
+      )}
+    </>
   );
 }
