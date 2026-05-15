@@ -278,7 +278,7 @@ interface ProjectsProps {
   onViewAll?: () => void;
 }
 
-const MAX_PER_GROUP = 3;
+const MAX_PER_GROUP = 6;
 
 const translations = {
   ko: {
