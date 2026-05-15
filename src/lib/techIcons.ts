@@ -70,6 +70,9 @@ export const TECH_ICONS: Record<string, string> = {
   'Spring':             `${_DV}/spring/spring-original.svg`,
   'Spring Security':    `${_DV}/spring/spring-original.svg`,
   'Java':               `${_DV}/java/java-original.svg`,
+  'Java 17':            `${_DV}/java/java-original.svg`,
+  'MyBatis':            `${_DV}/java/java-original.svg`,
+  'JPA':                `${_DV}/java/java-original.svg`,
   'Python':             `${_DV}/python/python-original.svg`,
   'Go':                 `${_DV}/go/go-original.svg`,
   'Rust':               `${_DV}/rust/rust-original.svg`,
@@ -103,6 +106,8 @@ export const TECH_ICONS: Record<string, string> = {
   'GitHub Actions':     `${_DV}/github/github-original.svg`,
   'Git':                `${_DV}/git/git-original.svg`,
   'Jenkins':            `${_DV}/jenkins/jenkins-original.svg`,
+  'Jenkins CI/CD':      `${_DV}/jenkins/jenkins-original.svg`,
+  'KCP Payment':        `${_SI}/visa/1A1F71`,
   'Linux':              `${_DV}/linux/linux-original.svg`,
   'Nginx':              `${_DV}/nginx/nginx-original.svg`,
 
