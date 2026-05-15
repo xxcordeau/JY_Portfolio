@@ -21,12 +21,14 @@ export const TECH_ICONS: Record<string, string> = {
   'Nuxt':               `${_DV}/nuxtjs/nuxtjs-original.svg`,
   'Svelte':             `${_DV}/svelte/svelte-original.svg`,
   'Angular':            `${_DV}/angularjs/angularjs-original.svg`,
+  'Electron':           `${_DV}/electron/electron-original.svg`,
   'Redux':              `${_DV}/redux/redux-original.svg`,
-  'Zustand':            `${_SI}/zustand/443E38`,
+  'Zustand':            `${_DV}/redux/redux-original.svg`,  // bear logo 대체
   'React Router':       `${_SI}/reactrouter/CA4245`,
   'React Query':        `${_SI}/reactquery/FF4154`,
   'Motion':             `${_SI}/framer/0055FF`,
   'Framer Motion':      `${_SI}/framer/0055FF`,
+  'i18next':            `${_SI}/i18next/26A69A`,
 
   // ── Styling ──
   'HTML':               `${_DV}/html5/html5-original.svg`,
@@ -35,6 +37,7 @@ export const TECH_ICONS: Record<string, string> = {
   'HTML\\CSS':          `${_DV}/html5/html5-original.svg`,
   'Tailwind CSS':       `${_DV}/tailwindcss/tailwindcss-original.svg`,
   'Styled-Components':  `${_SI}/styledcomponents/DB7093`,
+  'styled-components':  `${_SI}/styledcomponents/DB7093`,
   'Sass':               `${_DV}/sass/sass-original.svg`,
   'SCSS':               `${_DV}/sass/sass-original.svg`,
   'CSS Modules':        `${_SI}/cssmodules/000000`,
@@ -44,7 +47,8 @@ export const TECH_ICONS: Record<string, string> = {
   'Material UI':        `${_DV}/materialui/materialui-original.svg`,
   'Chakra UI':          `${_SI}/chakraui/319795`,
   'Shadcn UI':          `${_SI}/shadcnui/000000`,
-  'Recharts':           `${_SI}/recharts/22B5BF`,
+  'Recharts':           `${_DV}/d3js/d3js-original.svg`,  // 차트 라이브러리 대체
+  'Lucide React':       `${_DV}/react/react-original.svg`,
 
   // ── Build tools ──
   'Vite':               `${_DV}/vitejs/vitejs-original.svg`,
@@ -64,10 +68,17 @@ export const TECH_ICONS: Record<string, string> = {
   'Fastify':            `${_SI}/fastify/000000`,
   'Spring Boot':        `${_DV}/spring/spring-original.svg`,
   'Spring':             `${_DV}/spring/spring-original.svg`,
+  'Spring Security':    `${_DV}/spring/spring-original.svg`,
   'Java':               `${_DV}/java/java-original.svg`,
   'Python':             `${_DV}/python/python-original.svg`,
   'Go':                 `${_DV}/go/go-original.svg`,
   'Rust':               `${_DV}/rust/rust-original.svg`,
+  'Prisma':             `${_SI}/prisma/2D3748`,
+
+  // ── Auth / API ──
+  'JWT':                `${_SI}/jsonwebtokens/000000`,
+  'Swagger':            `${_DV}/swagger/swagger-original.svg`,
+  'Postman':            `${_DV}/postman/postman-original.svg`,
 
   // ── Database / Cache ──
   'PostgreSQL':         `${_DV}/postgresql/postgresql-original.svg`,
@@ -75,13 +86,13 @@ export const TECH_ICONS: Record<string, string> = {
   'MongoDB':            `${_DV}/mongodb/mongodb-original.svg`,
   'Redis':              `${_DV}/redis/redis-original.svg`,
   'SQLite':             `${_DV}/sqlite/sqlite-original.svg`,
-  'Prisma':             `${_SI}/prisma/2D3748`,
   'Supabase':           `${_DV}/supabase/supabase-original.svg`,
   'Firebase':           `${_DV}/firebase/firebase-plain.svg`,
 
   // ── DevOps / Cloud ──
   'Docker':             `${_DV}/docker/docker-original.svg`,
   'Kubernetes':         `${_DV}/kubernetes/kubernetes-plain.svg`,
+  'Terraform':          `${_DV}/terraform/terraform-original.svg`,
   'AWS':                `${_DV}/amazonwebservices/amazonwebservices-plain-wordmark.svg`,
   'AWS S3':             `${_DV}/amazonwebservices/amazonwebservices-plain-wordmark.svg`,
   'GCP':                `${_DV}/googlecloud/googlecloud-original.svg`,
@@ -102,9 +113,7 @@ export const TECH_ICONS: Record<string, string> = {
   'XD':                 `${_DV}/xd/xd-plain.svg`,
   'After Effects':      `${_DV}/aftereffects/aftereffects-plain.svg`,
 
-  // ── Testing / Docs ──
-  'Swagger':            `${_DV}/swagger/swagger-original.svg`,
-  'Postman':            `${_DV}/postman/postman-original.svg`,
+  // ── Testing ──
   'Jest':               `${_DV}/jest/jest-plain.svg`,
   'Vitest':             `${_SI}/vitest/6E9F18`,
   'Cypress':            `${_SI}/cypress/17202C`,
@@ -140,6 +149,7 @@ export const DARK_INVERT_ICONS = new Set([
   'Express',
   'Netlify',
   'Notion',
+  'Electron',
   // simpleicons with 000000 or very dark hex color
   'Remix',
   'Shadcn UI',
@@ -148,6 +158,7 @@ export const DARK_INVERT_ICONS = new Set([
   'Radix UI',
   'Cypress',
   'Prisma',
+  'JWT',
 ]);
 
 /**
@@ -165,6 +176,13 @@ export function resolveIcon(name: string): string | undefined {
   // Try removing parenthetical suffixes: "Node.js (Express)" → "Node.js"
   const noParens = name.replace(/\s*\(.*\)$/, '').trim();
   if (noParens !== name && TECH_ICONS[noParens]) return TECH_ICONS[noParens];
+
+  // Try progressively shorter prefixes: "pnpm Workspaces" → "pnpm"
+  const words = name.split(/\s+/);
+  for (let i = words.length - 1; i >= 1; i--) {
+    const prefix = words.slice(0, i).join(' ');
+    if (TECH_ICONS[prefix]) return TECH_ICONS[prefix];
+  }
 
   return undefined;
 }
