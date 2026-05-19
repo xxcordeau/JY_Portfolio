@@ -4,7 +4,7 @@ import styled, { keyframes, css } from 'styled-components';
 import { useAbout } from '../hooks/useAbout';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Mail, Phone, Calendar, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
+import { Mail, Calendar, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { resolveIcon, FILLED_ICONS as SHARED_FILLED, DARK_INVERT_ICONS } from '../lib/techIcons';
 
@@ -89,6 +89,11 @@ const IntroText = styled.p<{ $isDark: boolean }>`
   margin: 0 auto 24px;
   max-width: 640px;
   letter-spacing: -0.2px;
+
+  strong {
+    font-weight: 600;
+    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  }
 
   @media (max-width: 768px) {
     font-size: 16px;
@@ -487,7 +492,7 @@ const translations = {
   ko: {
     eyebrow: 'ABOUT',
     title: '안녕하세요,\n허정연입니다.',
-    bio: '사용자 중심의 인터페이스를 설계하고, 섬세한 UI와 부드러운 경험을 만드는 프론트엔드 개발자입니다. React와 TypeScript를 기반으로 웹 프론트엔드를 개발합니다.',
+    bio: '<strong>사용자 중심</strong>의 인터페이스를 설계하고, <strong>섬세한 UI</strong>와 부드러운 경험을 만드는 프론트엔드 개발자입니다. <strong>React</strong>와 <strong>TypeScript</strong>를 기반으로 웹 프론트엔드를 개발합니다.',
     skillsEyebrow: 'SKILLS',
     skills: '기술 스택',
     education: '학력',
@@ -499,7 +504,7 @@ const translations = {
   en: {
     eyebrow: 'ABOUT',
     title: 'Hello,\nI\'m Jungyeon Heo.',
-    bio: 'A frontend developer who designs user-centered interfaces and crafts delicate UI with smooth, thoughtful experiences. I build web frontends based on React and TypeScript.',
+    bio: 'A frontend developer who designs <strong>user-centered</strong> interfaces and crafts <strong>delicate UI</strong> with smooth, thoughtful experiences. I build web frontends based on <strong>React</strong> and <strong>TypeScript</strong>.',
     skillsEyebrow: 'SKILLS',
     skills: 'Skills & Tools',
     education: 'Education',
@@ -574,12 +579,11 @@ export default function About() {
           <IntroBlock>
             <SectionEyebrow id="dot-about" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
             <SectionTitle $isDark={isDark} style={{ whiteSpace: 'pre-line' }}>{t.title}</SectionTitle>
-            <IntroText $isDark={isDark}>{t.bio}</IntroText>
+            <IntroText $isDark={isDark} dangerouslySetInnerHTML={{ __html: t.bio }} />
             <InfoRow>
               {[
                 { icon: <Calendar />, value: '2000.01.28' },
                 { icon: <Mail />, value: 'qazseeszaq3219@gmail.com' },
-                { icon: <Phone />, value: '010-2863-7447' },
                 { icon: <MapPin />, value: language === 'ko' ? '서울, 대한민국' : 'Seoul, Korea' },
               ].map(({ icon, value }) => (
                 <InfoItem key={value}>
