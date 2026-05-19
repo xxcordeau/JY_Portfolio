@@ -408,20 +408,23 @@ const TimelineDesc = styled.p`
 const DetailToggle = styled.button<{ $isDark: boolean }>`
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 0;
-  border: none;
-  background: none;
-  font-size: 12px;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
+  border-radius: 100px;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'};
+  font-size: 13px;
   font-weight: 500;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'};
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.55)'};
   cursor: pointer;
   font-family: inherit;
-  margin-top: 4px;
-  transition: color 0.15s;
+  margin-top: 10px;
+  transition: all 0.2s ease;
 
   &:hover {
-    color: ${p => p.$isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)'};
+    color: ${p => p.$isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.8)'};
+    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)'};
+    background: ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'};
   }
 
   svg {
@@ -432,16 +435,16 @@ const DetailToggle = styled.button<{ $isDark: boolean }>`
 
 const slideDown = keyframes`
   from { opacity: 0; max-height: 0; }
-  to   { opacity: 1; max-height: 300px; }
+  to   { opacity: 1; max-height: 600px; }
 `;
 
 const AchievementList = styled.ul<{ $open: boolean }>`
   list-style: none;
   padding: 0;
-  margin: 8px 0 0 0;
+  margin: 12px 0 0 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   overflow: hidden;
   ${p => p.$open
     ? css`animation: ${slideDown} 0.3s ease forwards;`
@@ -449,17 +452,17 @@ const AchievementList = styled.ul<{ $open: boolean }>`
 `;
 
 const AchievementItem = styled.li<{ $isDark: boolean }>`
-  font-size: 12px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)'};
-  padding-left: 14px;
+  font-size: 13px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)'};
+  padding-left: 16px;
   position: relative;
-  line-height: 1.6;
+  line-height: 1.7;
 
   &::before {
     content: '–';
     position: absolute;
     left: 0;
-    color: #86868b;
+    color: ${p => p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)'};
   }
 `;
 
