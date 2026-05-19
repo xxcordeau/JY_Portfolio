@@ -1,4 +1,6 @@
-import styled from 'styled-components';
+import { useState, useRef, useEffect, Children, isValidElement } from 'react';
+import type { ReactNode } from 'react';
+import styled, { keyframes } from 'styled-components';
 
 // ============================================
 // Shared admin styled-components
@@ -204,40 +206,161 @@ export const FormTextarea = styled.textarea<{ $isDark: boolean }>`
   &::placeholder { color: #86868b; }
 `;
 
-export const FormSelect = styled.select<{ $isDark: boolean }>`
+/* ── Custom Select (replaces native <select>) ── */
+
+const dropIn = keyframes`
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+`;
+
+const SelectWrap = styled.div`
+  position: relative;
+`;
+
+const SelectTrigger = styled.button<{ $isDark: boolean; $open: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   height: 40px;
   padding: 0 14px;
-  padding-right: 36px;
   font-size: 14px;
-  background-color: ${p => p.$isDark ? 'rgba(255,255,255,0.05)' : '#f3f3f5'};
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 14px;
-  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.05)' : '#f3f3f5'};
+  border: 1px solid ${p =>
+    p.$open ? '#0c8ce9'
+    : p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
   border-radius: 8px;
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   font-family: inherit;
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
   transition: border-color 0.15s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #0c8ce9;
-  }
+  text-align: left;
 
   &:hover {
-    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'};
+    border-color: ${p => p.$open ? '#0c8ce9' : p.$isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'};
   }
 
-  option {
-    background: ${p => p.$isDark ? '#1e1e1e' : '#ffffff'};
-    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    padding: 8px;
+  svg {
+    width: 16px;
+    height: 16px;
+    color: #86868b;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+    transform: rotate(${p => p.$open ? '180deg' : '0deg'});
   }
 `;
+
+const SelectMenu = styled.div<{ $isDark: boolean }>`
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 500;
+  background: ${p => p.$isDark ? '#252525' : '#ffffff'};
+  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: ${p => p.$isDark
+    ? '0 8px 32px rgba(0,0,0,0.5)'
+    : '0 8px 32px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.03)'};
+  animation: ${dropIn} 0.15s ease;
+  overflow: hidden;
+`;
+
+const SelectItem = styled.div<{ $isDark: boolean; $active: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  color: ${p => p.$active ? '#0c8ce9' : p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  font-weight: ${p => p.$active ? '600' : '400'};
+  background: ${p => p.$active
+    ? (p.$isDark ? 'rgba(12,140,233,0.12)' : 'rgba(12,140,233,0.06)')
+    : 'transparent'};
+
+  &:hover {
+    background: ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+    color: #0c8ce9;
+    flex-shrink: 0;
+  }
+`;
+
+interface FormSelectProps {
+  $isDark: boolean;
+  value?: string;
+  onChange?: (e: { target: { value: string } }) => void;
+  children: ReactNode;
+  style?: React.CSSProperties;
+}
+
+export function FormSelect({ $isDark, value, onChange, children, style }: FormSelectProps) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const options: { value: string; label: string }[] = [];
+  Children.forEach(children, child => {
+    if (isValidElement(child) && child.type === 'option') {
+      const props = child.props as { value?: string; children?: string };
+      options.push({
+        value: props.value ?? String(props.children ?? ''),
+        label: String(props.children ?? ''),
+      });
+    }
+  });
+
+  const selectedLabel = options.find(o => o.value === value)?.label ?? options[0]?.label ?? '';
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  return (
+    <SelectWrap ref={ref} style={style}>
+      <SelectTrigger $isDark={$isDark} $open={open} type="button" onClick={() => setOpen(v => !v)}>
+        <span>{selectedLabel}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </SelectTrigger>
+      {open && (
+        <SelectMenu $isDark={$isDark}>
+          {options.map(opt => (
+            <SelectItem
+              key={opt.value}
+              $isDark={$isDark}
+              $active={opt.value === value}
+              onClick={() => {
+                onChange?.({ target: { value: opt.value } });
+                setOpen(false);
+              }}
+            >
+              <span>{opt.label}</span>
+              {opt.value === value && (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              )}
+            </SelectItem>
+          ))}
+        </SelectMenu>
+      )}
+    </SelectWrap>
+  );
+}
 
 export const FormRow = styled.div`
   display: grid;
