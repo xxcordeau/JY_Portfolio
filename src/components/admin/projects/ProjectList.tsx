@@ -68,6 +68,34 @@ const ActionCell = styled.div`
   justify-content: flex-end;
 `;
 
+const GroupHeader = styled.div<{ $isDark: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'};
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)'};
+`;
+
+const TypeBadge = styled.span<{ $type: 'freelance' | 'personal' }>`
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  ${p => p.$type === 'freelance'
+    ? 'background: rgba(12,140,233,0.12); color: #0c8ce9;'
+    : 'background: rgba(16,185,129,0.12); color: #10b981;'
+  }
+`;
+
+const GroupCount = styled.span`
+  font-size: 12px;
+  color: #86868b;
+`;
+
 const FeaturedStar = styled.span<{ $featured: boolean }>`
   color: ${p => p.$featured ? '#f59e0b' : 'rgba(128,128,128,0.3)'};
   svg { width: 14px; height: 14px; }
@@ -139,6 +167,76 @@ export default function ProjectList() {
     p.title_en.toLowerCase().includes(search.toLowerCase())
   );
 
+  const freelance = filtered.filter(p => (p.project_type ?? 'personal') === 'freelance');
+  const personal  = filtered.filter(p => (p.project_type ?? 'personal') !== 'freelance');
+
+  const renderRows = (list: DbProject[]) => (
+    <Table $isDark={isDark}>
+      <thead>
+        <tr>
+          <th style={{ width: 40 }}></th>
+          <th style={{ width: 60 }}></th>
+          <th>프로젝트</th>
+          <th>태그</th>
+          <th style={{ width: 60 }}>연도</th>
+          <th style={{ width: 80 }}>상태</th>
+          <th style={{ width: 100, textAlign: 'right' }}>관리</th>
+        </tr>
+      </thead>
+      <tbody>
+        {list.map(project => (
+          <tr key={project.id}>
+            <td>
+              <GripVertical size={14} style={{ color: '#86868b', opacity: 0.4 }} />
+            </td>
+            <td>
+              {project.cover_image_url ? (
+                <Thumbnail src={project.cover_image_url} alt="" />
+              ) : (
+                <Thumbnail as="div" style={{ background: isDark ? '#222' : '#e5e5e7' }} />
+              )}
+            </td>
+            <td>
+              <TitleCell $isDark={isDark}>
+                <strong>{project.title_ko}</strong>
+                <span>{project.role_ko}</span>
+              </TitleCell>
+            </td>
+            <td>
+              <TagList>
+                {project.tags.slice(0, 3).map(tag => (
+                  <MiniTag key={tag} $isDark={isDark}>{tag}</MiniTag>
+                ))}
+                {project.tags.length > 3 && (
+                  <MiniTag $isDark={isDark}>+{project.tags.length - 3}</MiniTag>
+                )}
+              </TagList>
+            </td>
+            <td>{project.year}</td>
+            <td>
+              <FeaturedStar $featured={project.is_featured}>
+                <Star fill={project.is_featured ? '#f59e0b' : 'none'} />
+              </FeaturedStar>
+              {project.is_featured && (
+                <Badge $variant="success" style={{ marginLeft: 6 }}>Featured</Badge>
+              )}
+            </td>
+            <td>
+              <ActionCell>
+                <GhostButton $isDark={isDark} onClick={() => navigate(`/admin/projects/${project.id}`)}>
+                  <Pencil />
+                </GhostButton>
+                <GhostButton $isDark={isDark} onClick={() => setDeleteTarget(project.id)} style={{ color: '#d4183d' }}>
+                  <Trash2 />
+                </GhostButton>
+              </ActionCell>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </Table>
+  );
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
     await supabase.from('projects').delete().eq('id', deleteTarget);
@@ -178,70 +276,24 @@ export default function ProjectList() {
           </EmptyState>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <Table $isDark={isDark}>
-              <thead>
-                <tr>
-                  <th style={{ width: 40 }}></th>
-                  <th style={{ width: 60 }}></th>
-                  <th>프로젝트</th>
-                  <th>태그</th>
-                  <th style={{ width: 60 }}>연도</th>
-                  <th style={{ width: 80 }}>상태</th>
-                  <th style={{ width: 100, textAlign: 'right' }}>관리</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(project => (
-                  <tr key={project.id}>
-                    <td>
-                      <GripVertical size={14} style={{ color: '#86868b', opacity: 0.4 }} />
-                    </td>
-                    <td>
-                      {project.cover_image_url ? (
-                        <Thumbnail src={project.cover_image_url} alt="" />
-                      ) : (
-                        <Thumbnail as="div" style={{ background: isDark ? '#222' : '#e5e5e7' }} />
-                      )}
-                    </td>
-                    <td>
-                      <TitleCell $isDark={isDark}>
-                        <strong>{project.title_ko}</strong>
-                        <span>{project.role_ko}</span>
-                      </TitleCell>
-                    </td>
-                    <td>
-                      <TagList>
-                        {project.tags.slice(0, 3).map(tag => (
-                          <MiniTag key={tag} $isDark={isDark}>{tag}</MiniTag>
-                        ))}
-                        {project.tags.length > 3 && (
-                          <MiniTag $isDark={isDark}>+{project.tags.length - 3}</MiniTag>
-                        )}
-                      </TagList>
-                    </td>
-                    <td>{project.year}</td>
-                    <td>
-                      <FeaturedStar $featured={project.is_featured}>
-                        <Star fill={project.is_featured ? '#f59e0b' : 'none'} />
-                      </FeaturedStar>
-                      {project.is_featured && (
-                        <Badge $variant="success" style={{ marginLeft: 6 }}>Featured</Badge>
-                      )}
-                    </td>
-                    <td>
-                      <ActionCell>
-                        <GhostButton $isDark={isDark} onClick={() => navigate(`/admin/projects/${project.id}`)}>
-                          <Pencil />
-                        </GhostButton>
-                        <GhostButton $isDark={isDark} onClick={() => setDeleteTarget(project.id)} style={{ color: '#d4183d' }}>
-                          <Trash2 />
-                        </GhostButton>
-                      </ActionCell>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+            {freelance.length > 0 && (
+              <>
+                <GroupHeader $isDark={isDark}>
+                  <TypeBadge $type="freelance">CLIENT WORK</TypeBadge>
+                  <GroupCount>외주 프로젝트 · {freelance.length}개</GroupCount>
+                </GroupHeader>
+                {renderRows(freelance)}
+              </>
+            )}
+            {personal.length > 0 && (
+              <>
+                <GroupHeader $isDark={isDark}>
+                  <TypeBadge $type="personal">PERSONAL</TypeBadge>
+                  <GroupCount>개인 프로젝트 · {personal.length}개</GroupCount>
+                </GroupHeader>
+                {renderRows(personal)}
+              </>
+            )}
           </div>
         )}
       </Card>
