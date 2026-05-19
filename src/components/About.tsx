@@ -210,14 +210,14 @@ const IconGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 16px;
-  max-width: 452px; /* 6 × 56px + 5 × 16px gap */
+  gap: 14px;
+  max-width: 490px; /* 7 × 56px + 6 × 14px gap */
   margin: 0 auto;
   padding-bottom: 28px;
 
   @media (max-width: 768px) {
-    max-width: 372px; /* 6 × 48px + 5 × 12px gap */
-    gap: 12px;
+    max-width: 400px; /* 7 × 44px + 6 × 10px gap */
+    gap: 10px;
   }
 `;
 
