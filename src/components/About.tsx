@@ -87,7 +87,7 @@ const IntroText = styled.p<{ $isDark: boolean }>`
   line-height: 1.75;
   color: ${p => p.$isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)'};
   margin: 0 auto 24px;
-  max-width: 640px;
+  max-width: 780px;
   letter-spacing: -0.2px;
 
   strong {
