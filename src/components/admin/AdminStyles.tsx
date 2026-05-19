@@ -207,17 +207,35 @@ export const FormTextarea = styled.textarea<{ $isDark: boolean }>`
 export const FormSelect = styled.select<{ $isDark: boolean }>`
   height: 40px;
   padding: 0 14px;
+  padding-right: 36px;
   font-size: 14px;
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.05)' : '#f3f3f5'};
+  background-color: ${p => p.$isDark ? 'rgba(255,255,255,0.05)' : '#f3f3f5'};
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
   border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
   border-radius: 8px;
   color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
   font-family: inherit;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.15s ease;
 
   &:focus {
     outline: none;
     border-color: #0c8ce9;
+  }
+
+  &:hover {
+    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'};
+  }
+
+  option {
+    background: ${p => p.$isDark ? '#1e1e1e' : '#ffffff'};
+    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+    padding: 8px;
   }
 `;
 
