@@ -408,23 +408,20 @@ const TimelineDesc = styled.p`
 const DetailToggle = styled.button<{ $isDark: boolean }>`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
-  border-radius: 100px;
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'};
-  font-size: 13px;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 12px;
   font-weight: 500;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.55)'};
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.85)'};
   cursor: pointer;
   font-family: inherit;
-  margin-top: 10px;
-  transition: all 0.2s ease;
+  margin-top: 4px;
+  transition: color 0.15s;
 
   &:hover {
-    color: ${p => p.$isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.8)'};
-    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)'};
-    background: ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'};
+    color: ${p => p.$isDark ? '#ffffff' : '#000000'};
   }
 
   svg {
