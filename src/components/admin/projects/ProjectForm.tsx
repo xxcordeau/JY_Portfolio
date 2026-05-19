@@ -10,7 +10,7 @@ import type { DbProject, DbProjectImage } from '../../../lib/types/database';
 import TagInput from '../../ui/TagInput';
 import {
   Card, FormSection, SectionTitle, FormGroup, FormLabel,
-  FormInput, FormTextarea, FormRow,
+  FormInput, FormTextarea, FormSelect, FormRow,
   PrimaryButton, SecondaryButton, DestructiveButton,
   TabRow, Tab, ToggleWrapper, ToggleSwitch, ToggleLabel,
   FileUploadArea, Badge
@@ -179,6 +179,7 @@ const SmallBtn = styled.button<{ $isDark: boolean; $danger?: boolean }>`
 
 const emptyProject: Omit<DbProject, 'created_at' | 'updated_at'> = {
   id: '',
+  project_type: 'personal',
   title_ko: '', title_en: '',
   description_ko: '', description_en: '',
   full_description_ko: '', full_description_en: '',
@@ -417,6 +418,20 @@ export default function ProjectForm() {
             <FormGroup>
               <FormLabel $isDark={isDark}>연도</FormLabel>
               <FormInput $isDark={isDark} value={form.year} onChange={e => set('year', e.target.value)} placeholder="2024-2025" />
+            </FormGroup>
+          </FormRow>
+
+          <FormRow>
+            <FormGroup>
+              <FormLabel $isDark={isDark}>구분 *</FormLabel>
+              <FormSelect
+                $isDark={isDark}
+                value={form.project_type ?? 'personal'}
+                onChange={e => set('project_type', e.target.value as 'freelance' | 'personal')}
+              >
+                <option value="freelance">외주 (CLIENT WORK)</option>
+                <option value="personal">개인 (PERSONAL)</option>
+              </FormSelect>
             </FormGroup>
           </FormRow>
 
