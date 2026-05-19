@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import React from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { useAbout } from '../hooks/useAbout';
@@ -7,6 +7,46 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Mail, Calendar, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { resolveIcon, FILLED_ICONS as SHARED_FILLED, DARK_INVERT_ICONS } from '../lib/techIcons';
+
+/* ── Text Scramble Hook ── */
+const CHARS = '가나다라마바사아자차카타파하ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
+function useTextScramble(target: string, trigger: boolean, duration = 800) {
+  const [text, setText] = useState(target);
+  const frameRef = useRef(0);
+  useEffect(() => {
+    if (!trigger) { setText(target); return; }
+    const len = target.length;
+    const startTime = performance.now();
+    const step = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const resolved = Math.floor(progress * len);
+      let result = '';
+      for (let i = 0; i < len; i++) {
+        if (target[i] === '\n') { result += '\n'; continue; }
+        if (i < resolved) { result += target[i]; }
+        else { result += CHARS[Math.floor(Math.random() * CHARS.length)]; }
+      }
+      setText(result);
+      if (progress < 1) frameRef.current = requestAnimationFrame(step);
+    };
+    frameRef.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frameRef.current);
+  }, [target, trigger, duration]);
+  return text;
+}
+
+/* ── Character Fade-In Component ── */
+const charReveal = keyframes`
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
+const CharSpan = styled.span<{ $delay: number }>`
+  display: inline-block;
+  opacity: 0;
+  animation: ${charReveal} 0.4s ease forwards;
+  animation-delay: ${p => p.$delay}ms;
+`;
 
 /* ── Full-screen sub-section ── */
 const fadeUp = keyframes`
@@ -82,7 +122,12 @@ const IntroBlock = styled.div`
   text-align: center;
 `;
 
-const IntroText = styled.p<{ $isDark: boolean }>`
+const underlineDraw = keyframes`
+  from { background-size: 0% 6px; }
+  to   { background-size: 100% 6px; }
+`;
+
+const IntroText = styled.p<{ $isDark: boolean; $inView?: boolean }>`
   font-size: 18px;
   line-height: 1.75;
   color: ${p => p.$isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)'};
@@ -93,6 +138,18 @@ const IntroText = styled.p<{ $isDark: boolean }>`
   strong {
     font-weight: 600;
     color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+    background-image: linear-gradient(
+      ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)'},
+      ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)'}
+    );
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    background-size: 0% 6px;
+    padding-bottom: 2px;
+    ${p => p.$inView && css`
+      animation: ${underlineDraw} 0.8s ease forwards;
+      animation-delay: 0.3s;
+    `}
   }
 
   @media (max-width: 768px) {
@@ -566,6 +623,8 @@ export default function About() {
   const [skillsRef, skillsInView] = useInView(0.1);
   const [expRef, expInView] = useInView(0.1);
 
+  const scrambledTitle = useTextScramble(t.title, introInView, 1000);
+
   return (
     <>
       {/* ── Screen 1: Intro ── */}
@@ -578,8 +637,8 @@ export default function About() {
         <Container>
           <IntroBlock>
             <SectionEyebrow id="dot-about" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
-            <SectionTitle $isDark={isDark} style={{ whiteSpace: 'pre-line' }}>{t.title}</SectionTitle>
-            <IntroText $isDark={isDark} dangerouslySetInnerHTML={{ __html: t.bio }} />
+            <SectionTitle $isDark={isDark} style={{ whiteSpace: 'pre-line' }}>{scrambledTitle}</SectionTitle>
+            <IntroText $isDark={isDark} $inView={introInView} dangerouslySetInnerHTML={{ __html: t.bio }} />
             <InfoRow>
               {[
                 { icon: <Calendar />, value: '2000.01.28' },
@@ -606,7 +665,11 @@ export default function About() {
         <Container>
           <SkillSection>
             <SkillEyebrow id="dot-skills" $isDark={isDark} data-dot-anchor>{t.skillsEyebrow}</SkillEyebrow>
-            <SkillTitle $isDark={isDark}>{t.skills}</SkillTitle>
+            <SkillTitle as="div" $isDark={isDark}>
+              {skillsInView
+                ? t.skills.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 50}>{c}</CharSpan>)
+                : t.skills}
+            </SkillTitle>
             {loading ? (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, justifyContent: 'center' }}>
                 {Array.from({ length: 10 }).map((_, i) => (
@@ -671,7 +734,11 @@ export default function About() {
         <Container>
           {/* 경력 */}
           <div>
-            <SubTitle $isDark={isDark}>{t.experience}</SubTitle>
+            <SubTitle as="div" $isDark={isDark}>
+              {expInView
+                ? t.experience.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 50}>{c}</CharSpan>)
+                : t.experience}
+            </SubTitle>
             {loading ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 {[1, 2].map(i => (
@@ -723,7 +790,11 @@ export default function About() {
 
           {/* 학력 */}
           <div>
-            <SubTitle $isDark={isDark}>{t.education}</SubTitle>
+            <SubTitle as="div" $isDark={isDark}>
+              {expInView
+                ? t.education.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 50}>{c}</CharSpan>)
+                : t.education}
+            </SubTitle>
             {loading ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 {[1, 2].map(i => (

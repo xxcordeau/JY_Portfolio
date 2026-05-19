@@ -1,4 +1,5 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
+import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useProjects } from '../hooks/useProjects';
@@ -6,6 +7,36 @@ import { ArrowRight } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { resolveIcon } from '../lib/techIcons';
+
+/* ── InView hook ── */
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); io.disconnect(); } },
+      { threshold },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return [ref, inView] as [React.RefObject<HTMLElement>, boolean];
+}
+
+/* ── Character reveal animation ── */
+const charReveal = keyframes`
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
+const CharSpan = styled.span<{ $delay: number }>`
+  display: inline-block;
+  opacity: 0;
+  animation: ${charReveal} 0.4s ease forwards;
+  animation-delay: ${p => p.$delay}ms;
+`;
 
 /* ── Keyframes ── */
 const shimmer = keyframes`
@@ -263,6 +294,14 @@ export default function Projects({ onProjectClick, onViewAll }: ProjectsProps) {
   const { projects, loading } = useProjects();
   const t = translations[language];
 
+  const [freelanceRef, freelanceInView] = useInView(0.15);
+  const [personalRef, personalInView] = useInView(0.15);
+
+  const renderAnimatedTitle = (text: string, inView: boolean) =>
+    inView
+      ? text.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 40}>{c}</CharSpan>)
+      : text;
+
   const freelance = projects.filter(p => p.type === 'freelance');
   const personal  = projects.filter(p => p.type !== 'freelance');
 
@@ -335,12 +374,12 @@ export default function Projects({ onProjectClick, onViewAll }: ProjectsProps) {
     <>
       {/* ── CLIENT WORK — full viewport ── */}
       {(loading || freelanceShow.length > 0) && (
-        <GroupSection id="projects" $isDark={isDark}>
+        <GroupSection id="projects" $isDark={isDark} ref={freelanceRef as React.RefObject<HTMLElement>}>
           <Container>
             <GroupEyebrow id="dot-freelance" data-dot-anchor $isDark={isDark}>
               {t.freelanceEyebrow}
             </GroupEyebrow>
-            <GroupTitle $isDark={isDark}>{t.freelanceTitle}</GroupTitle>
+            <GroupTitle as="div" $isDark={isDark}>{renderAnimatedTitle(t.freelanceTitle, freelanceInView)}</GroupTitle>
             <Grid>
               {loading ? renderSkeletons(3) : renderCards(freelanceShow)}
             </Grid>
@@ -358,12 +397,12 @@ export default function Projects({ onProjectClick, onViewAll }: ProjectsProps) {
 
       {/* ── PERSONAL — full viewport ── */}
       {!loading && personalShow.length > 0 && (
-        <GroupSection $isDark={isDark}>
+        <GroupSection $isDark={isDark} ref={personalRef as React.RefObject<HTMLElement>}>
           <Container>
             <GroupEyebrow id="dot-personal" data-dot-anchor $isDark={isDark}>
               {t.personalEyebrow}
             </GroupEyebrow>
-            <GroupTitle $isDark={isDark}>{t.personalTitle}</GroupTitle>
+            <GroupTitle as="div" $isDark={isDark}>{renderAnimatedTitle(t.personalTitle, personalInView)}</GroupTitle>
             <Grid>
               {renderCards(personalShow)}
             </Grid>
