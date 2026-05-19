@@ -492,7 +492,7 @@ const translations = {
   ko: {
     eyebrow: 'ABOUT',
     title: '안녕하세요,\n허정연입니다.',
-    bio: '<strong>사용자 중심</strong>의 인터페이스를 설계하고, <strong>섬세한 UI</strong>와 부드러운 경험을 만드는 프론트엔드 개발자입니다.<br/><strong>React</strong>와 <strong>TypeScript</strong>를 기반으로 웹 프론트엔드를 개발합니다.',
+    bio: '<strong>사용자 중심</strong>의 인터페이스를 설계하고,<br/><strong>섬세한 UI</strong>와 부드러운 경험을 만드는 프론트엔드 개발자입니다.<br/><strong>React</strong>와 <strong>TypeScript</strong>를 기반으로 웹 프론트엔드를 개발합니다.',
     skillsEyebrow: 'SKILLS',
     skills: '기술 스택',
     education: '학력',
@@ -504,7 +504,7 @@ const translations = {
   en: {
     eyebrow: 'ABOUT',
     title: 'Hello,\nI\'m Jungyeon Heo.',
-    bio: 'A frontend developer who designs <strong>user-centered</strong> interfaces and crafts <strong>delicate UI</strong> with smooth, thoughtful experiences.<br/>I build web frontends based on <strong>React</strong> and <strong>TypeScript</strong>.',
+    bio: 'Designing <strong>user-centered</strong> interfaces,<br/>crafting <strong>delicate UI</strong> with smooth, thoughtful experiences.<br/>I build web frontends based on <strong>React</strong> and <strong>TypeScript</strong>.',
     skillsEyebrow: 'SKILLS',
     skills: 'Skills & Tools',
     education: 'Education',
