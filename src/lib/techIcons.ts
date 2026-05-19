@@ -78,6 +78,11 @@ export const TECH_ICONS: Record<string, string> = {
   'Rust':               `${_DV}/rust/rust-original.svg`,
   'Prisma':             `${_SI}/prisma/2D3748`,
 
+  // ── Realtime / Messaging ──
+  'WebSocket':          `${_SI}/socketdotio/010101`,
+  'STOMP':              `${_SI}/socketdotio/010101`,
+  'Socket.io':          `${_SI}/socketdotio/010101`,
+
   // ── Auth / API ──
   'JWT':                `${_SI}/jsonwebtokens/000000`,
   'Swagger':            `${_DV}/swagger/swagger-original.svg`,
@@ -156,6 +161,9 @@ export const DARK_INVERT_ICONS = new Set([
   'Notion',
   'Electron',
   // simpleicons with 000000 or very dark hex color
+  'WebSocket',
+  'STOMP',
+  'Socket.io',
   'Remix',
   'Shadcn UI',
   'CSS Modules',
