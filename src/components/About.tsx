@@ -6,6 +6,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Mail, Phone, Calendar, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { resolveIcon, FILLED_ICONS as SHARED_FILLED, DARK_INVERT_ICONS } from '../lib/techIcons';
 
 /* ── Full-screen sub-section ── */
 const fadeUp = keyframes`
@@ -210,12 +211,12 @@ const IconGrid = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   gap: 16px;
-  max-width: 376px; /* 5 × 56px + 4 × 16px gap */
+  max-width: 452px; /* 6 × 56px + 5 × 16px gap */
   margin: 0 auto;
   padding-bottom: 28px;
 
   @media (max-width: 768px) {
-    max-width: 312px; /* 5 × 48px + 4 × 12px gap */
+    max-width: 372px; /* 6 × 48px + 5 × 12px gap */
     gap: 12px;
   }
 `;
@@ -269,11 +270,19 @@ const IconItem = styled.div<{ $isDark: boolean; $faded?: boolean }>`
     object-fit: contain;
   }
 
+  img.icon-dark-invert {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    ${p => p.$isDark ? 'filter: invert(1);' : ''}
+  }
+
   @media (max-width: 768px) {
     width: 48px;
     height: 48px;
 
-    img.icon-plain {
+    img.icon-plain,
+    img.icon-dark-invert {
       width: 32px;
       height: 32px;
     }
@@ -297,13 +306,7 @@ const IconTooltip = styled.span<{ $isDark: boolean }>`
   pointer-events: none;
 `;
 
-/** SVG 자체에 배경색이 있는 아이콘들 — 박스를 꽉 채움 */
-const FILLED_ICONS = new Set([
-  'JavaScript', 'TypeScript', 'HTML/CSS', 'HTML', 'CSS',
-  'Sass', 'SCSS',
-  'Photoshop', 'Illustrator', 'Storybook',
-  'Swagger', 'Postman',
-]);
+/** Use SHARED_FILLED from techIcons.ts */
 
 const SubTitle = styled.h3<{ $isDark: boolean }>`
   font-size: 22px;
@@ -317,55 +320,7 @@ const SubTitle = styled.h3<{ $isDark: boolean }>`
   }
 `;
 
-/** 기술 이름 → devicon/simpleicons CDN URL 매핑 */
-const SKILL_ICONS: Record<string, string> = {
-  'JavaScript': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
-  'TypeScript': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
-  'React': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
-  'Next.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg',
-  'Vue.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
-  'HTML': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
-  'CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg',
-  'HTML/CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
-  'Styled-Components': 'https://cdn.simpleicons.org/styledcomponents/DB7093',
-  'Tailwind CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg',
-  'Sass': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg',
-  'SCSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg',
-  'Ant Design': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/antdesign/antdesign-original.svg',
-  'Storybook': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/storybook/storybook-original.svg',
-  'Node.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
-  'Express': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg',
-  'Supabase': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg',
-  'Firebase': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg',
-  'Webpack': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/webpack/webpack-original.svg',
-  'Vite': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg',
-  'npm': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg',
-  'Git': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg',
-  'Vercel': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg',
-  'Figma': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg',
-  'Photoshop': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-original.svg',
-  'Illustrator': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/illustrator/illustrator-plain.svg',
-  'Vue 3': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
-  'Redux': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redux/redux-original.svg',
-  'Nest.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nestjs/nestjs-original.svg',
-  'NestJS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nestjs/nestjs-original.svg',
-  'PostgreSQL': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg',
-  'Swagger': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg',
-  'Postman': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-original.svg',
-  'Jira': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg',
-  'Notion': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/notion/notion-original.svg',
-  'Slack': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/slack/slack-original.svg',
-  'Docker': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg',
-  'MongoDB': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg',
-  'MySQL': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg',
-  'Python': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
-  'GitHub': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg',
-  'GitLab': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/gitlab/gitlab-original.svg',
-  'AWS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg',
-  'Zustand': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
-  'Swagger / Postman': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg',
-  'Jira / Notion / Slack': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jira/jira-original.svg',
-};
+/** resolveIcon from shared techIcons.ts — no duplicate map needed */
 
 /* ── 경력 타임라인 ── */
 const Timeline = styled.div`
@@ -674,17 +629,21 @@ export default function About() {
                 <IconGrid>
                   {skills.map((s, i) => {
                     const isFaded = activeTab !== 'all' && s.category !== activeTab;
+                    const iconUrl = resolveIcon(s.name);
+                    const iconClass = SHARED_FILLED.has(s.name) ? 'icon-filled'
+                      : DARK_INVERT_ICONS.has(s.name) ? 'icon-dark-invert'
+                      : 'icon-plain';
                     return (
                       <IconItem key={i} $isDark={isDark} $faded={isFaded}>
-                        {SKILL_ICONS[s.name] ? (
+                        {iconUrl ? (
                           <img
-                            src={SKILL_ICONS[s.name]}
+                            src={iconUrl}
                             alt={s.name}
                             loading="lazy"
-                            className={FILLED_ICONS.has(s.name) ? 'icon-filled' : 'icon-plain'}
+                            className={iconClass}
                           />
                         ) : (
-                          <span style={{ fontSize: 12, color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)' }}>{s.name}</span>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)', textAlign: 'center', lineHeight: 1.2 }}>{s.name}</span>
                         )}
                         <IconTooltip $isDark={isDark}>{s.name}</IconTooltip>
                       </IconItem>
