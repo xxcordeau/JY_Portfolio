@@ -23,24 +23,24 @@ export const tonginExpress: Project = {
   },
   highlights: {
     ko: [
-      '태블릿 전용 반응형 UI 설계 및 최적화 - 아이패드 해상도 기준으로 터치 중심 UX 구성',
-      '전자서명 프로세스 구현 - 계약서 링크를 문자로 발송 → 고객 서명 완료 시 실시간 상태 업데이트',
-      '계약 등록 및 진행 관리 모듈 개발 - 계약 생성, 수정, 취소, 상태 변경 로직 구현',
-      '관리자 페이지 구축 - 계약 현황, 통계, 서명 로그 관리 기능 추가',
-      '상태 관리 및 데이터 구조 설계 - React + TypeScript 기반으로 명확한 상태 흐름 및 API 모듈화',
-      '현장 계약 처리 속도 약 60% 단축',
-      '서명 완료율 35% 증가',
-      '관리자 업무 효율성 및 실시간 추적성 강화'
+      '프론트엔드 단독 개발 (팀: 백엔드 1, 프론트 1, 기획 1) — 기존 오프라인 종이 계약 → 태블릿 웹앱 디지털 전환',
+      '아이패드 Pro 11" 해상도 기준 터치 중심 UX — 버튼 최소 44px, 스와이프 네비게이션, 반응형 레이아웃',
+      '전자서명 프로세스: 계약서 링크 SMS 발송 → 고객 서명 완료 시 WebSocket 실시간 상태 업데이트',
+      '계약 등록·견적·서명·진행 관리 CRUD + 실시간 상태 머신 (대기 → 서명중 → 완료 → 취소)',
+      '관리자 대시보드: 계약 현황 통계, 일별/월별 추이 차트, 서명 로그 추적',
+      '현장 계약 처리 시간 평균 25분 → 10분 (60% 단축)',
+      '전자서명 완료율 기존 52% → 87% (35%p 향상)',
+      'React + TypeScript 기반 상태 흐름 설계 및 API 모듈화',
     ],
     en: [
-      'Tablet-optimized responsive UI design and optimization - Touch-centric UX based on iPad resolution',
-      'E-signature process implementation - Send contract links via text → Real-time status updates upon customer signature completion',
-      'Contract registration and progress management module development - Implemented contract creation, modification, cancellation, and status change logic',
-      'Admin page construction - Added contract status, statistics, and signature log management features',
-      'State management and data structure design - Clear state flow and API modularization based on React + TypeScript',
-      'Reduced on-site contract processing time by approximately 60%',
-      'Increased signature completion rate by 35%',
-      'Enhanced administrator work efficiency and real-time tracking capabilities'
+      'Solo frontend developer (team: 1 backend, 1 frontend, 1 PM) — digitized offline paper contracts to tablet webapp',
+      'Touch-centric UX for iPad Pro 11" — min 44px touch targets, swipe navigation, responsive layout',
+      'E-signature flow: SMS contract link → real-time WebSocket status update on customer signature',
+      'Contract CRUD + real-time state machine (pending → signing → completed → cancelled)',
+      'Admin dashboard: contract statistics, daily/monthly trend charts, signature log tracking',
+      'Reduced avg. contract processing from 25min → 10min (60% reduction)',
+      'E-signature completion rate: 52% → 87% (35pp improvement)',
+      'State flow design and API modularization with React + TypeScript',
     ]
   },
   techStack: {

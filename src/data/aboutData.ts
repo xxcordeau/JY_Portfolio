@@ -45,26 +45,28 @@ export interface Experience {
 
 export const skills: Skill[] = [
   // Frontend
-  { name: "Vue 3", category: "frontend" },
-  { name: "React", category: "frontend" },
+  { name: "Vue 3 / Nuxt 3", category: "frontend" },
+  { name: "React / Next.js", category: "frontend" },
   { name: "TypeScript", category: "frontend" },
-  { name: "JavaScript", category: "frontend" },
-  { name: "Redux", category: "frontend" },
+  { name: "Electron", category: "frontend" },
+  { name: "Tailwind CSS / styled-components", category: "frontend" },
+  { name: "Zustand / Redux", category: "frontend" },
 
   // Backend
-  { name: "Node.js", category: "backend" },
-  { name: "Nest.js", category: "backend" },
-  { name: "PostgreSQL", category: "backend" },
+  { name: "Spring Boot / Java", category: "backend" },
+  { name: "NestJS / Node.js", category: "backend" },
+  { name: "PostgreSQL / Prisma", category: "backend" },
+  { name: "WebSocket (STOMP)", category: "backend" },
 
   // Design
   { name: "Figma", category: "design" },
-  { name: "Illustrator", category: "design" },
-  { name: "Photoshop", category: "design" },
+  { name: "Illustrator / Photoshop", category: "design" },
 
   // Other
-  { name: "Git", category: "other" },
-  { name: "Swagger / Postman", category: "other" },
-  { name: "Jira / Notion / Slack", category: "other" },
+  { name: "AWS (EC2 / S3 / RDS)", category: "other" },
+  { name: "Docker / Nginx", category: "other" },
+  { name: "Git / GitHub Actions", category: "other" },
+  { name: "pnpm Workspaces", category: "other" },
 ];
 
 export const education: Education[] = [
@@ -106,16 +108,18 @@ export const experiences: Experience[] = [
     },
     achievements: {
       ko: [
-        "Vue 3, Nuxt 3 기반의 SPA 구조 설계 및 구현",
-        "공통 컴포넌트 및 디자인 시스템 구축으로 코드 일관성과 생산성 향상",
-        "대시보드, 정책관리, 로그·인증 기록 등 복합 데이터 테이블 UI 개발",
-        "런타임 환경 대응형 API 모듈 및 공통 composable 구조 개선",
+        "프론트엔드 1인 전담 — Nuxt 3 + TypeScript 기반 SPA 아키텍처 설계 및 전체 UI 구현",
+        "공통 컴포넌트 62종 + 디자인 시스템 구축 → 신규 모듈 개발 속도 2배 향상",
+        "다중 조건 검색 엔진 + 태그 필터 시스템 → 기존 대비 검색 응답 속도 30% 단축",
+        "수천 건 로그 데이터 안정 처리를 위한 lazy-load 렌더링 최적화",
+        "현대모비스·현대오토에버·현대케피코 등 주요 그룹사 3곳+ 도입 운영 중",
       ],
       en: [
-        "Designed and implemented SPA structure based on Vue 3 and Nuxt 3",
-        "Enhanced code consistency and productivity by building common components and design system",
-        "Developed complex data table UI for dashboard, policy management, logs, and authentication records",
-        "Improved runtime environment-responsive API modules and common composable structure",
+        "Sole frontend developer — Designed SPA architecture and implemented all UI based on Nuxt 3 + TypeScript",
+        "Built 62 common components + design system → doubled new module development speed",
+        "Multi-condition search engine + tag filter system → reduced search response time by 30%",
+        "Lazy-load rendering optimization for stable processing of thousands of log entries",
+        "Deployed and operating at 3+ major companies: Hyundai Mobis, AutoEver, Kefico",
       ],
     },
   },
@@ -125,26 +129,26 @@ export const experiences: Experience[] = [
       en: "Tongin Express",
     },
     position: {
-      ko: "프론트엔드 개발자 (사내 근무 / 프리랜서)",
-      en: "Frontend Developer (In-house / Freelancer)",
+      ko: "프론트엔드 개발자 (사내 → 프리랜서 전환)",
+      en: "Frontend Developer (In-house → Freelancer)",
     },
     period: "2022.07 - 2023.07",
     description: {
-      ko: "처음에는 사내 웹 퍼블리셔로 근무하였고, 이후 외주 프리랜서로 전환하여 계약관리 시스템과 물류 서비스 웹 페이지 개발을 지속적으로 담당했습니다.",
-      en: "Initially worked as an in-house web publisher, then transitioned to freelance to continue developing contract management systems and logistics service web pages.",
+      ko: "사내 웹 퍼블리셔로 시작해 프리랜서로 전환하며, 오프라인 중심이던 계약 프로세스를 태블릿 전용 웹앱으로 디지털 전환하는 프로젝트를 주도했습니다.",
+      en: "Started as an in-house web publisher and transitioned to freelancer, leading the digital transformation of an offline contract process into a tablet-optimized web application.",
     },
     achievements: {
       ko: [
-        "계약 등록·관리·서명 프로세스 페이지 개발",
-        "반응형 웹 구조 설계 및 관리자 페이지 UI 구현",
-        "모바일·태블릿 환경 최적화 및 사용자 경험 개선",
-        "Vue.js, SCSS, JavaScript를 활용한 컴포넌트 기반 UI 구축",
+        "계약 등록 → 견적 → 전자서명 → 상태관리 전 과정을 웹앱으로 디지털 전환",
+        "아이패드 해상도 기준 터치 중심 반응형 UI 설계 및 구현",
+        "현장 계약 처리 속도 60% 단축, 전자서명 완료율 35% 향상",
+        "Vue.js + SCSS 기반 컴포넌트 시스템 구축, 관리자 페이지 UI 구현",
       ],
       en: [
-        "Developed contract registration, management, and signature process pages",
-        "Designed responsive web structure and implemented admin page UI",
-        "Optimized mobile and tablet environments and improved user experience",
-        "Built component-based UI using Vue.js, SCSS, and JavaScript",
+        "Digitized entire contract flow: registration → quotation → e-signature → status tracking",
+        "Designed and implemented touch-centric responsive UI optimized for iPad resolution",
+        "Reduced on-site contract processing time by 60%, increased e-signature completion rate by 35%",
+        "Built component system with Vue.js + SCSS, implemented admin page UI",
       ],
     },
   },

@@ -31,6 +31,12 @@ function toProject(row: DbProject): Project {
       design: design.length > 0 ? design : undefined,
       others: others.length > 0 ? others : undefined,
     },
+    challenge: row.challenge_ko && row.challenge_en
+      ? { ko: row.challenge_ko, en: row.challenge_en }
+      : undefined,
+    solution: row.solution_ko && row.solution_en
+      ? { ko: row.solution_ko, en: row.solution_en }
+      : undefined,
     links: {
       github: ensureHttps(row.link_github ?? undefined),
       demo: ensureHttps(row.link_demo ?? undefined),

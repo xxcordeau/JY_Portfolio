@@ -192,6 +192,49 @@ const SectionTitle = styled.h2<{ $isDark: boolean }>`
   }
 `;
 
+const ChallengeSolutionGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+`;
+
+const ChallengeCard = styled.div<{ $isDark: boolean }>`
+  padding: 32px;
+  border-radius: 16px;
+  background: ${p => p.$isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.02)'};
+  border: 1px solid ${p => p.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
+  transition: all 0.3s ease;
+`;
+
+const ChallengeLabel = styled.div<{ $isDark: boolean; $type: 'challenge' | 'solution' }>`
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  color: ${p => p.$type === 'challenge'
+    ? (p.$isDark ? '#ff6b6b' : '#e03131')
+    : (p.$isDark ? '#51cf66' : '#2f9e44')};
+  transition: color 0.3s ease;
+`;
+
+const ChallengeText = styled.p<{ $isDark: boolean }>`
+  font-size: 15px;
+  line-height: 1.75;
+  color: ${p => p.$isDark ? '#a1a1a6' : '#424245'};
+  margin: 0;
+  transition: color 0.3s ease;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+`;
+
 const HighlightsList = styled.ul`
   list-style: none;
   padding: 0;
@@ -395,6 +438,8 @@ const translations = {
     year: '연도',
     role: '역할',
     highlights: '주요 성과',
+    challenge: 'Challenge',
+    solution: 'Solution',
     techStack: '기술 스택',
     tryDemo: '인터랙티브 데모',
     frontend: '프론트엔드',
@@ -410,6 +455,8 @@ const translations = {
     year: 'Year',
     role: 'Role',
     highlights: 'Highlights',
+    challenge: 'Challenge',
+    solution: 'Solution',
     techStack: 'Tech Stack',
     tryDemo: 'Interactive Demo',
     frontend: 'Frontend',
@@ -576,6 +623,22 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
           ))}
         </HighlightsList>
       </Section>
+
+      {project.challenge && project.solution && (
+        <Section style={{ borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}` }}>
+          <SectionTitle $isDark={isDark}>Challenge & Solution</SectionTitle>
+          <ChallengeSolutionGrid>
+            <ChallengeCard $isDark={isDark}>
+              <ChallengeLabel $isDark={isDark} $type="challenge">{t.challenge}</ChallengeLabel>
+              <ChallengeText $isDark={isDark}>{project.challenge[language]}</ChallengeText>
+            </ChallengeCard>
+            <ChallengeCard $isDark={isDark}>
+              <ChallengeLabel $isDark={isDark} $type="solution">{t.solution}</ChallengeLabel>
+              <ChallengeText $isDark={isDark}>{project.solution[language]}</ChallengeText>
+            </ChallengeCard>
+          </ChallengeSolutionGrid>
+        </Section>
+      )}
 
       <Section style={{ borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}` }}>
         <TechSectionHeader>

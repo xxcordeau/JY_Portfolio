@@ -34,6 +34,14 @@ export interface Project {
     design?: string[];
     others?: string[];
   };
+  challenge?: {
+    ko: string;
+    en: string;
+  };
+  solution?: {
+    ko: string;
+    en: string;
+  };
   links?: {
     github?: string;
     demo?: string;
