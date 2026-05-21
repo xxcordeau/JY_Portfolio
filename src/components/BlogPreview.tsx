@@ -1,9 +1,41 @@
+import { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useBlogPosts } from '../hooks/useBlogPosts';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowRight } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+
+/* ── InView hook (toggles so animations replay) ── */
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return [ref, inView] as [React.RefObject<HTMLElement>, boolean];
+}
+
+/* ── Character reveal animation ── */
+const charReveal = keyframes`
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
+const CharSpan = styled.span<{ $delay: number }>`
+  display: inline-block;
+  opacity: 0;
+  animation: ${charReveal} 0.4s ease forwards;
+  animation-delay: ${p => p.$delay}ms;
+`;
 
 /* ── Keyframes ── */
 const shimmer = keyframes`
@@ -227,11 +259,18 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
   const t = translations[language];
   const recentPosts = blogPosts.slice(0, 6);
 
+  const [sectionRef, inView] = useInView(0.15);
+
+  const renderAnimatedTitle = (text: string) =>
+    inView
+      ? text.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 40}>{c}</CharSpan>)
+      : text;
+
   return (
-    <BlogSection id="blog" $isDark={isDark}>
+    <BlogSection id="blog" $isDark={isDark} ref={sectionRef as React.RefObject<HTMLElement>}>
       <Container>
         <SectionEyebrow id="dot-blog" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
-        <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
+        <SectionTitle as="div" $isDark={isDark}>{renderAnimatedTitle(t.title)}</SectionTitle>
 
         <Grid>
           {loading

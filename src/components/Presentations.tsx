@@ -1,10 +1,24 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { FileText, ChevronLeft, X, Loader } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { supabase } from '../lib/supabase';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+
+/* ── Character reveal animation ── */
+const charReveal = keyframes`
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
+const CharSpan = styled.span<{ $delay: number }>`
+  display: inline-block;
+  opacity: 0;
+  animation: ${charReveal} 0.4s ease forwards;
+  animation-delay: ${p => p.$delay}ms;
+`;
 import type { DbPresentation } from '../lib/types/database';
 
 // pdfjs worker
@@ -481,6 +495,22 @@ interface Props {
   onBack?: () => void;
 }
 
+function useReplayInView(threshold = 0.15) {
+  const ref = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return [ref, inView] as [React.RefObject<HTMLElement>, boolean];
+}
+
 export default function Presentations({ onBack }: Props) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
@@ -488,6 +518,7 @@ export default function Presentations({ onBack }: Props) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string | null>(null);
   const [viewing, setViewing] = useState<DbPresentation | null>(null);
+  const [sectionRef, titleInView] = useReplayInView(0.15);
 
   useEffect(() => {
     supabase
@@ -525,10 +556,15 @@ export default function Presentations({ onBack }: Props) {
           </BackBtn>
         )}
 
-        <Container>
+        <Container ref={sectionRef as React.RefObject<HTMLDivElement>}>
           <SectionEyebrow $isDark={isDark}>PRESENTATIONS</SectionEyebrow>
-          <PageTitle $isDark={isDark}>
-            {language === 'ko' ? 'PT 자료' : 'Presentations'}
+          <PageTitle as="div" $isDark={isDark}>
+            {(() => {
+              const text = language === 'ko' ? 'PT 자료' : 'Presentations';
+              return titleInView
+                ? text.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 40}>{c}</CharSpan>)
+                : text;
+            })()}
           </PageTitle>
           <PageSubtitle $isDark={isDark}>
             {language === 'ko'

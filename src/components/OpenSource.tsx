@@ -1,8 +1,40 @@
+import { useRef, useState, useEffect } from 'react';
+import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useOpenSource } from '../hooks/useOpenSource';
 import { Github, Star, Download, ArrowRight, ArrowLeft } from 'lucide-react';
+
+/* ── InView hook (toggles so animations replay) ── */
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return [ref, inView] as [React.RefObject<HTMLElement>, boolean];
+}
+
+/* ── Character reveal animation ── */
+const charReveal = keyframes`
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
+const CharSpan = styled.span<{ $delay: number }>`
+  display: inline-block;
+  opacity: 0;
+  animation: ${charReveal} 0.4s ease forwards;
+  animation-delay: ${p => p.$delay}ms;
+`;
 
 /* ── Keyframes ── */
 const shimmer = keyframes`
@@ -303,8 +335,15 @@ export default function OpenSource({
 
   const skeletonCount = compact && typeof limit === 'number' ? limit : 3;
 
+  const [sectionRef, inView] = useInView(0.15);
+
+  const renderAnimatedTitle = (text: string) =>
+    inView
+      ? text.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 40}>{c}</CharSpan>)
+      : text;
+
   return (
-    <OpenSourceSection $isDark={isDark}>
+    <OpenSourceSection $isDark={isDark} ref={sectionRef as React.RefObject<HTMLElement>}>
       <Container>
         {/* Back button — full page only */}
         {!compact && onBack && (
@@ -315,7 +354,7 @@ export default function OpenSource({
         )}
 
         <SectionEyebrow id="dot-opensource" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
-        <SectionTitle $isDark={isDark}>{t.title}</SectionTitle>
+        <SectionTitle as="div" $isDark={isDark}>{renderAnimatedTitle(t.title)}</SectionTitle>
         {!compact && <SectionSubtitle $isDark={isDark}>{t.subtitle}</SectionSubtitle>}
         {compact && <div style={{ marginBottom: 48 }} />}
 
