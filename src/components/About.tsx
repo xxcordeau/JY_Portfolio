@@ -593,6 +593,22 @@ function useInView(threshold = 0.1) {
   return [ref, inView] as [React.RefObject<HTMLElement>, boolean];
 }
 
+/** Reuses an existing ref — toggles inView on every enter/leave so animations replay. */
+function useReplayInView(ref: React.RefObject<HTMLElement>, threshold = 0.15) {
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref, threshold]);
+  return inView;
+}
+
 export default function About() {
   const { isDark } = useTheme();
   const { language } = useLanguage();
@@ -623,7 +639,12 @@ export default function About() {
   const [skillsRef, skillsInView] = useInView(0.1);
   const [expRef, expInView] = useInView(0.1);
 
-  const scrambledTitle = useTextScramble(t.title, introInView, 1000);
+  // Replay observers — share the same DOM refs but toggle on every scroll enter/leave
+  const introTitleInView = useReplayInView(introRef, 0.15);
+  const skillsTitleInView = useReplayInView(skillsRef, 0.15);
+  const expTitleInView = useReplayInView(expRef, 0.15);
+
+  const scrambledTitle = useTextScramble(t.title, introTitleInView, 1000);
 
   return (
     <>
@@ -638,7 +659,7 @@ export default function About() {
           <IntroBlock>
             <SectionEyebrow id="dot-about" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
             <SectionTitle $isDark={isDark} style={{ whiteSpace: 'pre-line' }}>{scrambledTitle}</SectionTitle>
-            <IntroText $isDark={isDark} $inView={introInView} dangerouslySetInnerHTML={{ __html: t.bio }} />
+            <IntroText $isDark={isDark} $inView={introTitleInView} dangerouslySetInnerHTML={{ __html: t.bio }} />
             <InfoRow>
               {[
                 { icon: <Calendar />, value: '2000.01.28' },
@@ -666,7 +687,7 @@ export default function About() {
           <SkillSection>
             <SkillEyebrow id="dot-skills" $isDark={isDark} data-dot-anchor>{t.skillsEyebrow}</SkillEyebrow>
             <SkillTitle as="div" $isDark={isDark}>
-              {skillsInView
+              {skillsTitleInView
                 ? t.skills.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 50}>{c}</CharSpan>)
                 : t.skills}
             </SkillTitle>
@@ -735,7 +756,7 @@ export default function About() {
           {/* 경력 */}
           <div>
             <SubTitle as="div" $isDark={isDark}>
-              {expInView
+              {expTitleInView
                 ? t.experience.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 50}>{c}</CharSpan>)
                 : t.experience}
             </SubTitle>
@@ -791,7 +812,7 @@ export default function About() {
           {/* 학력 */}
           <div>
             <SubTitle as="div" $isDark={isDark}>
-              {expInView
+              {expTitleInView
                 ? t.education.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 50}>{c}</CharSpan>)
                 : t.education}
             </SubTitle>

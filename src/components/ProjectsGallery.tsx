@@ -8,7 +8,7 @@ import { useProjects } from '../hooks/useProjects';
 import { ArrowLeft } from 'lucide-react';
 import { resolveIcon } from '../lib/techIcons';
 
-/* ── InView hook ── */
+/* ── InView hook (toggles on every enter/leave so animations replay) ── */
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
@@ -16,7 +16,7 @@ function useInView(threshold = 0.15) {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); io.disconnect(); } },
+      ([entry]) => setInView(entry.isIntersecting),
       { threshold },
     );
     io.observe(el);
