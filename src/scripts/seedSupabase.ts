@@ -38,7 +38,7 @@ const projects = [
     tech_design: [],
     tech_others: ['PostgreSQL', 'Redis', 'AWS S3', 'KCP Payment', 'Jenkins CI/CD'],
     highlights_ko: [
-      '쇼핑몰 + 관리자 + 현장관리자 3개 시스템을 단일 React 앱으로 통합 구축',
+      '풀스택 개발 (팀 3명: 풀스택 1, 백엔드 2) — 쇼핑몰 + 관리자 + 현장관리자 3개 시스템을 단일 React 앱으로 통합 구축',
       '멀티채널 시스템 설계 - 채널별 독립적 가격 정책·할인율·상품 노출 관리',
       'KCP 결제 연동 및 전액 포인트 결제 지원 구현',
       'QR코드/바코드 기반 티켓 쿠폰 발행 및 현장 스캐너 검증 시스템 개발',
@@ -50,7 +50,7 @@ const projects = [
       '시즌별 요금 관리, 상품 옵션 시스템, 파트너사 할인 관리 등 복잡한 비즈니스 로직 구현',
     ],
     highlights_en: [
-      'Built 3 systems (shop, admin, field manager) as a single unified React application',
+      'Fullstack development (team of 3: 1 fullstack, 2 backend) — built 3 systems (shop, admin, field manager) as a single unified React application',
       'Multi-channel system design - independent pricing, discounts, and product exposure per channel',
       'KCP payment integration with full point payment support',
       'QR/barcode ticket coupon issuance and on-site scanner verification system',
@@ -599,7 +599,7 @@ const chatbotCategories = [
 
 const chatbotQuestions = [
   // intro (4)
-  { id: crypto.randomUUID(), category_id: 'intro', question_ko: '당신은 누구인가요?', question_en: 'Who are you?', answer_ko: "디자인 감각을 바탕으로 인터페이스를 구현하는 프론트엔드 개발자, 허정연입니다.\n사용자가 '편안함'을 느끼는 화면을 만드는 걸 좋아해요.", answer_en: "I'm Jeongyeon Heo, a frontend developer who implements interfaces based on design sense.\nI love creating screens where users feel 'comfortable'.", action: null, sort_order: 0 },
+  { id: crypto.randomUUID(), category_id: 'intro', question_ko: '당신은 누구인가요?', question_en: 'Who are you?', answer_ko: "디자인 감각을 바탕으로 인터페이스를 구현하는 프론트엔드 개발자, 허정연입니다.\n사용자가 '편안함'을 느끼는 화면을 만드는 걸 좋아해요.", answer_en: "I'm Heo JeongYeon, a frontend developer who implements interfaces based on design sense.\nI love creating screens where users feel 'comfortable'.", action: null, sort_order: 0 },
   { id: crypto.randomUUID(), category_id: 'intro', question_ko: '어떤 일을 하나요?', question_en: 'What do you do?', answer_ko: 'UI/UX 설계부터 실제 화면 개발까지 담당하고 있습니다.\nNuxt, Vue, React 기반의 웹 서비스를 개발하며, 디자인 시스템과 컴포넌트 구조화를 주로 다룹니다.', answer_en: 'I handle everything from UI/UX design to actual screen development.\nI develop web services based on Nuxt, Vue, and React, mainly dealing with design systems and component architecture.', action: null, sort_order: 1 },
   { id: crypto.randomUUID(), category_id: 'intro', question_ko: '디자인도 하시나요?', question_en: 'Do you also do design?', answer_ko: '네, 디자인도 직접 합니다.\nFigma로 UI를 설계하고, 그 디자인이 실제로 코드에서 얼마나 자연스럽게 구현될 수 있을지를 함께 고민합니다.', answer_en: 'Yes, I do design directly.\nI design UI with Figma and consider how naturally the design can be implemented in code.', action: null, sort_order: 2 },
   { id: crypto.randomUUID(), category_id: 'intro', question_ko: '왜 프론트엔드 개발을 선택했나요?', question_en: 'Why did you choose frontend development?', answer_ko: "디자인의 감각과 논리를 동시에 표현할 수 있는 영역이 프론트엔드라고 생각했어요.\n'보여주는 것' 이상으로 '느끼게 만드는 경험'을 만들고 싶었습니다.", answer_en: "I thought frontend is the area where I can express both design sense and logic.\nI wanted to create 'experiences that make you feel' beyond just 'showing'.", action: null, sort_order: 3 },

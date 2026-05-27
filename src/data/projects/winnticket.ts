@@ -23,7 +23,7 @@ export const winnticket: Project = {
   },
   highlights: {
     ko: [
-      '1인 풀스택 — 쇼핑몰 + 관리자 + 현장관리자 3개 시스템을 단일 React 앱으로 설계·구현',
+      '풀스택 개발 (팀 3명: 풀스택 1, 백엔드 2) — 쇼핑몰 + 관리자 + 현장관리자 3개 시스템을 단일 React 앱으로 설계·구현',
       'React.lazy + Suspense 코드 스플리팅 → 초기 번들 사이즈 42% 감소 (580KB → 336KB gzip)',
       'KCP PG 결제 연동 + 전액 포인트 결제 지원 → 주문 완료 전환율 개선',
       'QR/바코드 기반 실시간 티켓 검증 시스템 — 현장 입장 처리 속도 3초 이내',
@@ -34,7 +34,7 @@ export const winnticket: Project = {
       'AWS S3 파일 업로드, Excel 데이터 내보내기, 배너/팝업 스케줄링 구현',
     ],
     en: [
-      'Solo fullstack — designed and built 3 systems (shop, admin, field manager) as a unified React app',
+      'Fullstack development (team of 3: 1 fullstack, 2 backend) — designed and built 3 systems (shop, admin, field manager) as a unified React app',
       'React.lazy + Suspense code splitting → 42% initial bundle reduction (580KB → 336KB gzip)',
       'KCP payment gateway integration + full point payment → improved order completion conversion',
       'QR/barcode real-time ticket verification — on-site entry processing under 3 seconds',
