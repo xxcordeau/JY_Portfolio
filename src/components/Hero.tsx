@@ -204,7 +204,7 @@ function sampleConstellation(
 
   // Large font that fills the viewport with safe padding (꽉차게 but no clip)
   const targetW = canvasW * 0.85;
-  const targetH = canvasH * 0.62;
+  const targetH = canvasH * 0.50;
 
   // Start big and auto-shrink to fit both width and height
   let fontSize = isMobile
@@ -240,8 +240,8 @@ function sampleConstellation(
 
   const updatedLineH = fontSize * 1.2;
   const totalH = updatedLineH * lines.length;
-  // Center vertically (no offset — previous 3% push caused bottom clip)
-  const startY = (canvasH - totalH) / 2 + updatedLineH / 2;
+  // Center vertically, shifted up slightly to compensate for nav bar overlap
+  const startY = (canvasH - totalH) / 2 + updatedLineH / 2 - canvasH * 0.02;
 
   for (let i = 0; i < lines.length; i++) {
     ctx.fillText(lines[i], canvasW / 2, startY + i * updatedLineH);
