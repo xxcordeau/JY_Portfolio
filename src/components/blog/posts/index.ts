@@ -11,3 +11,8 @@ export { DynamicStaticImportPost } from './DynamicStaticImportPost';
 export { CssPrintLayerPost } from './CssPrintLayerPost';
 export { HiddenDivPost } from './HiddenDivPost';
 export { ApiMismatchMemoPost } from './ApiMismatchMemoPost';
+export { DesignUserActionPost } from './DesignUserActionPost';
+export { DesignUiWithoutDesignerPost } from './DesignUiWithoutDesignerPost';
+export { DesignAnimationPost } from './DesignAnimationPost';
+export { DesignColorSystemPost } from './DesignColorSystemPost';
+export { DesignWhitespacePost } from './DesignWhitespacePost';

@@ -11,6 +11,11 @@ import { dynamicStaticImport } from './blog/dynamic-static-import';
 import { cssPrintLayerConflict } from './blog/css-print-layer-conflict';
 import { hiddenDivReactRendering } from './blog/hidden-div-react-rendering';
 import { apiMismatchUsememoCrash } from './blog/api-mismatch-usememo-crash';
+import { designUserAction } from './blog/design-user-action';
+import { designUiWithoutDesigner } from './blog/design-ui-without-designer';
+import { designAnimationPhilosophy } from './blog/design-animation-philosophy';
+import { designColorSystem } from './blog/design-color-system';
+import { designWhitespace } from './blog/design-whitespace';
 
 export interface BlogPost {
   id: string;
@@ -49,5 +54,10 @@ export const blogPosts: BlogPost[] = [
   dynamicStaticImport,
   cssPrintLayerConflict,
   hiddenDivReactRendering,
-  apiMismatchUsememoCrash
+  apiMismatchUsememoCrash,
+  designUserAction,
+  designUiWithoutDesigner,
+  designAnimationPhilosophy,
+  designColorSystem,
+  designWhitespace
 ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
