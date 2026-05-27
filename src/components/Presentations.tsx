@@ -498,17 +498,24 @@ interface Props {
 function useReplayInView(threshold = 0.15) {
   const ref = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
+  const prevVisible = useRef(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      { threshold },
+      ([entry]) => {
+        const visible = entry.isIntersecting;
+        if (visible && !prevVisible.current) setAnimKey(k => k + 1);
+        prevVisible.current = visible;
+        setInView(visible);
+      },
+      { threshold, rootMargin: '-15% 0px -15% 0px' },
     );
     io.observe(el);
     return () => io.disconnect();
   }, [threshold]);
-  return [ref, inView] as [React.RefObject<HTMLElement>, boolean];
+  return [ref, inView, animKey] as const;
 }
 
 export default function Presentations({ onBack }: Props) {
@@ -518,7 +525,7 @@ export default function Presentations({ onBack }: Props) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string | null>(null);
   const [viewing, setViewing] = useState<DbPresentation | null>(null);
-  const [sectionRef, titleInView] = useReplayInView(0.15);
+  const [sectionRef, titleInView, titleAnimKey] = useReplayInView(0.15);
 
   useEffect(() => {
     supabase
@@ -558,7 +565,7 @@ export default function Presentations({ onBack }: Props) {
 
         <Container ref={sectionRef as React.RefObject<HTMLDivElement>}>
           <SectionEyebrow $isDark={isDark}>PRESENTATIONS</SectionEyebrow>
-          <PageTitle as="div" $isDark={isDark}>
+          <PageTitle key={`pt-${titleAnimKey}`} as="div" $isDark={isDark}>
             {(() => {
               const text = language === 'ko' ? 'PT 자료' : 'Presentations';
               return titleInView

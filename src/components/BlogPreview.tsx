@@ -11,17 +11,24 @@ import { useLanguage } from '../contexts/LanguageContext';
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
+  const prevVisible = useRef(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      { threshold },
+      ([entry]) => {
+        const visible = entry.isIntersecting;
+        if (visible && !prevVisible.current) setAnimKey(k => k + 1);
+        prevVisible.current = visible;
+        setInView(visible);
+      },
+      { threshold, rootMargin: '-15% 0px -15% 0px' },
     );
     io.observe(el);
     return () => io.disconnect();
   }, [threshold]);
-  return [ref, inView] as [React.RefObject<HTMLElement>, boolean];
+  return [ref, inView, animKey] as const;
 }
 
 /* ── Character reveal animation ── */
@@ -259,7 +266,7 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
   const t = translations[language];
   const recentPosts = blogPosts.slice(0, 6);
 
-  const [sectionRef, inView] = useInView(0.15);
+  const [sectionRef, inView, animKey] = useInView(0.15);
 
   const renderAnimatedTitle = (text: string) =>
     inView
@@ -270,7 +277,7 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
     <BlogSection id="blog" $isDark={isDark} ref={sectionRef as React.RefObject<HTMLElement>}>
       <Container>
         <SectionEyebrow id="dot-blog" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
-        <SectionTitle as="div" $isDark={isDark}>{renderAnimatedTitle(t.title)}</SectionTitle>
+        <SectionTitle key={`blog-${animKey}`} as="div" $isDark={isDark}>{renderAnimatedTitle(t.title)}</SectionTitle>
 
         <Grid>
           {loading

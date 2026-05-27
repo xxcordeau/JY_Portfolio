@@ -36,7 +36,7 @@ export const chatbotData: ChatCategory[] = [
         },
         answer: {
           ko: '디자인 감각을 바탕으로 인터페이스를 구현하는 프론트엔드 개발자, 허정연입니다.\n사용자가 \'편안함\'을 느끼는 화면을 만드는 걸 좋아해요.',
-          en: 'I\'m Jeongyeon Heo, a frontend developer who implements interfaces based on design sense.\nI love creating screens where users feel \'comfortable\'.'
+          en: 'I\'m Heo JeongYeon, a frontend developer who implements interfaces based on design sense.\nI love creating screens where users feel \'comfortable\'.'
         }
       },
       {

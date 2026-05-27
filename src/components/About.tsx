@@ -10,7 +10,7 @@ import { resolveIcon, FILLED_ICONS as SHARED_FILLED, DARK_INVERT_ICONS } from '.
 
 /* ── Text Scramble Hook ── */
 const CHARS = '가나다라마바사아자차카타파하ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
-function useTextScramble(target: string, trigger: boolean, duration = 800) {
+function useTextScramble(target: string, trigger: boolean, duration = 800, replayKey = 0) {
   const [text, setText] = useState(target);
   const frameRef = useRef(0);
   useEffect(() => {
@@ -31,7 +31,7 @@ function useTextScramble(target: string, trigger: boolean, duration = 800) {
     };
     frameRef.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [target, trigger, duration]);
+  }, [target, trigger, duration, replayKey]);
   return text;
 }
 
@@ -593,20 +593,27 @@ function useInView(threshold = 0.1) {
   return [ref, inView] as [React.RefObject<HTMLElement>, boolean];
 }
 
-/** Reuses an existing ref — toggles inView on every enter/leave so animations replay. */
+/** Reuses an existing ref — returns [inView, animKey]. animKey increments on each viewport entry so React keys can force remount. */
 function useReplayInView(ref: React.RefObject<HTMLElement>, threshold = 0.15) {
   const [inView, setInView] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
+  const prevVisible = useRef(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      { threshold },
+      ([entry]) => {
+        const visible = entry.isIntersecting;
+        if (visible && !prevVisible.current) setAnimKey(k => k + 1);
+        prevVisible.current = visible;
+        setInView(visible);
+      },
+      { threshold, rootMargin: '-15% 0px -15% 0px' },
     );
     io.observe(el);
     return () => io.disconnect();
   }, [ref, threshold]);
-  return inView;
+  return [inView, animKey] as [boolean, number];
 }
 
 export default function About() {
@@ -639,12 +646,12 @@ export default function About() {
   const [skillsRef, skillsInView] = useInView(0.1);
   const [expRef, expInView] = useInView(0.1);
 
-  // Replay observers — share the same DOM refs but toggle on every scroll enter/leave
-  const introTitleInView = useReplayInView(introRef, 0.15);
-  const skillsTitleInView = useReplayInView(skillsRef, 0.15);
-  const expTitleInView = useReplayInView(expRef, 0.15);
+  // Replay observers — share the same DOM refs; animKey forces remount on each entry
+  const [introTitleInView, introAnimKey] = useReplayInView(introRef, 0.15);
+  const [skillsTitleInView, skillsAnimKey] = useReplayInView(skillsRef, 0.15);
+  const [expTitleInView, expAnimKey] = useReplayInView(expRef, 0.15);
 
-  const scrambledTitle = useTextScramble(t.title, introTitleInView, 1000);
+  const scrambledTitle = useTextScramble(t.title, introTitleInView, 1000, introAnimKey);
 
   return (
     <>
@@ -658,8 +665,8 @@ export default function About() {
         <Container>
           <IntroBlock>
             <SectionEyebrow id="dot-about" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
-            <SectionTitle $isDark={isDark} style={{ whiteSpace: 'pre-line' }}>{scrambledTitle}</SectionTitle>
-            <IntroText $isDark={isDark} $inView={introTitleInView} dangerouslySetInnerHTML={{ __html: t.bio }} />
+            <SectionTitle key={`intro-${introAnimKey}`} $isDark={isDark} style={{ whiteSpace: 'pre-line' }}>{scrambledTitle}</SectionTitle>
+            <IntroText key={`bio-${introAnimKey}`} $isDark={isDark} $inView={introTitleInView} dangerouslySetInnerHTML={{ __html: t.bio }} />
             <InfoRow>
               {[
                 { icon: <Calendar />, value: '2000.01.28' },
@@ -686,7 +693,7 @@ export default function About() {
         <Container>
           <SkillSection>
             <SkillEyebrow id="dot-skills" $isDark={isDark} data-dot-anchor>{t.skillsEyebrow}</SkillEyebrow>
-            <SkillTitle as="div" $isDark={isDark}>
+            <SkillTitle key={`skills-${skillsAnimKey}`} as="div" $isDark={isDark}>
               {skillsTitleInView
                 ? t.skills.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 50}>{c}</CharSpan>)
                 : t.skills}
@@ -755,7 +762,7 @@ export default function About() {
         <Container>
           {/* 경력 */}
           <div>
-            <SubTitle as="div" $isDark={isDark}>
+            <SubTitle key={`exp-${expAnimKey}`} as="div" $isDark={isDark}>
               {expTitleInView
                 ? t.experience.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 50}>{c}</CharSpan>)
                 : t.experience}
@@ -811,7 +818,7 @@ export default function About() {
 
           {/* 학력 */}
           <div>
-            <SubTitle as="div" $isDark={isDark}>
+            <SubTitle key={`edu-${expAnimKey}`} as="div" $isDark={isDark}>
               {expTitleInView
                 ? t.education.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 50}>{c}</CharSpan>)
                 : t.education}

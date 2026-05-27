@@ -240,8 +240,8 @@ function sampleConstellation(
 
   const updatedLineH = fontSize * 1.2;
   const totalH = updatedLineH * lines.length;
-  // Shift down slightly to account for nav bar (~5% offset)
-  const startY = (canvasH - totalH) / 2 + updatedLineH / 2 + canvasH * 0.03;
+  // Center vertically (no offset — previous 3% push caused bottom clip)
+  const startY = (canvasH - totalH) / 2 + updatedLineH / 2;
 
   for (let i = 0; i < lines.length; i++) {
     ctx.fillText(lines[i], canvasW / 2, startY + i * updatedLineH);

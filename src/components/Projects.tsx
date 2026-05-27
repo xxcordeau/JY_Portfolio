@@ -12,17 +12,24 @@ import { resolveIcon } from '../lib/techIcons';
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
+  const prevVisible = useRef(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      { threshold },
+      ([entry]) => {
+        const visible = entry.isIntersecting;
+        if (visible && !prevVisible.current) setAnimKey(k => k + 1);
+        prevVisible.current = visible;
+        setInView(visible);
+      },
+      { threshold, rootMargin: '-15% 0px -15% 0px' },
     );
     io.observe(el);
     return () => io.disconnect();
   }, [threshold]);
-  return [ref, inView] as [React.RefObject<HTMLElement>, boolean];
+  return [ref, inView, animKey] as const;
 }
 
 /* ── Character reveal animation ── */
@@ -294,8 +301,8 @@ export default function Projects({ onProjectClick, onViewAll }: ProjectsProps) {
   const { projects, loading } = useProjects();
   const t = translations[language];
 
-  const [freelanceRef, freelanceInView] = useInView(0.15);
-  const [personalRef, personalInView] = useInView(0.15);
+  const [freelanceRef, freelanceInView, freelanceKey] = useInView(0.15);
+  const [personalRef, personalInView, personalKey] = useInView(0.15);
 
   const renderAnimatedTitle = (text: string, inView: boolean) =>
     inView
@@ -379,7 +386,7 @@ export default function Projects({ onProjectClick, onViewAll }: ProjectsProps) {
             <GroupEyebrow id="dot-freelance" data-dot-anchor $isDark={isDark}>
               {t.freelanceEyebrow}
             </GroupEyebrow>
-            <GroupTitle as="div" $isDark={isDark}>{renderAnimatedTitle(t.freelanceTitle, freelanceInView)}</GroupTitle>
+            <GroupTitle key={`fl-${freelanceKey}`} as="div" $isDark={isDark}>{renderAnimatedTitle(t.freelanceTitle, freelanceInView)}</GroupTitle>
             <Grid>
               {loading ? renderSkeletons(3) : renderCards(freelanceShow)}
             </Grid>
@@ -402,7 +409,7 @@ export default function Projects({ onProjectClick, onViewAll }: ProjectsProps) {
             <GroupEyebrow id="dot-personal" data-dot-anchor $isDark={isDark}>
               {t.personalEyebrow}
             </GroupEyebrow>
-            <GroupTitle as="div" $isDark={isDark}>{renderAnimatedTitle(t.personalTitle, personalInView)}</GroupTitle>
+            <GroupTitle key={`ps-${personalKey}`} as="div" $isDark={isDark}>{renderAnimatedTitle(t.personalTitle, personalInView)}</GroupTitle>
             <Grid>
               {renderCards(personalShow)}
             </Grid>

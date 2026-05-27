@@ -10,17 +10,24 @@ import { Github, Star, Download, ArrowRight, ArrowLeft } from 'lucide-react';
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
+  const prevVisible = useRef(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      { threshold },
+      ([entry]) => {
+        const visible = entry.isIntersecting;
+        if (visible && !prevVisible.current) setAnimKey(k => k + 1);
+        prevVisible.current = visible;
+        setInView(visible);
+      },
+      { threshold, rootMargin: '-15% 0px -15% 0px' },
     );
     io.observe(el);
     return () => io.disconnect();
   }, [threshold]);
-  return [ref, inView] as [React.RefObject<HTMLElement>, boolean];
+  return [ref, inView, animKey] as const;
 }
 
 /* ── Character reveal animation ── */
@@ -335,7 +342,7 @@ export default function OpenSource({
 
   const skeletonCount = compact && typeof limit === 'number' ? limit : 3;
 
-  const [sectionRef, inView] = useInView(0.15);
+  const [sectionRef, inView, animKey] = useInView(0.15);
 
   const renderAnimatedTitle = (text: string) =>
     inView
@@ -354,7 +361,7 @@ export default function OpenSource({
         )}
 
         <SectionEyebrow id="dot-opensource" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
-        <SectionTitle as="div" $isDark={isDark}>{renderAnimatedTitle(t.title)}</SectionTitle>
+        <SectionTitle key={`os-${animKey}`} as="div" $isDark={isDark}>{renderAnimatedTitle(t.title)}</SectionTitle>
         {!compact && <SectionSubtitle $isDark={isDark}>{t.subtitle}</SectionSubtitle>}
         {compact && <div style={{ marginBottom: 48 }} />}
 
