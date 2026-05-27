@@ -80,7 +80,10 @@ const AppContainer = styled.div<{ $isDark: boolean }>`
   background: ${props => props.$isDark ? '#000000' : '#ffffff'};
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   transition: background 0.3s ease, color 0.3s ease;
-  overflow-x: hidden;
+  /* Do NOT set overflow-x here — any non-visible value
+     (hidden/auto/clip) causes browsers to convert overflow-y:visible→auto,
+     which creates a scroll container and breaks position:sticky in Hero.
+     Horizontal overflow is handled per-section where needed instead. */
 `;
 
 const LoadingFallback = styled.div<{ $isDark: boolean }>`
@@ -241,9 +244,7 @@ function HomePage({ onContactClick }: { onContactClick: () => void }) {
 
   return (
     <>
-      <SnapSection>
-        <Hero />
-      </SnapSection>
+      <Hero />
       {/* About manages its own 3 snap sections internally */}
       <About />
       <SnapSection id="projects">
