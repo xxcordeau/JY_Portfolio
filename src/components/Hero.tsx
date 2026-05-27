@@ -323,9 +323,12 @@ export default function Hero() {
 
   /* ── Scroll progress tracker + snap lock ── */
   useEffect(() => {
-    // Inject a style element to kill scroll-snap during hero animation
+    // Inject a style element to kill scroll-snap during hero animation.
+    // Start with snap DISABLED to prevent the browser from jumping past
+    // the hero section before scroll events can fire (race condition).
     const snapKill = document.createElement('style');
     snapKill.id = 'hero-snap-kill';
+    snapKill.textContent = 'html { scroll-snap-type: none !important; }';
     document.head.appendChild(snapKill);
 
     const onScroll = () => {
@@ -337,13 +340,14 @@ export default function Hero() {
       const p = Math.max(0, Math.min(1, -rect.top / scrollable));
       progressRef.current = p;
 
-      // Disable scroll-snap while hero is in progress so the page
-      // cannot jump past the sticky section.
-      if (p > 0 && p < 0.98) {
-        snapKill.textContent =
-          'html { scroll-snap-type: none !important; }';
-      } else if (snapKill.textContent) {
-        snapKill.textContent = '';
+      // Only re-enable scroll-snap after hero animation is complete
+      if (p >= 0.98) {
+        if (snapKill.textContent) snapKill.textContent = '';
+      } else {
+        if (!snapKill.textContent) {
+          snapKill.textContent =
+            'html { scroll-snap-type: none !important; }';
+        }
       }
     };
 
