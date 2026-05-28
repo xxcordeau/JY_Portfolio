@@ -50,8 +50,8 @@ const MOUSE_RADIUS = 50;
 const MOUSE_FORCE = 3;
 
 const SPRING_IDLE = 0.045;
-const SPRING_SCROLL = 0.1;
-const FRICTION = 0.78;
+const SPRING_SCROLL = 0.22;
+const FRICTION = 0.68;
 const SIZE_LERP = 0.1;
 const JITTER = 0.06;
 
