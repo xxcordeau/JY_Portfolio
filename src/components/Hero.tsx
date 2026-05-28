@@ -679,8 +679,8 @@ export default function Hero() {
           pvx[i] += (Math.random() - 0.5) * JITTER;
           pvy[i] += (Math.random() - 0.5) * JITTER;
 
-          // Mouse repulsion (idle only)
-          if (progress < 0.02) {
+          // Mouse repulsion (idle + constellation phase)
+          if (progress < 0.02 || progress > P_SCATTER_END) {
             const mx = mouseRef.current.x;
             const my = mouseRef.current.y;
             if (mx > -9000) {
