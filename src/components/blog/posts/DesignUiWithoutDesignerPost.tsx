@@ -10,116 +10,102 @@ export const DesignUiWithoutDesignerPost = ({ language }: PostProps) => {
   if (language === 'ko') {
     return (
       <Content>
-        <h1>디자이너 없이 UI를 만들 때 제가 하는 방법</h1>
+        <h1>디자이너에서 개발자로 — UI를 바라보는 시선이 달라진 순간</h1>
 
         <h2>배경</h2>
 
-        <p>저는 디자이너와 협업한 프로젝트도 있었지만, 기획부터 디자인, 개발까지 혼자 다 해야 했던 프로젝트가 더 많았어요. WinnTicket이 그랬고, 이 포트폴리오 사이트도 그래요. 처음엔 '디자이너 없이 괜찮은 화면을 만들 수 있을까?' 하는 불안감이 있었는데, 몇 번 경험하면서 나름의 프로세스가 생겼어요.</p>
+        <p>저는 원래 디자이너로 시작했어요. Figma에서 화면을 그리고, 컬러 팔레트를 만들고, 타이포그래피 위계를 잡는 게 일이었죠. 그러다 프론트엔드 개발을 시작하면서 UI를 바라보는 시선이 완전히 달라졌어요.</p>
 
-        <h2>과정과 탐색</h2>
+        <p>디자이너일 때는 '이 화면이 얼마나 좋아 보이는가'가 기준이었는데, 개발자가 되고 나서는 '이 화면이 얼마나 잘 작동하는가'가 기준이 됐어요. 둘 다 중요한 건 맞지만, 무게중심이 바뀌니까 만드는 방식 자체가 달라졌어요.</p>
 
-        <p><strong>1단계: 레퍼런스를 많이 보는 게 아니라, 적게 보되 깊게 봐요.</strong></p>
+        <h2>디자이너 시절에는 몰랐던 것들</h2>
 
-        <p>처음에는 Dribbble이나 Behance에서 레퍼런스를 30~40개씩 모았는데, 그러면 오히려 혼란스러워져요. '이것도 좋고 저것도 좋은데' 하면서 결국 이것저것 섞인 어중간한 결과물이 나왔거든요.</p>
+        <p><strong>상태(state)라는 개념이 없었어요.</strong> 디자인할 때는 '완성된 화면'만 그렸거든요. 버튼은 항상 활성 상태, 리스트에는 항상 데이터가 있고, 에러는 별도 시안으로 따로 만들었어요. 그런데 개발을 시작하니까 — 로딩 중일 때, 데이터가 없을 때, 에러가 났을 때, 권한이 없을 때 — 한 컴포넌트가 가질 수 있는 상태가 너무 많았어요. 디자인 시안에는 2~3개 화면이지만, 실제 코드에서는 10가지 이상의 경우를 처리해야 했어요.</p>
 
-        <p>지금은 레퍼런스를 3~5개만 골라요. 대신 하나를 볼 때 '왜 이게 좋아 보이지?'를 구체적으로 분석해요. 여백이 넉넉해서? 타이포그래피 위계가 명확해서? 색상 수가 적어서? '좋다'는 감각을 구체적인 규칙으로 분해하는 작업이에요.</p>
+        <p>이 경험 이후로 화면을 설계할 때 처음부터 모든 상태를 같이 생각하게 됐어요. Figma에서 시안을 만들 때도 default, loading, empty, error, disabled를 한 세트로 만들어요.</p>
 
-        <p>예를 들어 이 포트폴리오를 만들 때 Apple 사이트를 레퍼런스로 봤는데, 제가 뽑아낸 건 이런 것들이었어요.</p>
+        <p><strong>반복 가능한 구조의 중요성을 몰랐어요.</strong> 디자이너일 때는 화면마다 조금씩 다르게 만들어도 괜찮았어요. 이 카드는 패딩 16px, 저 카드는 20px — '이 화면에서는 이게 더 예뻐 보이니까'라는 이유로요. 그런데 컴포넌트로 구현할 때 이런 미세한 차이는 재사용을 어렵게 만들고, 결국 비슷한 컴포넌트가 여러 개 생기는 원인이 됐어요.</p>
 
-        <ul>
-          <li>한 화면에 하나의 메시지만 전달한다</li>
-          <li>텍스트 크기의 단계가 명확하다 (제목, 부제, 본문, 캡션)</li>
-          <li>배경색 전환으로 섹션을 구분한다</li>
-          <li>여백이 콘텐츠보다 많다</li>
-        </ul>
+        <p>지금은 디자인 단계에서부터 '이건 하나의 컴포넌트로 만들 수 있는가?'를 고민해요. 만약 두 화면에서 같은 역할을 하는 요소라면, 시각적으로 약간 다르더라도 하나의 변형(variant)으로 다룰 수 있게 설계해요.</p>
 
-        <p>이 네 가지를 기준으로 삼으니까, 이후의 디자인 결정이 훨씬 수월해졌어요.</p>
+        <h2>디자인 감각이 개발에서 무기가 되는 순간</h2>
 
-        <p><strong>2단계: Figma에서 구조를 먼저 잡아요. 색은 나중에.</strong></p>
+        <p>반대로, 디자이너 출신이라서 개발할 때 유리한 점도 확실히 있어요.</p>
 
-        <p>디자이너 없이 작업할 때 가장 위험한 건, 처음부터 '예쁘게' 만들려고 하는 거예요. 색 고르고, 그라데이션 넣고, 그림자 조정하고 — 이러다 보면 구조가 엉망인데 겉만 번지르르한 화면이 나와요.</p>
+        <p><strong>레퍼런스를 분석하는 눈이 달라요.</strong> 다른 서비스의 UI를 볼 때 '예쁘다'에서 끝나지 않고, '왜 이 여백인지', '왜 이 색상 조합인지', '이 타이포그래피 위계가 어떻게 시선을 유도하는지'를 바로 파악할 수 있어요. 새로운 화면을 만들 때 레퍼런스에서 규칙을 추출하는 속도가 빨라요.</p>
 
-        <p>저는 Figma에서 처음에는 흑백(gray)으로만 작업해요. 색 없이 gray 톤만으로 화면이 읽히면 구조가 잘 잡힌 거예요. 여기서 정보의 위계가 명확하고, 시선의 흐름이 자연스러우면 그때 색을 입혀요. 이 순서를 바꾸면 높은 확률로 시간을 낭비하게 돼요.</p>
+        <p><strong>여백과 정렬에 대한 감각이 있어요.</strong> 개발하면서 '이 정도면 되겠지'로 넘어가기 쉬운 부분이 여백과 정렬인데, 디자인 훈련이 있으면 4px 차이도 눈에 들어와요. 이게 사용자가 의식하지 못하는 '깔끔한 느낌'을 만드는 데 큰 차이를 줘요.</p>
 
-        <p><strong>3단계: 타이포그래피 스케일을 먼저 정해요.</strong></p>
+        <p><strong>Figma에서 개발까지 혼자 끊김 없이 할 수 있어요.</strong> 디자인 → 개발 핸드오프 과정에서 생기는 '시안이랑 다른데요' 문제가 없어요. 머릿속에 있는 그대로 코드로 옮길 수 있으니까, 의도한 UX가 그대로 구현돼요.</p>
 
-        <p>화면에서 가장 많은 면적을 차지하는 건 텍스트예요. 그래서 폰트 크기 체계를 먼저 정하면 나머지가 따라와요. 저는 보통 이런 식으로 시작해요.</p>
+        <h2>지금의 프로세스</h2>
 
-        <pre><code>{`캡션:     12px / line-height 1.4
-본문:     14px ~ 16px / line-height 1.6
-부제:     18px ~ 20px / line-height 1.4
-제목:     24px ~ 32px / line-height 1.2
-대제목:   40px ~ 56px / line-height 1.1`}</code></pre>
+        <p>디자이너와 개발자 양쪽 경험이 합쳐지면서, 제 UI 제작 프로세스는 이렇게 정리됐어요.</p>
 
-        <p>이 크기들 사이에 명확한 차이가 있어야 사용자가 정보의 우선순위를 직감적으로 파악할 수 있어요. 14px과 16px은 차이가 너무 작아서 위계로 쓰기 어렵고, 16px과 24px은 확실한 차이가 느껴져요.</p>
+        <p><strong>1. 구조를 먼저 잡아요.</strong> Figma에서 흑백(gray)으로만 레이아웃을 만들어요. 색 없이도 정보 위계가 읽히면 구조가 잘 잡힌 거예요.</p>
 
-        <p><strong>4단계: 반드시 실제 데이터로 확인해요.</strong></p>
+        <p><strong>2. 상태를 전부 정의해요.</strong> default, hover, loading, empty, error, disabled — 한 컴포넌트의 모든 상태를 시안 단계에서 만들어요.</p>
 
-        <p>Figma에서 'Lorem ipsum'이나 '홍길동'으로 채운 화면은 실제와 완전히 다를 수 있어요. 프로젝트 제목이 한 줄인 줄 알았는데 실제로는 두 줄이 되면 카드 레이아웃이 깨지거든요. 저는 Figma 단계에서부터 실제 콘텐츠를 넣어서 확인해요. 이사 견적서 화면이면 진짜 이사 견적 데이터를, 블로그 목록이면 진짜 블로그 제목을요.</p>
+        <p><strong>3. 컴포넌트 단위로 생각해요.</strong> '이 화면'이 아니라 '이 컴포넌트'를 만든다는 관점으로 설계해요. 다른 곳에서도 재사용될 수 있게요.</p>
+
+        <p><strong>4. 실제 데이터로 검증해요.</strong> Lorem ipsum이 아니라 진짜 데이터로 화면을 채워봐요. 제목이 두 줄이 되면 레이아웃이 깨지는지, 이미지 비율이 다르면 어떻게 보이는지를 확인해요.</p>
 
         <h2>배운 점</h2>
 
-        <p>디자이너 없이 UI를 만드는 건 '디자인을 안 하는 것'이 아니라, 디자인의 역할을 개발자가 대신하는 거예요. 그래서 디자인적 사고가 필요해요. 다만 디자이너와 개발자의 접근 방식은 다르고, 개발자의 강점 — 구조적 사고, 재사용 관점, 상태별 대응 — 을 살리면 충분히 좋은 화면을 만들 수 있다고 생각해요.</p>
+        <p>디자이너에서 개발자로 전향하면서 가장 크게 배운 건, '예쁜 화면'과 '좋은 UI'는 다르다는 거예요. 예쁜 화면은 감각으로 만들 수 있지만, 좋은 UI는 시스템으로 만들어야 해요. 모든 상태를 커버하고, 일관되게 동작하고, 누가 봐도 다음에 뭘 해야 하는지 알 수 있는 화면.</p>
 
-        <p><strong>감각이 부족하다고 느끼면, 감각 대신 규칙을 만들면 돼요.</strong> 규칙이 일관성을 만들고, 일관성이 '깔끔해 보이는' 느낌을 만들어줘요.</p>
+        <p><strong>디자인 감각과 개발의 구조적 사고가 만나면, 둘 중 하나만 할 때보다 훨씬 단단한 UI가 나와요.</strong></p>
       </Content>
     );
   }
 
   return (
     <Content>
-      <h1>How I Build UI Without a Designer</h1>
+      <h1>From Designer to Developer — When My Perspective on UI Changed</h1>
 
       <h2>Background</h2>
 
-      <p>I've worked on projects with designers, but I've had far more projects where I handled everything alone — planning, design, and development. WinnTicket was one of those, and so is this portfolio site. At first, I felt anxious wondering "Can I really build a decent-looking screen without a designer?" But after going through it a few times, I developed my own process.</p>
+      <p>I started as a designer. My job was drawing screens in Figma, creating color palettes, and establishing typographic hierarchy. When I transitioned to frontend development, the way I looked at UI changed completely.</p>
 
-      <h2>Process and Exploration</h2>
+      <p>As a designer, my standard was "how good does this screen look?" After becoming a developer, it shifted to "how well does this screen work?" Both matter, but the shift in focus fundamentally changed how I build things.</p>
 
-      <p><strong>Step 1: Don't look at many references — look at fewer, but study them deeply.</strong></p>
+      <h2>What I Didn't Know as a Designer</h2>
 
-      <p>Early on, I used to collect 30 to 40 references from Dribbble or Behance, but that actually made things more confusing. I'd think "this one's nice, that one's nice too," and end up with a muddled mix of everything.</p>
+      <p><strong>I had no concept of state.</strong> When designing, I only drew "finished screens." Buttons were always active, lists always had data, and errors were separate mockups. But once I started coding — loading states, empty states, error states, unauthorized states — a single component could have so many states. A design file had 2-3 screens, but the actual code needed to handle 10+ cases.</p>
 
-      <p>Now I pick just 3 to 5 references. But when looking at each one, I specifically analyze "why does this look good?" Is it because of the generous whitespace? The clear typographic hierarchy? The limited color palette? It's the process of breaking down the feeling of "this looks good" into concrete rules.</p>
+      <p>After this experience, I started thinking about all states from the very beginning when designing screens. Even in Figma, I now create default, loading, empty, error, and disabled as a complete set.</p>
 
-      <p>For example, when building this portfolio, I referenced the Apple website. Here's what I extracted from it.</p>
+      <p><strong>I didn't understand the importance of repeatable structure.</strong> As a designer, making things slightly different per screen was fine. This card has 16px padding, that card has 20px — "because this looks better on this screen." But when implementing as components, these subtle differences made reuse difficult and led to multiple similar components proliferating.</p>
 
-      <ul>
-        <li>Each screen conveys only one message</li>
-        <li>Text size levels are distinct (title, subtitle, body, caption)</li>
-        <li>Sections are separated by background color changes</li>
-        <li>There's more whitespace than content</li>
-      </ul>
+      <p>Now I ask "Can this be made as a single component?" during the design phase. If elements serve the same role across two screens, I design them as variants of one component, even if they look slightly different.</p>
 
-      <p>Using these four points as guidelines made every subsequent design decision much easier.</p>
+      <h2>When Design Sense Becomes a Weapon in Development</h2>
 
-      <p><strong>Step 2: Establish structure in Figma first. Color comes later.</strong></p>
+      <p>Conversely, coming from a design background definitely gives advantages when developing.</p>
 
-      <p>The most dangerous thing when working without a designer is trying to make it "pretty" from the start. Picking colors, adding gradients, tweaking shadows — this leads to screens that look polished on the surface but have a broken structure underneath.</p>
+      <p><strong>I analyze references differently.</strong> When looking at other services' UIs, I don't just stop at "that's pretty." I can immediately identify "why this whitespace," "why this color combination," "how this typographic hierarchy guides the eye." When building new screens, I can extract rules from references much faster.</p>
 
-      <p>In Figma, I start by working in grayscale only. If the screen reads well with nothing but gray tones — no color — then the structure is solid. Once the information hierarchy is clear and the eye flow feels natural, that's when I add color. Reverse this order, and you'll almost certainly waste time.</p>
+      <p><strong>I have an instinct for spacing and alignment.</strong> Spacing and alignment are easy to gloss over with "close enough" during development, but with design training, even a 4px difference catches my eye. This makes a huge difference in creating that "clean feeling" users can't consciously identify.</p>
 
-      <p><strong>Step 3: Establish the typography scale first.</strong></p>
+      <p><strong>I can go from Figma to code seamlessly.</strong> The "this doesn't match the mockup" problem that happens during design-to-development handoff doesn't exist. Since I can translate what's in my head directly to code, the intended UX is implemented exactly as designed.</p>
 
-      <p>Text occupies the most area on any screen. So if you define the font size system first, everything else follows. I usually start with something like this.</p>
+      <h2>My Current Process</h2>
 
-      <pre><code>{`Caption:    12px / line-height 1.4
-Body:       14px ~ 16px / line-height 1.6
-Subtitle:   18px ~ 20px / line-height 1.4
-Title:      24px ~ 32px / line-height 1.2
-Heading:    40px ~ 56px / line-height 1.1`}</code></pre>
+      <p>With experience from both sides combined, my UI creation process has settled into this:</p>
 
-      <p>There needs to be a clear difference between these sizes for users to intuitively grasp information priority. The gap between 14px and 16px is too small to serve as hierarchy, while the difference between 16px and 24px is unmistakable.</p>
+      <p><strong>1. Structure first.</strong> I create layouts in Figma using only grayscale. If the information hierarchy reads well without color, the structure is solid.</p>
 
-      <p><strong>Step 4: Always verify with real data.</strong></p>
+      <p><strong>2. Define all states.</strong> Default, hover, loading, empty, error, disabled — I create all states of a component during the mockup phase.</p>
 
-      <p>A screen filled with "Lorem ipsum" or placeholder names in Figma can look completely different from reality. You think a project title fits on one line, but in practice it wraps to two lines and breaks the card layout. I use actual content from the Figma stage onward. If it's a moving estimate screen, I use real moving estimate data. If it's a blog list, I use real blog titles.</p>
+      <p><strong>3. Think in components.</strong> I design from the perspective of "this component" not "this screen." So it can be reused elsewhere.</p>
+
+      <p><strong>4. Verify with real data.</strong> I fill screens with actual data, not Lorem ipsum. I check whether the layout breaks when a title wraps to two lines, or how things look when image ratios differ.</p>
 
       <h2>Lessons Learned</h2>
 
-      <p>Building UI without a designer isn't "not doing design" — it's the developer taking on the designer's role. That requires design thinking. However, designers and developers approach things differently, and by leveraging a developer's strengths — structural thinking, a reusability mindset, state-by-state handling — you can absolutely build great interfaces.</p>
+      <p>The biggest lesson from transitioning from designer to developer is that a "pretty screen" and a "good UI" are different things. A pretty screen can be made with intuition, but a good UI needs to be built as a system. One that covers every state, behaves consistently, and makes it obvious what to do next.</p>
 
-      <p><strong>If you feel like you lack design intuition, create rules instead.</strong> Rules create consistency, and consistency creates that "clean" feeling.</p>
+      <p><strong>When design intuition meets development's structural thinking, the UI that emerges is far more solid than what either discipline produces alone.</strong></p>
     </Content>
   );
 };
