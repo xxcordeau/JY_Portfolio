@@ -452,9 +452,9 @@ export default function Hero() {
         morphAngle[i] = Math.random() * Math.PI * 2;
         morphRand[i] = 0.3 + Math.random() * 0.7; // 0.3–1.0 radius variation
 
-        // Scatter: push outward naturally (no edge clamping → organic shape)
-        const dx = faceX[i] - cx;
-        const dy = faceY[i] - cy;
+        // Scatter: push outward from greeting positions (not face — avoids scary face-break)
+        const dx = greetX[i] - cx;
+        const dy = greetY[i] - cy;
         const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.6;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const pushFactor = 2.5 + (1 - depth[i]) * 4;
@@ -463,7 +463,7 @@ export default function Hero() {
         // Let particles fly beyond viewport — canvas naturally clips them
         scatterX[i] = cx + Math.cos(angle) * pushDist;
         scatterY[i] = cy + Math.sin(angle) * pushDist;
-        scatterSize[i] = faceSize[i] * (1.5 + (1 - depth[i]) * 2.5);
+        scatterSize[i] = greetSize[i] * (1.5 + (1 - depth[i]) * 2.5);
 
         // Start at random positions → spring pulls them to face
         px[i] = cx + (Math.random() - 0.5) * w * 0.8;
@@ -618,19 +618,19 @@ export default function Hero() {
             // fade out faster so they don't linger as visible scattered dots
             ts = lerp(faceSize[i], greetSize[i], Math.min(1, morphT * 1.6));
           } else if (progress <= P_FACE_HOLD) {
-            // ── Face holds briefly at start of scroll ──
-            tx = faceX[i];
-            ty = faceY[i];
-            ts = faceSize[i];
+            // ── Greeting holds at start of scroll (not face → avoids face breaking) ──
+            tx = greetX[i];
+            ty = greetY[i];
+            ts = greetSize[i];
           } else if (progress <= P_SCATTER_END) {
-            // ── Scatter phase ──
+            // ── Scatter phase: greeting text breaks apart ──
             const rawT =
               (progress - P_FACE_HOLD) / (P_SCATTER_END - P_FACE_HOLD);
             const depthFactor = 0.3 + depth[i] * 0.7;
             const et = easeInOutCubic(Math.min(1, rawT / depthFactor));
-            tx = lerp(faceX[i], scatterX[i], et);
-            ty = lerp(faceY[i], scatterY[i], et);
-            ts = lerp(faceSize[i], scatterSize[i], et);
+            tx = lerp(greetX[i], scatterX[i], et);
+            ty = lerp(greetY[i], scatterY[i], et);
+            ts = lerp(greetSize[i], scatterSize[i], et);
           } else {
             // ── Post-scatter: constellation stays, stars fly away ──
             // Non-constellation particles continue outward and fade to 0,

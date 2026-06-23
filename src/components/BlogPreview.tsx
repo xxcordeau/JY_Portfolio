@@ -190,10 +190,47 @@ const PostInfo = styled.span<{ $isDark: boolean }>`
   font-weight: 400;
 `;
 
+/* ── Fade overlay to hint more posts ── */
+const GridWrapper = styled.div`
+  position: relative;
+  overflow: hidden;
+`;
+
+const FadeOverlay = styled.div<{ $isDark: boolean }>`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20%;
+  background: linear-gradient(
+    to bottom,
+    ${p => p.$isDark ? 'rgba(0,0,0,0)' : 'rgba(255,255,255,0)'} 0%,
+    ${p => p.$isDark ? 'rgba(0,0,0,1)' : 'rgba(255,255,255,1)'} 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+`;
+
+const MoreCount = styled.span<{ $isDark: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 600;
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'};
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)'};
+`;
+
 /* ── View All (bottom, same as Projects) ── */
 const ViewAllBottom = styled.div`
   text-align: center;
-  margin-top: 48px;
+  margin-top: 32px;
+  position: relative;
+  z-index: 2;
 `;
 
 const ViewAllButton = styled.button<{ $isDark: boolean }>`
@@ -264,9 +301,34 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
   const { language } = useLanguage();
   const { posts: blogPosts, loading } = useBlogPosts();
   const t = translations[language];
-  const recentPosts = blogPosts.slice(0, 6);
+  const recentPosts = blogPosts.slice(0, 9);
+  const remaining = blogPosts.length - recentPosts.length;
+  const hasMore = remaining > 0;
 
   const [sectionRef, inView, animKey] = useInView(0.15);
+
+  /* ── clip 3rd row at 50% height ── */
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [clipHeight, setClipHeight] = useState<number | undefined>();
+
+  useEffect(() => {
+    const measure = () => {
+      const grid = gridRef.current;
+      if (!grid || loading || recentPosts.length <= 6) {
+        setClipHeight(undefined);
+        return;
+      }
+      const cards = Array.from(grid.children);
+      if (cards.length <= 6) { setClipHeight(undefined); return; }
+      const card7 = cards[6] as HTMLElement;
+      const gridTop = grid.getBoundingClientRect().top;
+      const cardRect = card7.getBoundingClientRect();
+      setClipHeight(cardRect.top - gridTop + cardRect.height * 0.5);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [loading, recentPosts.length]);
 
   const renderAnimatedTitle = (text: string) =>
     inView
@@ -279,39 +341,43 @@ export default function BlogPreview({ onPostClick, onViewAll }: BlogPreviewProps
         <SectionEyebrow id="dot-blog" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
         <SectionTitle key={`blog-${animKey}`} as="div" $isDark={isDark}>{renderAnimatedTitle(t.title)}</SectionTitle>
 
-        <Grid>
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i}>
-                  <SkeletonBox $isDark={isDark} />
-                  <CardMeta>
-                    <SkeletonLine $isDark={isDark} $width="60%" style={{ height: 14, marginBottom: 6 }} />
-                    <SkeletonLine $isDark={isDark} $width="40%" style={{ height: 11 }} />
-                  </CardMeta>
-                </div>
-              ))
-            : recentPosts.map((post) => (
-                <CardWrapper key={post.id} onClick={() => onPostClick(post.id)}>
-                  <ImageContainer>
-                    <ImageWithFallback src={post.thumbnail} alt={post.title[language]} />
-                    <ImageOverlay>
-                      <OverlayExcerpt>{post.excerpt[language]}</OverlayExcerpt>
-                    </ImageOverlay>
-                  </ImageContainer>
-                  <CardMeta>
-                    <PostTitle $isDark={isDark}>{post.title[language]}</PostTitle>
-                    <PostInfo $isDark={isDark}>
-                      {post.category[language]} · {post.date}
-                    </PostInfo>
-                  </CardMeta>
-                </CardWrapper>
-              ))
-          }
-        </Grid>
+        <GridWrapper style={clipHeight ? { maxHeight: clipHeight } : undefined}>
+          <Grid ref={gridRef}>
+            {loading
+              ? Array.from({ length: 9 }).map((_, i) => (
+                  <div key={i}>
+                    <SkeletonBox $isDark={isDark} />
+                    <CardMeta>
+                      <SkeletonLine $isDark={isDark} $width="60%" style={{ height: 14, marginBottom: 6 }} />
+                      <SkeletonLine $isDark={isDark} $width="40%" style={{ height: 11 }} />
+                    </CardMeta>
+                  </div>
+                ))
+              : recentPosts.map((post) => (
+                  <CardWrapper key={post.id} onClick={() => onPostClick(post.id)}>
+                    <ImageContainer>
+                      <ImageWithFallback src={post.thumbnail} alt={post.title[language]} />
+                      <ImageOverlay>
+                        <OverlayExcerpt>{post.excerpt[language]}</OverlayExcerpt>
+                      </ImageOverlay>
+                    </ImageContainer>
+                    <CardMeta>
+                      <PostTitle $isDark={isDark}>{post.title[language]}</PostTitle>
+                      <PostInfo $isDark={isDark}>
+                        {post.category[language]} · {post.date}
+                      </PostInfo>
+                    </CardMeta>
+                  </CardWrapper>
+                ))
+            }
+          </Grid>
+          {hasMore && <FadeOverlay $isDark={isDark} />}
+        </GridWrapper>
 
         <ViewAllBottom>
           <ViewAllButton $isDark={isDark} onClick={onViewAll}>
             {t.viewAll}
+            {hasMore && <MoreCount $isDark={isDark}>+{remaining}</MoreCount>}
             <ArrowRight />
           </ViewAllButton>
         </ViewAllBottom>
