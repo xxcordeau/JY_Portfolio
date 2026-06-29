@@ -194,52 +194,108 @@ const InfoValue = styled.span<{ $isDark: boolean }>`
   letter-spacing: -0.1px;
 `;
 
-/* ── Client Logo Bar ── */
-const ClientSection = styled.div`
-  margin-top: 48px;
-  text-align: center;
+/* ── Clients Section (구분선 로고 월, 카드 없음) ── */
+const ClientRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  max-width: 720px;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    max-width: 320px;
+  }
 `;
 
-const ClientLabel = styled.span<{ $isDark: boolean }>`
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.25)'};
-  display: block;
-  margin-bottom: 20px;
+const ClientItem = styled.div<{ $isDark: boolean }>`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 24px;
+  transition: transform 0.25s ease;
+
+  &:not(:first-child) {
+    border-left: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.07)'};
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 18px;
+    padding: 18px 8px;
+
+    &:not(:first-child) {
+      border-left: none;
+      border-top: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.07)'};
+    }
+    &:hover { transform: none; }
+  }
 `;
 
-const LogoRow = styled.div`
+const ClientLogoBox = styled.div`
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 36px;
-  flex-wrap: wrap;
 
   @media (max-width: 768px) {
-    gap: 24px;
+    height: 32px;
+    width: 110px;
+    flex-shrink: 0;
   }
 `;
 
-const LogoImg = styled.img<{ $isDark: boolean; $isWhiteLogo?: boolean; $darkLogo?: boolean }>`
-  height: 26px;
+const ClientCardLogo = styled.img<{ $isDark: boolean; $white?: boolean; $dark?: boolean }>`
+  max-height: 40px;
+  max-width: 150px;
   object-fit: contain;
-  filter: grayscale(1) ${p => (p.$isWhiteLogo && !p.$isDark) || (p.$darkLogo && p.$isDark) ? 'invert(1)' : ''};
-  opacity: ${p => p.$isDark ? 0.45 : 0.35};
-  transition: all 0.3s ease;
+  filter: ${p => (p.$white && !p.$isDark) || (p.$dark && p.$isDark) ? 'invert(1)' : 'none'};
 
-  &:hover {
-    filter: ${p => (p.$isWhiteLogo && !p.$isDark) || (p.$darkLogo && p.$isDark) ? 'invert(1)' : 'none'};
-    opacity: 1;
+  @media (max-width: 768px) {
+    max-height: 30px;
+    max-width: 110px;
   }
 `;
 
-const ClientSubText = styled.span<{ $isDark: boolean }>`
-  display: block;
-  margin-top: 16px;
+const ClientText = styled.div`
+  text-align: center;
+
+  @media (max-width: 768px) {
+    text-align: left;
+  }
+`;
+
+const ClientName = styled.div<{ $isDark: boolean }>`
+  font-size: 15px;
+  font-weight: 600;
+  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
+  letter-spacing: -0.3px;
+`;
+
+const ClientDesc = styled.div<{ $isDark: boolean }>`
+  margin-top: 4px;
   font-size: 12px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.25)'};
+  line-height: 1.5;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.45)'};
   letter-spacing: -0.1px;
+`;
+
+const ClientSubText = styled.p<{ $isDark: boolean }>`
+  text-align: center;
+  margin: 0 auto 40px;
+  max-width: 560px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)'};
+  letter-spacing: -0.2px;
 `;
 
 /* ── 구분선 ── */
@@ -619,8 +675,9 @@ const translations = {
     detail: '상세',
     collapse: '접기',
     all: '전체',
+    clientsEyebrow: 'CLIENTS',
     clients: '함께한 기업',
-    clientsSub: 'Keyrke 솔루션 → 현대모비스 · 현대오토에버 · 현대케피코 도입',
+    clientsSub: '프리랜서로 직접 설계하고 만들어 실제 서비스에 올린 제품들입니다.',
   },
   en: {
     eyebrow: 'ABOUT',
@@ -633,8 +690,9 @@ const translations = {
     detail: 'Details',
     collapse: 'Collapse',
     all: 'All',
+    clientsEyebrow: 'CLIENTS',
     clients: 'Worked with',
-    clientsSub: 'Keyrke deployed at Hyundai Mobis · AutoEver · Kefico',
+    clientsSub: 'Products I designed and built as a freelancer, now live in production.',
   },
 };
 
@@ -699,6 +757,12 @@ function findCompanyLogo(name: string) {
   return null;
 }
 
+const CLIENTS: { name: string; logo: string; white?: boolean; dark?: boolean; desc: { ko: string; en: string } }[] = [
+  { name: 'WinnTicket', logo: '/logos/winnticket.png', desc: { ko: '공연·레저 티켓 예매', en: 'Event ticket booking' } },
+  { name: 'SnapClub', logo: '/logos/snapclub.webp', white: true, desc: { ko: '호주 포토부스 키오스크', en: 'Photo booth kiosk in Australia' } },
+  { name: '통인익스프레스', logo: '/logos/tongin.png', desc: { ko: '태블릿 계약 관리', en: 'Tablet-based contract management' } },
+];
+
 export default function About() {
   const { isDark } = useTheme();
   const { language } = useLanguage();
@@ -727,11 +791,13 @@ export default function About() {
 
   const [introRef, introInView] = useInView(0.1);
   const [skillsRef, skillsInView] = useInView(0.1);
+  const [clientsRef, clientsInView] = useInView(0.1);
   const [expRef, expInView] = useInView(0.1);
 
   // Replay observers — share the same DOM refs; animKey forces remount on each entry
   const [introTitleInView, introAnimKey] = useReplayInView(introRef, 0.15);
   const [skillsTitleInView, skillsAnimKey] = useReplayInView(skillsRef, 0.15);
+  const [clientsTitleInView, clientsAnimKey] = useReplayInView(clientsRef, 0.15);
   const [expTitleInView, expAnimKey] = useReplayInView(expRef, 0.15);
 
   const scrambledTitle = useTextScramble(t.title, introTitleInView, 1000, introAnimKey);
@@ -762,15 +828,6 @@ export default function About() {
                 </InfoItem>
               ))}
             </InfoRow>
-            <ClientSection>
-              <ClientLabel $isDark={isDark}>{t.clients}</ClientLabel>
-              <LogoRow>
-                <LogoImg src="/logos/donghun.png" alt="동훈아이텍" $isDark={isDark} $darkLogo style={{ height: 30 }} />
-                <LogoImg src="/logos/winnticket.png" alt="WinnTicket" $isDark={isDark} />
-                <LogoImg src="/logos/snapclub.webp" alt="SnapClub" $isDark={isDark} $isWhiteLogo />
-                <LogoImg src="/logos/tongin.png" alt="통인익스프레스" $isDark={isDark} style={{ height: 32 }} />
-              </LogoRow>
-            </ClientSection>
           </IntroBlock>
         </Container>
       </SubScreen>
@@ -843,7 +900,40 @@ export default function About() {
         </Container>
       </SubScreen>
 
-      {/* ── Screen 3: Experience + Education ── */}
+      {/* ── Screen 3: Clients ── */}
+      <SubScreen
+        id="clients"
+        $isDark={isDark}
+        $inView={clientsInView}
+        ref={clientsRef as React.RefObject<HTMLElement>}
+      >
+        <Container>
+          <SkillSection>
+            <SkillEyebrow id="dot-clients" $isDark={isDark} data-dot-anchor>{t.clientsEyebrow}</SkillEyebrow>
+            <SkillTitle key={`clients-${clientsAnimKey}`} as="div" $isDark={isDark}>
+              {clientsTitleInView
+                ? t.clients.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 50}>{c}</CharSpan>)
+                : t.clients}
+            </SkillTitle>
+            <ClientSubText $isDark={isDark}>{t.clientsSub}</ClientSubText>
+            <ClientRow>
+              {CLIENTS.map((c) => (
+                <ClientItem key={c.name} $isDark={isDark}>
+                  <ClientLogoBox>
+                    <ClientCardLogo src={c.logo} alt={c.name} $isDark={isDark} $white={c.white} $dark={c.dark} />
+                  </ClientLogoBox>
+                  <ClientText>
+                    <ClientName $isDark={isDark}>{c.name}</ClientName>
+                    <ClientDesc $isDark={isDark}>{c.desc[language]}</ClientDesc>
+                  </ClientText>
+                </ClientItem>
+              ))}
+            </ClientRow>
+          </SkillSection>
+        </Container>
+      </SubScreen>
+
+      {/* ── Screen 4: Experience + Education ── */}
       <SubScreen
         id="experience"
         $isDark={isDark}
