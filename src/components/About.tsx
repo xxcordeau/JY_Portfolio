@@ -221,15 +221,15 @@ const LogoRow = styled.div`
   }
 `;
 
-const LogoImg = styled.img<{ $isDark: boolean; $isWhiteLogo?: boolean }>`
+const LogoImg = styled.img<{ $isDark: boolean; $isWhiteLogo?: boolean; $darkLogo?: boolean }>`
   height: 26px;
   object-fit: contain;
-  filter: grayscale(1) ${p => p.$isWhiteLogo && !p.$isDark ? 'invert(1)' : ''};
+  filter: grayscale(1) ${p => (p.$isWhiteLogo && !p.$isDark) || (p.$darkLogo && p.$isDark) ? 'invert(1)' : ''};
   opacity: ${p => p.$isDark ? 0.45 : 0.35};
   transition: all 0.3s ease;
 
   &:hover {
-    filter: ${p => p.$isWhiteLogo && !p.$isDark ? 'invert(1)' : 'none'};
+    filter: ${p => (p.$isWhiteLogo && !p.$isDark) || (p.$darkLogo && p.$isDark) ? 'invert(1)' : 'none'};
     opacity: 1;
   }
 `;
@@ -493,11 +493,11 @@ const TimelineTitleRow = styled.div`
   gap: 8px;
 `;
 
-const CompanyLogo = styled.img<{ $isDark: boolean; $isWhiteLogo?: boolean }>`
+const CompanyLogo = styled.img<{ $isDark: boolean; $isWhiteLogo?: boolean; $darkLogo?: boolean }>`
   height: 16px;
   object-fit: contain;
   flex-shrink: 0;
-  filter: ${p => p.$isWhiteLogo && !p.$isDark ? 'invert(1)' : 'none'};
+  filter: ${p => (p.$isWhiteLogo && !p.$isDark) || (p.$darkLogo && p.$isDark) ? 'invert(1)' : 'none'};
   opacity: 0.7;
 `;
 
@@ -682,10 +682,12 @@ function useReplayInView(ref: React.RefObject<HTMLElement>, threshold = 0.15) {
   return [inView, animKey] as [boolean, number];
 }
 
-const COMPANY_LOGOS: Record<string, { src: string; white?: boolean }> = {
+const COMPANY_LOGOS: Record<string, { src: string; white?: boolean; dark?: boolean }> = {
   '윈앤티켓': { src: '/logos/winnticket.png' },
   'WinnTicket': { src: '/logos/winnticket.png' },
   'SnapClub': { src: '/logos/snapclub.webp', white: true },
+  '동훈아이텍': { src: '/logos/donghun.png', dark: true },
+  'Donghun': { src: '/logos/donghun.png', dark: true },
   '통인익스프레스': { src: '/logos/tongin.png' },
   'Tongin Express': { src: '/logos/tongin.png' },
 };
@@ -763,6 +765,7 @@ export default function About() {
             <ClientSection>
               <ClientLabel $isDark={isDark}>{t.clients}</ClientLabel>
               <LogoRow>
+                <LogoImg src="/logos/donghun.png" alt="동훈아이텍" $isDark={isDark} $darkLogo style={{ height: 30 }} />
                 <LogoImg src="/logos/winnticket.png" alt="WinnTicket" $isDark={isDark} />
                 <LogoImg src="/logos/snapclub.webp" alt="SnapClub" $isDark={isDark} $isWhiteLogo />
                 <LogoImg src="/logos/tongin.png" alt="통인익스프레스" $isDark={isDark} style={{ height: 32 }} />
@@ -879,7 +882,7 @@ export default function About() {
                         <TimelineTitleRow>
                           {(() => {
                             const logo = findCompanyLogo(exp.company.ko);
-                            return logo ? <CompanyLogo src={logo.src} alt="" $isDark={isDark} $isWhiteLogo={logo.white} /> : null;
+                            return logo ? <CompanyLogo src={logo.src} alt="" $isDark={isDark} $isWhiteLogo={logo.white} $darkLogo={logo.dark} /> : null;
                           })()}
                           <TimelineTitle $isDark={isDark}>{exp.company[language]}</TimelineTitle>
                         </TimelineTitleRow>
