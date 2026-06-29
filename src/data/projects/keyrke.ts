@@ -8,12 +8,12 @@ export const keyrke: Project = {
     en: 'Security Asset Management Platform Keyrke'
   },
   description: {
-    ko: '보안 자산관리 솔루션의 프론트엔드 개발 전반을 담당',
-    en: 'Led comprehensive frontend development for security asset management solution'
+    ko: '보안 자산관리 솔루션 Keyrke 프론트엔드 1인 개발',
+    en: 'Solo frontend development for Keyrke, a security asset management solution'
   },
   fullDescription: {
-    ko: '현대 오토에버, 현대 모비스, 현대 케피코 등 주요 기업에 도입된 보안 자산관리 솔루션의 프론트엔드 개발 전반을 담당했습니다. 이 플랫폼은 조직 내 단말기의 자산 현황, 보안 정책, 스토리지 사용량, 원드라이브 동기화, 하드웨어 관리, 보고서 생성 등 기업 정보보호 체계를 통합적으로 관리할 수 있는 시스템입니다.\n\nNuxt 3 및 TypeScript 기반으로 프론트엔드 아키텍처를 설계하고, 공통 컴포넌트 시스템과 다중 조건 검색 엔진, 트리 구조 탐색 UI를 구축했습니다. 또한, 대규모 데이터 렌더링과 비동기 API 호출 성능을 최적화하여 수천 건의 로그 데이터도 안정적으로 처리할 수 있는 구조를 완성했습니다.',
-    en: 'Led comprehensive frontend development for a security asset management solution deployed at major companies including Hyundai AutoEver, Hyundai Mobis, and Hyundai Kefico. This platform is an integrated system for managing enterprise information security framework, including asset status, security policies, storage usage, OneDrive synchronization, hardware management, and report generation.\n\nDesigned frontend architecture based on Nuxt 3 and TypeScript, built common component system, multi-condition search engine, and tree structure navigation UI. Additionally, optimized large-scale data rendering and asynchronous API call performance to create a structure capable of stably processing thousands of log data entries.'
+    ko: '현대 오토에버, 현대 모비스, 현대 케피코 등에 납품된 보안 자산관리 솔루션 Keyrke의 프론트엔드를 혼자 담당했습니다. 단말기 자산 현황, 보안 정책, 스토리지, 원드라이브 동기화, 하드웨어 관리, 보고서까지 — 기업 보안 관리에 필요한 기능을 한 플랫폼에서 다루는 시스템입니다.\n\nNuxt 3 + TypeScript로 프론트엔드 구조를 설계하고, 공통 컴포넌트 62종과 다중 조건 검색 엔진, 트리 구조 조직도 UI를 만들었습니다. 수천 건 로그 데이터도 버벅임 없이 처리할 수 있도록 렌더링을 최적화했습니다.',
+    en: 'Solo frontend developer on Keyrke, a security asset management solution deployed at Hyundai AutoEver, Hyundai Mobis, and Hyundai Kefico. The platform covers asset tracking, security policies, storage monitoring, OneDrive sync, hardware management, and reporting — everything an enterprise needs to manage security in one place.\n\nDesigned the frontend with Nuxt 3 and TypeScript. Built 62 shared components, a multi-condition search engine, and a tree-based org navigation UI. Optimized rendering so it handles thousands of log entries without lag.'
   },
   tags: ['Nuxt 3', 'Vue 3', 'TypeScript', 'Enterprise'],
   image: image_ba0216df9afa3fbf7ece56fec0bc50ab7409d73b,

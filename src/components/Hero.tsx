@@ -301,7 +301,7 @@ const translations = {
   },
   en: {
     greeting: 'Hello',
-    subtitle: 'Frontend Developer Bridging Design and Code',
+    subtitle: 'Frontend Developer · Ex-Designer',
   },
 };
 

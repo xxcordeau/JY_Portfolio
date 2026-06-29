@@ -194,6 +194,54 @@ const InfoValue = styled.span<{ $isDark: boolean }>`
   letter-spacing: -0.1px;
 `;
 
+/* ── Client Logo Bar ── */
+const ClientSection = styled.div`
+  margin-top: 48px;
+  text-align: center;
+`;
+
+const ClientLabel = styled.span<{ $isDark: boolean }>`
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.25)'};
+  display: block;
+  margin-bottom: 20px;
+`;
+
+const LogoRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    gap: 24px;
+  }
+`;
+
+const LogoImg = styled.img<{ $isDark: boolean; $isWhiteLogo?: boolean }>`
+  height: 26px;
+  object-fit: contain;
+  filter: grayscale(1) ${p => p.$isWhiteLogo && !p.$isDark ? 'invert(1)' : ''};
+  opacity: ${p => p.$isDark ? 0.45 : 0.35};
+  transition: all 0.3s ease;
+
+  &:hover {
+    filter: ${p => p.$isWhiteLogo && !p.$isDark ? 'invert(1)' : 'none'};
+    opacity: 1;
+  }
+`;
+
+const ClientSubText = styled.span<{ $isDark: boolean }>`
+  display: block;
+  margin-top: 16px;
+  font-size: 12px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.25)'};
+  letter-spacing: -0.1px;
+`;
+
 /* ── 구분선 ── */
 const Divider = styled.div<{ $isDark: boolean }>`
   height: 1px;
@@ -439,6 +487,20 @@ const TimelineHeader = styled.div`
   flex-wrap: wrap;
 `;
 
+const TimelineTitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const CompanyLogo = styled.img<{ $isDark: boolean; $isWhiteLogo?: boolean }>`
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: ${p => p.$isWhiteLogo && !p.$isDark ? 'invert(1)' : 'none'};
+  opacity: 0.7;
+`;
+
 const TimelineTitle = styled.div<{ $isDark: boolean }>`
   font-size: 16px;
   font-weight: 600;
@@ -549,7 +611,7 @@ const translations = {
   ko: {
     eyebrow: 'ABOUT',
     title: '안녕하세요,\n허정연입니다.',
-    bio: '<strong>사용자 중심</strong>의 인터페이스를 설계하고,<br/><strong>섬세한 UI</strong>와 부드러운 경험을 만드는 프론트엔드 개발자입니다.<br/><strong>React</strong>와 <strong>TypeScript</strong>를 기반으로 웹 프론트엔드를 개발합니다.',
+    bio: '디자인을 전공하고, 직접 만들어보고 싶어서 개발을 시작했습니다.<br/><strong>React</strong>와 <strong>TypeScript</strong> 기반으로 웹 프론트엔드를 개발합니다.',
     skillsEyebrow: 'SKILLS',
     skills: '기술 스택',
     education: '학력',
@@ -557,11 +619,13 @@ const translations = {
     detail: '상세',
     collapse: '접기',
     all: '전체',
+    clients: '함께한 기업',
+    clientsSub: 'Keyrke 솔루션 → 현대모비스 · 현대오토에버 · 현대케피코 도입',
   },
   en: {
     eyebrow: 'ABOUT',
     title: 'Hello,\nI\'m Jungyeon Heo.',
-    bio: 'Designing <strong>user-centered</strong> interfaces,<br/>crafting <strong>delicate UI</strong> with smooth, thoughtful experiences.<br/>I build web frontends based on <strong>React</strong> and <strong>TypeScript</strong>.',
+    bio: 'Studied design, started coding because I wanted to build things myself.<br/>I make web frontends with <strong>React</strong> and <strong>TypeScript</strong>.',
     skillsEyebrow: 'SKILLS',
     skills: 'Skills & Tools',
     education: 'Education',
@@ -569,6 +633,8 @@ const translations = {
     detail: 'Details',
     collapse: 'Collapse',
     all: 'All',
+    clients: 'Worked with',
+    clientsSub: 'Keyrke deployed at Hyundai Mobis · AutoEver · Kefico',
   },
 };
 
@@ -614,6 +680,21 @@ function useReplayInView(ref: React.RefObject<HTMLElement>, threshold = 0.15) {
     return () => io.disconnect();
   }, [ref, threshold]);
   return [inView, animKey] as [boolean, number];
+}
+
+const COMPANY_LOGOS: Record<string, { src: string; white?: boolean }> = {
+  '윈앤티켓': { src: '/logos/winnticket.png' },
+  'WinnTicket': { src: '/logos/winnticket.png' },
+  'SnapClub': { src: '/logos/snapclub.webp', white: true },
+  '통인익스프레스': { src: '/logos/tongin.png' },
+  'Tongin Express': { src: '/logos/tongin.png' },
+};
+
+function findCompanyLogo(name: string) {
+  for (const key of Object.keys(COMPANY_LOGOS)) {
+    if (name.includes(key)) return COMPANY_LOGOS[key];
+  }
+  return null;
 }
 
 export default function About() {
@@ -679,6 +760,14 @@ export default function About() {
                 </InfoItem>
               ))}
             </InfoRow>
+            <ClientSection>
+              <ClientLabel $isDark={isDark}>{t.clients}</ClientLabel>
+              <LogoRow>
+                <LogoImg src="/logos/winnticket.png" alt="WinnTicket" $isDark={isDark} />
+                <LogoImg src="/logos/snapclub.webp" alt="SnapClub" $isDark={isDark} $isWhiteLogo />
+                <LogoImg src="/logos/tongin.png" alt="통인익스프레스" $isDark={isDark} style={{ height: 32 }} />
+              </LogoRow>
+            </ClientSection>
           </IntroBlock>
         </Container>
       </SubScreen>
@@ -787,7 +876,13 @@ export default function About() {
                     </TimelineLine>
                     <TimelineContent>
                       <TimelineHeader>
-                        <TimelineTitle $isDark={isDark}>{exp.company[language]}</TimelineTitle>
+                        <TimelineTitleRow>
+                          {(() => {
+                            const logo = findCompanyLogo(exp.company.ko);
+                            return logo ? <CompanyLogo src={logo.src} alt="" $isDark={isDark} $isWhiteLogo={logo.white} /> : null;
+                          })()}
+                          <TimelineTitle $isDark={isDark}>{exp.company[language]}</TimelineTitle>
+                        </TimelineTitleRow>
                         <TimelinePeriod $isDark={isDark}>{exp.period}</TimelinePeriod>
                       </TimelineHeader>
                       <TimelineSub>{exp.position[language]}</TimelineSub>

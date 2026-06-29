@@ -113,6 +113,10 @@ export const TECH_ICONS: Record<string, string> = {
   'Jenkins':            `${_DV}/jenkins/jenkins-original.svg`,
   'Jenkins CI/CD':      `${_DV}/jenkins/jenkins-original.svg`,
   'KCP Payment':        `${_SI}/visa/1A1F71`,
+  'KakaoCloud':         `${_SI}/kakao/FFCD00`,
+  'FastMCP':            `${_DV}/python/python-original.svg`,
+  'MCP':                `${_SI}/anthropic/191919`,
+  '공공데이터 OpenAPI':  `${_SI}/openapiinitiative/6BA539`,
   'Linux':              `${_DV}/linux/linux-original.svg`,
   'Nginx':              `${_DV}/nginx/nginx-original.svg`,
 
@@ -172,6 +176,7 @@ export const DARK_INVERT_ICONS = new Set([
   'Cypress',
   'Prisma',
   'JWT',
+  'MCP',
 ]);
 
 /**
