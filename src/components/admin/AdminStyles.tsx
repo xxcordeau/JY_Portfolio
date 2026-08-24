@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useRef, useEffect, Children, isValidElement } from 'react';
 import type { ReactNode } from 'react';
 import styled, { keyframes } from 'styled-components';

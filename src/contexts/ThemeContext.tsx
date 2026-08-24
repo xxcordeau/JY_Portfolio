@@ -1,22 +1,49 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+'use client';
+
+import {
+  createContext, useContext, useState, useEffect, useLayoutEffect, type ReactNode,
+} from 'react';
 
 interface ThemeContextType {
   isDark: boolean;
   toggleDarkMode: () => void;
 }
 
+export const THEME_STORAGE_KEY = 'portfolio_dark_mode';
+
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('portfolio_dark_mode');
-    if (saved !== null) return saved === 'true';
-    return false; // 시스템 설정 무관하게 라이트모드 기본값
-  });
+// SSR에서는 useLayoutEffect가 경고를 내므로 서버에서는 useEffect로 대체
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  // 서버 렌더 결과와 첫 클라이언트 렌더가 일치해야 하므로 항상 라이트로 시작한다.
+  // (localStorage를 초기값으로 읽으면 정적 HTML과 어긋나 hydration 불일치가 난다)
+  const [isDark, setIsDark] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  // 하이드레이션 직후 · 페인트 전에 저장된 설정을 반영 → 깜빡임 최소화
+  useIsomorphicLayoutEffect(() => {
+    try {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      if (saved !== null) setIsDark(saved === 'true');
+    } catch {
+      // 프라이빗 모드 등 localStorage 접근 불가 — 기본값(라이트) 유지
+    }
+    setHydrated(true);
+  }, []);
+
+  // 사용자가 토글한 뒤에만 저장 (초기 마운트 시 덮어쓰기 방지)
   useEffect(() => {
-    localStorage.setItem('portfolio_dark_mode', String(isDark));
-  }, [isDark]);
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, String(isDark));
+    } catch {
+      /* 저장 실패는 무시 */
+    }
+    document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+  }, [isDark, hydrated]);
 
   const toggleDarkMode = () => setIsDark(prev => !prev);
 

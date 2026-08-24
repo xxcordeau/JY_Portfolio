@@ -1,3 +1,5 @@
+'use client';
+
 import { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Pencil, Eraser, Download, Trash2 } from 'lucide-react';

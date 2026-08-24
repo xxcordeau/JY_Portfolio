@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import styled from 'styled-components';
 import { Highlighter, Trash2 } from 'lucide-react';

@@ -1,6 +1,8 @@
+'use client';
+
 import * as React from "react";
 import styled from "styled-components";
-import { ChevronRight, MoreHorizontal } from "lucide-react@0.487.0";
+import { ChevronRight, MoreHorizontal } from "lucide-react";
 
 const StyledBreadcrumb = styled.nav`
   width: 100%;

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import styled from "styled-components";
-import { PanelLeftIcon, X } from "lucide-react@0.487.0";
+import { PanelLeftIcon, X } from "lucide-react";
 
 // Sidebar Context
 type SidebarContextProps = {

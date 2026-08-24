@@ -1,8 +1,12 @@
+'use client';
+
 import { useRef, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import faceImg from '../assets/face.png';
+// public/ 정적 자산 — Next의 정적 import는 StaticImageData 객체를 반환하므로
+// img.src에 그대로 넣을 수 없어 경로 문자열로 참조한다.
+const faceImg = '/images/face.png';
 
 /* ── Layout: tall container + sticky canvas ── */
 const HeroContainer = styled.div<{ $isDark: boolean }>`

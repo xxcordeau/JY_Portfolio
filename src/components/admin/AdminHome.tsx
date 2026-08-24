@@ -1,5 +1,7 @@
+'use client';
+
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import {
   Mail, FolderOpen, BookOpen, User, Github,
   FileText, MessageSquare, Settings
@@ -93,7 +95,7 @@ const items = [
 
 export default function AdminHome() {
   const { isDark } = useTheme();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <Container>
@@ -101,7 +103,7 @@ export default function AdminHome() {
       <Subtitle>관리할 섹션을 선택하세요</Subtitle>
       <Grid>
         {items.map(item => (
-          <Card key={item.path} $isDark={isDark} onClick={() => navigate(item.path)}>
+          <Card key={item.path} $isDark={isDark} onClick={() => router.push(item.path)}>
             <IconBox $color={item.color}><item.icon /></IconBox>
             <CardTitle $isDark={isDark}>{item.label}</CardTitle>
             <CardDesc>{item.desc}</CardDesc>

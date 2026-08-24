@@ -1,3 +1,5 @@
+'use client';
+
 import styled from 'styled-components';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Play, RotateCcw, AlertTriangle, Code, Eye, Shield } from 'lucide-react';

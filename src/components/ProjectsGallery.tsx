@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useRef, useState, useEffect } from 'react';
 import React from 'react';
 import styled, { keyframes } from 'styled-components';

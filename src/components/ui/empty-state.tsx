@@ -1,3 +1,5 @@
+'use client';
+
 import styled from 'styled-components';
 import React from 'react';
 import { Search, Inbox, FileQuestion, WifiOff, AlertCircle } from 'lucide-react';

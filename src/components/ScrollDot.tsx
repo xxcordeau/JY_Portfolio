@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * ScrollDot — 각 섹션 eyebrow 바로 위에 점이 뚝 떨어져 안착.
  *
@@ -11,7 +13,7 @@
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
-import { useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 
 const DOT_SIZE = 10;
 
@@ -77,7 +79,7 @@ function resolveTarget(): { el: HTMLElement; x: number; y: number } | null {
 
 export default function ScrollDot() {
   const { isDark } = useTheme();
-  const location   = useLocation();
+  const pathname   = usePathname() || '';
   const dotRef     = useRef<HTMLDivElement>(null);
 
   const pos           = useRef({ x: 0, y: -60, vx: 0, vy: 0 });
@@ -114,7 +116,7 @@ export default function ScrollDot() {
   useEffect(() => {
     const p = pos.current, t = tgt.current, o = opacity.current;
 
-    if (location.pathname !== '/') {
+    if (pathname !== '/') {
       o.val = 0; o.target = 0;
       currentAnchor.current = null;
       return;
@@ -183,7 +185,7 @@ export default function ScrollDot() {
       if (fallbackTimer) clearTimeout(fallbackTimer);
       clearTimeout(initTimer);
     };
-  }, [location.pathname]);
+  }, [pathname]);
 
   return <DotEl ref={dotRef} $isDark={isDark} />;
 }

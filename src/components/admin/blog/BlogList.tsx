@@ -1,5 +1,7 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { Plus, Pencil, Trash2, Search, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
@@ -132,7 +134,7 @@ const DialogActions = styled.div`
 
 export default function BlogList() {
   const { isDark } = useTheme();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [posts, setPosts] = useState<DbBlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -195,7 +197,7 @@ export default function BlogList() {
             총 {posts.length}개 · Published {posts.filter(p => p.status === 'published').length}개
           </PageSubtitle>
         </HeaderLeft>
-        <PrimaryButton onClick={() => navigate('/admin/blog/new')}>
+        <PrimaryButton onClick={() => router.push('/admin/blog/new')}>
           <Plus /> 새 글 작성
         </PrimaryButton>
       </PageHeader>
@@ -282,7 +284,7 @@ export default function BlogList() {
                           title={post.status === 'published' ? 'Draft로 변경' : 'Publish'}>
                           {post.status === 'published' ? <EyeOff /> : <Eye />}
                         </GhostButton>
-                        <GhostButton $isDark={isDark} onClick={() => navigate(`/admin/blog/${post.id}`)}>
+                        <GhostButton $isDark={isDark} onClick={() => router.push(`/admin/blog/${post.id}`)}>
                           <Pencil />
                         </GhostButton>
                         <GhostButton $isDark={isDark} onClick={() => setDeleteTarget(post.id)} style={{ color: '#d4183d' }}>

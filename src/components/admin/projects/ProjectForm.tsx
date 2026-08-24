@@ -1,5 +1,7 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useRouter, useParams } from 'next/navigation';
 import styled from 'styled-components';
 import { ArrowLeft, Upload, Save, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
@@ -215,8 +217,8 @@ interface GalleryImage {
 
 export default function ProjectForm() {
   const { isDark } = useTheme();
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const { id } = (useParams() as { id?: string });
+  const router = useRouter();
   const isEdit = !!id && id !== 'new';
 
   const [form, setForm] = useState(emptyProject);
@@ -371,7 +373,7 @@ export default function ProjectForm() {
       }
 
       toast.success('저장되었습니다.');
-      navigate('/admin/projects');
+      router.push('/admin/projects');
     } catch (err: unknown) {
       console.error('Save failed:', err);
       const msg = err && typeof err === 'object' && 'message' in err
@@ -390,7 +392,7 @@ export default function ProjectForm() {
   return (
     <>
       <PageTop>
-        <BackBtn $isDark={isDark} onClick={() => navigate('/admin/projects')}>
+        <BackBtn $isDark={isDark} onClick={() => router.push('/admin/projects')}>
           <ArrowLeft /> 목록으로
         </BackBtn>
       </PageTop>
@@ -637,7 +639,7 @@ export default function ProjectForm() {
 
         {/* === Actions === */}
         <FormActions>
-          <SecondaryButton $isDark={isDark} onClick={() => navigate('/admin/projects')}>
+          <SecondaryButton $isDark={isDark} onClick={() => router.push('/admin/projects')}>
             취소
           </SecondaryButton>
           <PrimaryButton onClick={handleSave} disabled={saving || !form.id || !form.title_ko}>

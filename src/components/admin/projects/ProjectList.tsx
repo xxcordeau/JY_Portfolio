@@ -1,5 +1,7 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { Plus, Pencil, Trash2, Search, Star, GripVertical } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
@@ -144,7 +146,7 @@ const DialogActions = styled.div`
 
 export default function ProjectList() {
   const { isDark } = useTheme();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [projects, setProjects] = useState<DbProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -223,7 +225,7 @@ export default function ProjectList() {
             </td>
             <td>
               <ActionCell>
-                <GhostButton $isDark={isDark} onClick={() => navigate(`/admin/projects/${project.id}`)}>
+                <GhostButton $isDark={isDark} onClick={() => router.push(`/admin/projects/${project.id}`)}>
                   <Pencil />
                 </GhostButton>
                 <GhostButton $isDark={isDark} onClick={() => setDeleteTarget(project.id)} style={{ color: '#d4183d' }}>
@@ -251,7 +253,7 @@ export default function ProjectList() {
           <PageTitle $isDark={isDark}>프로젝트 관리</PageTitle>
           <PageSubtitle>총 {projects.length}개의 프로젝트</PageSubtitle>
         </HeaderLeft>
-        <PrimaryButton onClick={() => navigate('/admin/projects/new')}>
+        <PrimaryButton onClick={() => router.push('/admin/projects/new')}>
           <Plus /> 새 프로젝트
         </PrimaryButton>
       </PageHeader>

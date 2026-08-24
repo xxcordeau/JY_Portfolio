@@ -1,6 +1,8 @@
+'use client';
+
 import styled from 'styled-components';
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import { Moon, Sun, Menu, X } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -275,8 +277,8 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
   const { isNavVisible, navOrder } = useSiteSettings();
   const [visible, setVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname() || '';
   const t = translations[language];
 
   useEffect(() => {
@@ -286,13 +288,13 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
     };
 
     // Also check on mount for pages that aren't the home page
-    if (location.pathname !== '/') {
+    if (pathname !== '/') {
       setVisible(true);
     }
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.pathname]);
+  }, [pathname]);
 
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -305,7 +307,7 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
 
   // Determine active nav item based on current route/scroll
   const getActiveKey = (): string | null => {
-    const path = location.pathname;
+    const path = pathname;
     if (path.startsWith('/projects')) return 'nav_projects';
     if (path.startsWith('/blog')) return 'nav_blog';
     if (path.startsWith('/opensource')) return 'nav_opensource';
@@ -322,10 +324,10 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
       return;
     }
 
-    if (location.pathname !== '/') {
+    if (pathname !== '/') {
       // Store target section, then navigate to home — HomePage will pick it up
       sessionStorage.setItem('scrollTarget', id);
-      navigate('/');
+      router.push('/');
     } else {
       const element = document.getElementById(id);
       if (element) {
@@ -336,7 +338,7 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
 
   const handlePresentationsClick = () => {
     setMobileMenuOpen(false);
-    navigate('/presentations');
+    router.push('/presentations');
   };
 
   const navActions: Record<string, { label: string; onClick: () => void }> = {

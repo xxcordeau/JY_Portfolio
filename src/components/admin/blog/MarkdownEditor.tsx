@@ -1,3 +1,5 @@
+'use client';
+
 import { useRef, useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Bold, Heading1, Heading2, Heading3, Code, List, Link, ImageIcon, Loader2 } from 'lucide-react';

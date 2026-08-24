@@ -1,3 +1,5 @@
+'use client';
+
 import styled from 'styled-components';
 import React, { useState, useRef, useEffect } from 'react';
 import { X, ChevronDown, Check } from 'lucide-react';

@@ -1,3 +1,5 @@
+'use client';
+
 import styled, { keyframes } from 'styled-components';
 
 const DemoContainer = styled.div<{ $isDark: boolean }>`

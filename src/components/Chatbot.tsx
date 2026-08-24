@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import styled from 'styled-components';
 import { MessageCircle, X, ChevronLeft, Mail } from 'lucide-react';
