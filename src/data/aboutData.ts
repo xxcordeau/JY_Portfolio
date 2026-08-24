@@ -94,80 +94,12 @@ export const education: Education[] = [
 export const experiences: Experience[] = [
   {
     company: {
-      ko: "윈앤티켓 (WinnTicket)",
-      en: "WinnTicket Co., Ltd.",
-    },
-    position: {
-      ko: "풀스택 엔지니어 (프리랜서)",
-      en: "Fullstack Engineer (Freelancer)",
-    },
-    period: "2026.01 - 2026.06",
-    description: {
-      ko: "공연·레저·숙박 등 다양한 티켓 상품을 판매·관리하는 올인원 티켓 커머스 플랫폼의 풀스택 개발을 담당했습니다. 쇼핑몰(고객용), 관리자 대시보드, 현장 관리자 시스템까지 3개 시스템을 단일 React 앱으로 설계·구현했습니다.",
-      en: "Led fullstack development of an all-in-one ticket commerce platform for selling and managing tickets across performances, leisure, and accommodation. Designed and implemented 3 systems (shopping mall, admin dashboard, field manager) as a unified React application.",
-    },
-    achievements: {
-      ko: [
-        "풀스택 개발 (팀 3명: 풀스택 1, 백엔드 2) — 쇼핑몰 + 관리자 + 현장관리자 3개 시스템을 단일 React 앱으로 설계·구현",
-        "React.lazy + Suspense 코드 스플리팅 → 초기 번들 사이즈 42% 감소 (580KB → 336KB gzip)",
-        "KCP PG 결제 연동 + 전액 포인트 결제 → 주문 완료 전환율 개선",
-        "QR/바코드 기반 실시간 티켓 검증 — 현장 입장 처리 3초 이내",
-        "RBAC 3단계 권한 분리 (관리자/현장관리자/파트너) + 라우트·API 이중 가드",
-        "Spring Boot + MyBatis + PostgreSQL RESTful API 50+ 엔드포인트 설계·구현",
-      ],
-      en: [
-        "Fullstack development (team of 3: 1 fullstack, 2 backend) — 3 systems as unified React app",
-        "React.lazy + Suspense code splitting → 42% initial bundle reduction (580KB → 336KB gzip)",
-        "KCP payment gateway + full point payment → improved order completion conversion",
-        "QR/barcode real-time ticket verification — on-site entry processing under 3 seconds",
-        "RBAC 3-tier permissions (admin/field/partner) + route & API dual guards",
-        "Spring Boot + MyBatis + PostgreSQL RESTful API 50+ endpoints designed & implemented",
-      ],
-    },
-  },
-  {
-    company: {
-      ko: "SnapClub (호주)",
-      en: "SnapClub (Australia)",
-    },
-    position: {
-      ko: "풀스택 엔지니어 (프리랜서)",
-      en: "Fullstack Engineer (Freelancer)",
-    },
-    period: "2025.12 - 2026.06",
-    description: {
-      ko: "호주 멜버른 포토부스 브랜드의 레거시 WPF 시스템을 Electron + React + NestJS 기반으로 전면 리빌드했습니다. 부스 키오스크 앱, 관리자 대시보드, 백엔드 서버까지 pnpm 모노레포로 개발했습니다.",
-      en: "Full rebuild of an Australian photo booth brand's legacy WPF system into a modern Electron + React + NestJS stack. Developed booth kiosk app, admin dashboard, and backend server as a pnpm monorepo.",
-    },
-    achievements: {
-      ko: [
-        "레거시 WPF 시스템 리버스 엔지니어링 → Electron + React + NestJS 풀 리빌드",
-        "Canvas 기반 1200×1800px 인쇄 품질 사진 합성 엔진 — 10+ cutType 지원",
-        "Canon EDSDK 카메라 + Nayax 결제기 + Sinfonia 프린터 하드웨어 연동 (C# 데몬 IPC)",
-        "15단계 세션 플로우 (대기→결제→촬영→편집→꾸미기→QR 다운로드)",
-        "17페이지 관리자 대시보드 — 매출 분석, 장치 원격 관리, 프레임 에디터, CMS",
-        "pnpm 모노레포 + 공유 타입 패키지 → 프론트/백엔드 타입 안정성 확보",
-        "66개 테스트 케이스 (Vitest + Jest + Supertest)",
-      ],
-      en: [
-        "Full rebuild from legacy WPF via reverse engineering into Electron + React + NestJS",
-        "Canvas-based 1200×1800px print-quality photo composition engine — 10+ cut types",
-        "Canon EDSDK camera + Nayax payment + Sinfonia printer hardware integration via C# daemon IPC",
-        "15-step session flow (idle→payment→capture→edit→decorate→QR download)",
-        "17-page admin dashboard — revenue analytics, remote device management, frame editor, CMS",
-        "pnpm monorepo + shared type packages for frontend/backend type safety",
-        "66 test cases (Vitest + Jest + Supertest)",
-      ],
-    },
-  },
-  {
-    company: {
       ko: "동훈아이텍 (Keyrke)",
       en: "Donghun I-Tech (Keyrke)",
     },
     position: {
-      ko: "프론트엔드 개발자",
-      en: "Frontend Developer",
+      ko: "프론트엔드 개발자 (정규직)",
+      en: "Frontend Developer (Full-time)",
     },
     period: "2023.08 - 현재",
     description: {
@@ -193,17 +125,85 @@ export const experiences: Experience[] = [
   },
   {
     company: {
+      ko: "SnapClub (호주)",
+      en: "SnapClub (Australia)",
+    },
+    position: {
+      ko: "풀스택 엔지니어 (프리랜서 · 야간/주말)",
+      en: "Fullstack Engineer (Freelance · nights & weekends)",
+    },
+    period: "2026.04 - 2026.06",
+    description: {
+      ko: "호주 멜버른 포토부스 브랜드의 레거시 WPF 시스템을 Electron + React + NestJS로 다시 만들었습니다. 현재 호주 매장 부스에서 실제 운영 중입니다. 동훈아이텍 재직과 병행해 야간·주말 시간에 진행했습니다.",
+      en: "Rebuilt an Australian photo booth brand's legacy WPF system with Electron + React + NestJS. Now running in their stores. Worked nights and weekends alongside my full-time role at Donghun I-Tech.",
+    },
+    achievements: {
+      ko: [
+        "레거시 WPF 시스템 리버스 엔지니어링 → Electron + React + NestJS 풀 리빌드",
+        "Canvas 기반 1200×1800px 인쇄 품질 사진 합성 엔진 — 10+ cutType 지원",
+        "Canon EDSDK 카메라 + Nayax 결제기 + Sinfonia 프린터 하드웨어 연동 (C# 데몬 IPC)",
+        "15단계 세션 플로우 (대기→결제→촬영→편집→꾸미기→QR 다운로드)",
+        "17페이지 관리자 대시보드 — 매출 분석, 장치 원격 관리, 프레임 에디터, CMS",
+        "pnpm 모노레포 + 공유 타입 패키지 → 프론트/백엔드 타입 안정성 확보",
+        "66개 테스트 케이스 (Vitest + Jest + Supertest)",
+      ],
+      en: [
+        "Full rebuild from legacy WPF via reverse engineering into Electron + React + NestJS",
+        "Canvas-based 1200×1800px print-quality photo composition engine — 10+ cut types",
+        "Canon EDSDK camera + Nayax payment + Sinfonia printer hardware integration via C# daemon IPC",
+        "15-step session flow (idle→payment→capture→edit→decorate→QR download)",
+        "17-page admin dashboard — revenue analytics, remote device management, frame editor, CMS",
+        "pnpm monorepo + shared type packages for frontend/backend type safety",
+        "66 test cases (Vitest + Jest + Supertest)",
+      ],
+    },
+  },
+  {
+    company: {
+      ko: "윈앤티켓 (WinnTicket)",
+      en: "WinnTicket Co., Ltd.",
+    },
+    position: {
+      ko: "풀스택 엔지니어 (프리랜서 · 야간/주말)",
+      en: "Fullstack Engineer (Freelance · nights & weekends)",
+    },
+    period: "2025.11 - 2026.03",
+    description: {
+      ko: "공연·레저·숙박 티켓을 파는 커머스 플랫폼을 풀스택으로 개발했습니다. 쇼핑몰, 관리자 대시보드, 현장 검증 시스템까지 3개를 단일 React 앱으로 만들었습니다. 동훈아이텍 재직과 병행해 야간·주말 시간에 진행했습니다.",
+      en: "Built a ticket commerce platform end to end — storefront, admin dashboard, and on-site verification as one React app. Worked nights and weekends alongside my full-time role at Donghun I-Tech.",
+    },
+    achievements: {
+      ko: [
+        "풀스택 개발 (팀 3명: 풀스택 1, 백엔드 2) — 쇼핑몰 + 관리자 + 현장관리자 3개 시스템을 단일 React 앱으로 설계·구현",
+        "React.lazy + Suspense 코드 스플리팅 → 초기 번들 사이즈 42% 감소 (580KB → 336KB gzip)",
+        "KCP PG 결제 연동 + 전액 포인트 결제 → 주문 완료 전환율 개선",
+        "QR/바코드 기반 실시간 티켓 검증 — 현장 입장 처리 3초 이내",
+        "RBAC 3단계 권한 분리 (관리자/현장관리자/파트너) + 라우트·API 이중 가드",
+        "Spring Boot + MyBatis + PostgreSQL RESTful API 50+ 엔드포인트 설계·구현",
+      ],
+      en: [
+        "Fullstack development (team of 3: 1 fullstack, 2 backend) — 3 systems as unified React app",
+        "React.lazy + Suspense code splitting → 42% initial bundle reduction (580KB → 336KB gzip)",
+        "KCP payment gateway + full point payment → improved order completion conversion",
+        "QR/barcode real-time ticket verification — on-site entry processing under 3 seconds",
+        "RBAC 3-tier permissions (admin/field/partner) + route & API dual guards",
+        "Spring Boot + MyBatis + PostgreSQL RESTful API 50+ endpoints designed & implemented",
+      ],
+    },
+  },
+  {
+    company: {
       ko: "통인익스프레스",
       en: "Tongin Express",
     },
     position: {
-      ko: "프론트엔드 개발자 (프리랜서)",
-      en: "Frontend Developer (Freelancer)",
+      ko: "프론트엔드 개발자 (프리랜서 · 야간/주말)",
+      en: "Frontend Developer (Freelance · nights & weekends)",
     },
-    period: "2024.01 - 2024.06",
+    period: "2025.03 - 2025.08",
     description: {
-      ko: "기존 오프라인 종이 계약 프로세스를 아이패드·태블릿 전용 웹앱으로 디지털 전환하는 프로젝트를 단독으로 개발했습니다. 계약 등록부터 전자서명, 진행 관리까지 전 과정을 실시간으로 연동했습니다.",
-      en: "Solo-developed a digital transformation project converting the existing offline paper contract process into a tablet-optimized web application. Integrated the entire flow from contract registration to e-signature and progress management in real-time.",
+      ko: "이전에 근무했던 통인익스프레스에서 다시 의뢰를 받아, 오프라인 종이 계약을 아이패드 웹앱으로 옮기는 프로젝트를 단독으로 개발했습니다. 동훈아이텍 재직과 병행해 야간·주말 시간에 진행했습니다.",
+      en: "Came back to Tongin Express as a contractor to move their paper contract process onto an iPad web app, building the frontend solo. Worked nights and weekends alongside my full-time role at Donghun I-Tech.",
     },
     achievements: {
       ko: [
@@ -230,26 +230,26 @@ export const experiences: Experience[] = [
       en: "Tongin Express",
     },
     position: {
-      ko: "프론트엔드 개발자 (사내 → 프리랜서 전환)",
-      en: "Frontend Developer (In-house → Freelancer)",
+      ko: "웹 퍼블리셔 (정규직)",
+      en: "Web Publisher (Full-time)",
     },
-    period: "2022.07 - 2023.07",
+    period: "2022.05 - 2022.11",
     description: {
-      ko: "사내 웹 퍼블리셔로 시작해 프리랜서로 전환하며, 오프라인 중심이던 계약 프로세스를 태블릿 전용 웹앱으로 디지털 전환하는 프로젝트를 주도했습니다.",
-      en: "Started as an in-house web publisher and transitioned to freelancer, leading the digital transformation of an offline contract process into a tablet-optimized web application.",
+      ko: "디자인팀에서 웹 퍼블리셔로 근무하며 홈앤무브 웹사이트 전면 개편을 맡았습니다. UI 디자인부터 마크업까지 한 사람이 담당해, 시안을 넘기고 다시 고치는 왕복 없이 작업했습니다.",
+      en: "Worked as a web publisher on the design team, leading the full redesign of the Home&Move website. Handling both UI design and markup myself removed the usual handoff-and-revise loop.",
     },
     achievements: {
       ko: [
-        "계약 등록 → 견적 → 전자서명 → 상태관리 전 과정을 웹앱으로 디지털 전환",
-        "아이패드 해상도 기준 터치 중심 반응형 UI 설계 및 구현",
-        "현장 계약 처리 속도 60% 단축, 전자서명 완료율 35% 향상",
-        "Vue.js + SCSS 기반 컴포넌트 시스템 구축, 관리자 페이지 UI 구현",
+        "홈앤무브 웹사이트 전면 개편 — UI 디자인부터 마크업까지 전 과정 단독 수행",
+        "디자인·퍼블리싱 일괄 담당으로 시안 전달-피드백-수정 사이클 제거",
+        "Vue.js + SCSS 기반 컴포넌트 시스템 구축",
+        "사내 웹사이트 기능 개발 및 유지보수",
       ],
       en: [
-        "Digitized entire contract flow: registration → quotation → e-signature → status tracking",
-        "Designed and implemented touch-centric responsive UI optimized for iPad resolution",
-        "Reduced on-site contract processing time by 60%, increased e-signature completion rate by 35%",
-        "Built component system with Vue.js + SCSS, implemented admin page UI",
+        "Full redesign of the Home&Move website — UI design through markup, solo",
+        "Owning both design and publishing removed the handoff-feedback-revision cycle",
+        "Built a component system with Vue.js + SCSS",
+        "Developed and maintained internal company websites",
       ],
     },
   },
