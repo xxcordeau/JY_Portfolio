@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Save, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';

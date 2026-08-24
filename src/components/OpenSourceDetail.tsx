@@ -1,3 +1,5 @@
+'use client';
+
 import { lazy, Suspense } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';

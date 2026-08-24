@@ -1,3 +1,5 @@
+'use client';
+
 import styled from 'styled-components';
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, AlertCircle, Info, X, XCircle } from 'lucide-react';

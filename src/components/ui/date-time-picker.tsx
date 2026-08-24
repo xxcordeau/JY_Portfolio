@@ -1,3 +1,5 @@
+'use client';
+
 import styled from 'styled-components';
 import React, { useState } from 'react';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight } from 'lucide-react';

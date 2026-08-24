@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
@@ -22,10 +24,10 @@ const CharSpan = styled.span<{ $delay: number }>`
 import type { DbPresentation } from '../lib/types/database';
 
 // pdfjs worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url
-).toString();
+// pdfjs worker — public/ 에 복사된 파일을 절대 경로로 참조.
+// (Vite의 new URL(..., import.meta.url) 패턴은 Next 정적 빌드에서 동작하지 않음.
+//  worker 파일은 postinstall/prebuild 스크립트가 node_modules에서 public/으로 복사한다.)
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 const spin = keyframes`from { transform: rotate(0deg); } to { transform: rotate(360deg); }`;
 

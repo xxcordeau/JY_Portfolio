@@ -1,10 +1,12 @@
+'use client';
+
 import * as React from "react";
 import styled from "styled-components";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
-} from "lucide-react@0.487.0";
+} from "lucide-react";
 
 const StyledPagination = styled.nav`
   display: flex;

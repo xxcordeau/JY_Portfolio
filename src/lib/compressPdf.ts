@@ -1,10 +1,10 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import { jsPDF } from 'jspdf';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url
-).toString();
+// pdfjs worker — public/ 에 복사된 파일을 절대 경로로 참조.
+// (Vite의 new URL(..., import.meta.url) 패턴은 Next 정적 빌드에서 동작하지 않음.
+//  worker 파일은 postinstall/prebuild 스크립트가 node_modules에서 public/으로 복사한다.)
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 /**
  * PDF 파일을 각 페이지를 JPEG로 변환해 용량을 줄인 새 PDF로 반환

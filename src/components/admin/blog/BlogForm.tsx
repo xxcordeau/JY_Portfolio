@@ -1,5 +1,7 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useRouter, useParams } from 'next/navigation';
 import styled from 'styled-components';
 import { ArrowLeft, Save, Upload } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
@@ -156,8 +158,8 @@ const emptyPost: Omit<DbBlogPost, 'created_at' | 'updated_at'> = {
 
 export default function BlogForm() {
   const { isDark } = useTheme();
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const { id } = (useParams() as { id?: string });
+  const router = useRouter();
   const isEdit = !!id && id !== 'new';
 
   const [form, setForm] = useState(emptyPost);
@@ -208,7 +210,7 @@ export default function BlogForm() {
         await supabase.from('blog_posts').insert({ ...payload, created_at: new Date().toISOString() });
       }
 
-      navigate('/admin/blog');
+      router.push('/admin/blog');
     } catch (err) {
       console.error('Save failed:', err);
     } finally {
@@ -346,7 +348,7 @@ export default function BlogForm() {
   return (
     <>
       <PageTop>
-        <BackBtn $isDark={isDark} onClick={() => navigate('/admin/blog')}>
+        <BackBtn $isDark={isDark} onClick={() => router.push('/admin/blog')}>
           <ArrowLeft /> 목록으로
         </BackBtn>
       </PageTop>
@@ -498,7 +500,7 @@ export default function BlogForm() {
 
         {/* === Actions === */}
         <FormActions>
-          <SecondaryButton $isDark={isDark} onClick={() => navigate('/admin/blog')}>
+          <SecondaryButton $isDark={isDark} onClick={() => router.push('/admin/blog')}>
             취소
           </SecondaryButton>
           <PrimaryButton onClick={handleSave} disabled={saving || !form.id || !form.title_ko}>

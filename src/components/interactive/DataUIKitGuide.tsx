@@ -1,3 +1,5 @@
+'use client';
+
 import styled from 'styled-components';
 import { Package, Terminal, Code, Book } from 'lucide-react';
 

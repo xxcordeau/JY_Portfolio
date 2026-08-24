@@ -1,3 +1,5 @@
+'use client';
+
 import styled from 'styled-components';
 import React, { useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown, Search, Filter } from 'lucide-react';

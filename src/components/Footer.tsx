@@ -1,6 +1,8 @@
+'use client';
+
 import styled from 'styled-components';
 import { Shield } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -147,11 +149,11 @@ export default function Footer({ onContactClick }: FooterProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
   const t = translations[language];
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <FooterContainer $isDark={isDark}>
-      <AdminButton $isDark={isDark} onClick={() => navigate('/admin')}>
+      <AdminButton $isDark={isDark} onClick={() => router.push('/admin')}>
         <Shield />
         Admin
       </AdminButton>

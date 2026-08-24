@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Trash2, RefreshCw, Eye, EyeOff } from 'lucide-react';

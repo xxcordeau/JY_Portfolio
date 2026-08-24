@@ -26,11 +26,8 @@ jobs:
 
       - run: npm ci
 
-      # Puppeteer needs these on Ubuntu
-      - name: Install Chromium deps
-        run: npx puppeteer browsers install chrome
-
-      - name: Build + Prerender
+      # Next.js 정적 빌드 (SSG) + portfolio.txt / sitemap.xml / robots.txt 생성
+      - name: Build
         run: npm run build
 
       # ── GitHub Pages 배포 ──
@@ -40,7 +37,7 @@ jobs:
       - name: Upload to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build
+          path: out
 
       - name: Deploy to GitHub Pages
         id: ghpages
@@ -50,7 +47,7 @@ jobs:
       - name: Prepare Vercel output
         run: |
           mkdir -p .vercel/output/static
-          cp -r build/* .vercel/output/static/
+          cp -r out/* .vercel/output/static/
           cat > .vercel/output/config.json << 'EOF'
           {
             "version": 3,

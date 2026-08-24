@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, type KeyboardEvent } from 'react';
 import styled from 'styled-components';
 import { X, Plus } from 'lucide-react';

@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Plus, Trash2, Save, ChevronDown, ChevronRight } from 'lucide-react';

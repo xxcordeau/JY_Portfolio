@@ -1,5 +1,4 @@
 import { Project } from '../projectsData';
-import image_ba0216df9afa3fbf7ece56fec0bc50ab7409d73b from 'figma:asset/ba0216df9afa3fbf7ece56fec0bc50ab7409d73b.png';
 
 export const keyrke: Project = {
   id: 'keyrke',
@@ -16,7 +15,7 @@ export const keyrke: Project = {
     en: 'Solo frontend developer on Keyrke, a security asset management solution deployed at Hyundai AutoEver, Hyundai Mobis, and Hyundai Kefico. The platform covers asset tracking, security policies, storage monitoring, OneDrive sync, hardware management, and reporting — everything an enterprise needs to manage security in one place.\n\nDesigned the frontend with Nuxt 3 and TypeScript. Built 62 shared components, a multi-condition search engine, and a tree-based org navigation UI. Optimized rendering so it handles thousands of log entries without lag.'
   },
   tags: ['Nuxt 3', 'Vue 3', 'TypeScript', 'Enterprise'],
-  image: image_ba0216df9afa3fbf7ece56fec0bc50ab7409d73b,
+  image: '/images/keyrke-cover.png',
   year: '2023–2025',
   role: {
     ko: 'Frontend Engineer',

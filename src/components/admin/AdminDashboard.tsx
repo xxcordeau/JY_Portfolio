@@ -1,5 +1,7 @@
+'use client';
+
 import { useState } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
 import styled from 'styled-components';
 import {
   Mail, User, FolderOpen, BookOpen, Github,
@@ -246,16 +248,17 @@ const menuItems: MenuItem[] = [
 // ============================================
 
 interface AdminDashboardProps {
+  children?: React.ReactNode;
   onLogout: () => void;
 }
 
-export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
+export default function AdminDashboard({ onLogout, children }: AdminDashboardProps) {
   const { isDark } = useTheme();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname() || '';
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const currentPath = location.pathname;
+  const currentPath = pathname;
   const activeItem = menuItems.find(item =>
     currentPath === item.path || currentPath.startsWith(item.path + '/')
   );
@@ -265,7 +268,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const systemItems = menuItems.filter(m => m.section === 'system');
 
   const handleNav = (path: string) => {
-    navigate(path);
+    router.push(path);
     setSidebarOpen(false);
   };
 
@@ -343,7 +346,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         </TopBar>
 
         <ContentArea>
-          <Outlet />
+          {children}
         </ContentArea>
       </MainArea>
 
