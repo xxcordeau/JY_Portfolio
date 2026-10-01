@@ -100,7 +100,7 @@ const StyledToggle = styled(TogglePrimitive.Root)<{
   }
 `;
 
-interface ToggleProps extends React.ComponentProps<typeof TogglePrimitive.Root> {
+interface ToggleProps extends React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> {
   isDark?: boolean;
   variant?: 'default' | 'outline';
   size?: 'default' | 'sm' | 'lg';

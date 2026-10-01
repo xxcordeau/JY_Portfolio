@@ -179,39 +179,39 @@ const StyledScrollButton = styled.div<{ $isDark?: boolean }>`
   }
 `;
 
-interface SelectTriggerProps extends React.ComponentProps<typeof SelectPrimitive.Trigger> {
+interface SelectTriggerProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> {
   isDark?: boolean;
 }
 
-interface SelectContentProps extends React.ComponentProps<typeof SelectPrimitive.Content> {
+interface SelectContentProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> {
   isDark?: boolean;
 }
 
-interface SelectLabelProps extends React.ComponentProps<typeof SelectPrimitive.Label> {
+interface SelectLabelProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label> {
   isDark?: boolean;
 }
 
-interface SelectItemProps extends React.ComponentProps<typeof SelectPrimitive.Item> {
+interface SelectItemProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
   isDark?: boolean;
 }
 
-interface SelectSeparatorProps extends React.ComponentProps<typeof SelectPrimitive.Separator> {
+interface SelectSeparatorProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator> {
   isDark?: boolean;
 }
 
-interface ScrollButtonProps extends React.ComponentProps<typeof SelectPrimitive.ScrollUpButton> {
+interface ScrollButtonProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton> {
   isDark?: boolean;
 }
 
-function Select(props: React.ComponentProps<typeof SelectPrimitive.Root>) {
+function Select(props: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root>) {
   return <SelectPrimitive.Root {...props} />;
 }
 
-function SelectGroup(props: React.ComponentProps<typeof SelectPrimitive.Group>) {
+function SelectGroup(props: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Group>) {
   return <SelectPrimitive.Group {...props} />;
 }
 
-function SelectValue(props: React.ComponentProps<typeof SelectPrimitive.Value>) {
+function SelectValue(props: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Value>) {
   return <SelectPrimitive.Value {...props} />;
 }
 

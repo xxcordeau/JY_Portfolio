@@ -150,27 +150,27 @@ interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof Dialo
   isDark?: boolean;
 }
 
-interface DialogTitleProps extends React.ComponentProps<typeof DialogPrimitive.Title> {
+interface DialogTitleProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title> {
   isDark?: boolean;
 }
 
-interface DialogDescriptionProps extends React.ComponentProps<typeof DialogPrimitive.Description> {
+interface DialogDescriptionProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description> {
   isDark?: boolean;
 }
 
-function Dialog(props: React.ComponentProps<typeof DialogPrimitive.Root>) {
+function Dialog(props: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root {...props} />;
 }
 
-function DialogTrigger(props: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
+function DialogTrigger(props: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Trigger>) {
   return <DialogPrimitive.Trigger {...props} />;
 }
 
-function DialogPortal(props: React.ComponentProps<typeof DialogPrimitive.Portal>) {
+function DialogPortal(props: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Portal>) {
   return <DialogPrimitive.Portal {...props} />;
 }
 
-function DialogClose(props: React.ComponentProps<typeof DialogPrimitive.Close>) {
+function DialogClose(props: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Close>) {
   return <DialogPrimitive.Close {...props} />;
 }
 
@@ -215,11 +215,11 @@ const DialogContent = React.forwardRef<
 });
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
-function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+function DialogHeader({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return <StyledHeader className={className} {...props} />;
 }
 
-function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
+function DialogFooter({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return <StyledFooter className={className} {...props} />;
 }
 

@@ -375,7 +375,7 @@ function PdfPageCanvas({
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      renderTask.current = page.render({ canvasContext: ctx, viewport, intent: 'display' });
+      renderTask.current = page.render({ canvas, canvasContext: ctx, viewport, intent: 'display' });
       await renderTask.current.promise.catch(() => {});
     };
     render();

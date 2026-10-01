@@ -94,23 +94,23 @@ const StyledBreadcrumbEllipsis = styled.span<{ $isDark?: boolean }>`
   }
 `;
 
-interface BreadcrumbLinkProps extends React.ComponentProps<"a"> {
+interface BreadcrumbLinkProps extends React.ComponentPropsWithoutRef<"a"> {
   isDark?: boolean;
 }
 
-interface BreadcrumbPageProps extends React.ComponentProps<"span"> {
+interface BreadcrumbPageProps extends React.ComponentPropsWithoutRef<"span"> {
   isDark?: boolean;
 }
 
-interface BreadcrumbSeparatorProps extends React.ComponentProps<"li"> {
+interface BreadcrumbSeparatorProps extends React.ComponentPropsWithoutRef<"li"> {
   isDark?: boolean;
 }
 
-interface BreadcrumbEllipsisProps extends React.ComponentProps<"span"> {
+interface BreadcrumbEllipsisProps extends React.ComponentPropsWithoutRef<"span"> {
   isDark?: boolean;
 }
 
-function BreadcrumbStyled({ className, ...props }: React.ComponentProps<"nav">) {
+function BreadcrumbStyled({ className, ...props }: React.ComponentPropsWithoutRef<"nav">) {
   return (
     <StyledBreadcrumb
       aria-label="breadcrumb"
@@ -120,11 +120,11 @@ function BreadcrumbStyled({ className, ...props }: React.ComponentProps<"nav">) 
   );
 }
 
-function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
+function BreadcrumbList({ className, ...props }: React.ComponentPropsWithoutRef<"ol">) {
   return <StyledBreadcrumbList className={className} {...props} />;
 }
 
-function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
+function BreadcrumbItem({ className, ...props }: React.ComponentPropsWithoutRef<"li">) {
   return <StyledBreadcrumbItem className={className} {...props} />;
 }
 

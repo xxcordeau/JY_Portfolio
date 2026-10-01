@@ -57,7 +57,7 @@ const StyledTextarea = styled.textarea<{ $isDark?: boolean }>`
   }
 `;
 
-interface TextareaProps extends React.ComponentProps<"textarea"> {
+interface TextareaProps extends React.ComponentPropsWithoutRef<"textarea"> {
   isDark?: boolean;
 }
 

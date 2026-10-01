@@ -52,7 +52,7 @@ const StyledSwitchThumb = styled(SwitchPrimitive.Thumb)<{ $isDark?: boolean }>`
   }
 `;
 
-interface SwitchProps extends React.ComponentProps<typeof SwitchPrimitive.Root> {
+interface SwitchProps extends React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root> {
   isDark?: boolean;
 }
 

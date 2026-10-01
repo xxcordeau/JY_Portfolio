@@ -62,11 +62,11 @@ const StyledCircle = styled(Circle)<{ $isDark?: boolean }>`
   color: ${props => props.$isDark ? '#4ECDC4' : '#007AFF'};
 `;
 
-interface RadioGroupProps extends React.ComponentProps<typeof RadioGroupPrimitive.Root> {
+interface RadioGroupProps extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> {
   isDark?: boolean;
 }
 
-interface RadioGroupItemProps extends React.ComponentProps<typeof RadioGroupPrimitive.Item> {
+interface RadioGroupItemProps extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> {
   isDark?: boolean;
 }
 

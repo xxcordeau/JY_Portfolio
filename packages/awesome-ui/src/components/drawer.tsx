@@ -135,31 +135,31 @@ const StyledDescription = styled(DrawerPrimitive.Description)<{ $isDark?: boolea
   color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
 `;
 
-interface DrawerContentProps extends React.ComponentProps<typeof DrawerPrimitive.Content> {
+interface DrawerContentProps extends React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> {
   isDark?: boolean;
 }
 
-interface DrawerTitleProps extends React.ComponentProps<typeof DrawerPrimitive.Title> {
+interface DrawerTitleProps extends React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Title> {
   isDark?: boolean;
 }
 
-interface DrawerDescriptionProps extends React.ComponentProps<typeof DrawerPrimitive.Description> {
+interface DrawerDescriptionProps extends React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Description> {
   isDark?: boolean;
 }
 
-function Drawer(props: React.ComponentProps<typeof DrawerPrimitive.Root>) {
+function Drawer(props: React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Root>) {
   return <DrawerPrimitive.Root {...props} />;
 }
 
-function DrawerTrigger(props: React.ComponentProps<typeof DrawerPrimitive.Trigger>) {
+function DrawerTrigger(props: React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Trigger>) {
   return <DrawerPrimitive.Trigger {...props} />;
 }
 
-function DrawerPortal(props: React.ComponentProps<typeof DrawerPrimitive.Portal>) {
+function DrawerPortal(props: React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Portal>) {
   return <DrawerPrimitive.Portal {...props} />;
 }
 
-function DrawerClose(props: React.ComponentProps<typeof DrawerPrimitive.Close>) {
+function DrawerClose(props: React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Close>) {
   return <DrawerPrimitive.Close {...props} />;
 }
 
@@ -190,11 +190,11 @@ function DrawerContent({ className, isDark, children, ...props }: DrawerContentP
   );
 }
 
-function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
+function DrawerHeader({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return <StyledHeader className={className} {...props} />;
 }
 
-function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
+function DrawerFooter({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return <StyledFooter className={className} {...props} />;
 }
 

@@ -36,7 +36,7 @@ export async function compressPdf(
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    await page.render({ canvasContext: ctx, viewport, intent: 'display' }).promise;
+    await page.render({ canvas, canvasContext: ctx, viewport, intent: 'display' }).promise;
 
     const imgData = canvas.toDataURL('image/jpeg', quality);
 

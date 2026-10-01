@@ -19,7 +19,7 @@ const StyledSeparator = styled(SeparatorPrimitive.Root)<{ $isDark?: boolean }>`
   }
 `;
 
-interface SeparatorProps extends React.ComponentProps<typeof SeparatorPrimitive.Root> {
+interface SeparatorProps extends React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root> {
   isDark?: boolean;
 }
 

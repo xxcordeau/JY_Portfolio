@@ -117,14 +117,14 @@ const StyledArrow = styled(TooltipPrimitive.Arrow)<{ $isDark?: boolean }>`
   transform: translateY(calc(-50% - 2px));
 `;
 
-interface TooltipContentProps extends React.ComponentProps<typeof TooltipPrimitive.Content> {
+interface TooltipContentProps extends React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> {
   isDark?: boolean;
 }
 
 function TooltipProvider({
   delayDuration = 0,
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
+}: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Provider>) {
   return (
     <TooltipPrimitive.Provider
       delayDuration={delayDuration}
@@ -133,7 +133,7 @@ function TooltipProvider({
   );
 }
 
-function Tooltip(props: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+function Tooltip(props: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>) {
   return (
     <TooltipProvider>
       <TooltipPrimitive.Root {...props} />
@@ -141,7 +141,7 @@ function Tooltip(props: React.ComponentProps<typeof TooltipPrimitive.Root>) {
   );
 }
 
-function TooltipTrigger(props: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+function TooltipTrigger(props: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger>) {
   return <TooltipPrimitive.Trigger {...props} />;
 }
 

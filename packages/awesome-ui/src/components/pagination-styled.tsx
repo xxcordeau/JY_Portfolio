@@ -115,17 +115,17 @@ const StyledPaginationEllipsis = styled.span<{ $isDark?: boolean }>`
   }
 `;
 
-interface PaginationLinkProps extends React.ComponentProps<"a"> {
+interface PaginationLinkProps extends React.ComponentPropsWithoutRef<"a"> {
   isDark?: boolean;
   active?: boolean;
   size?: 'default' | 'sm' | 'lg';
 }
 
-interface PaginationEllipsisProps extends React.ComponentProps<"span"> {
+interface PaginationEllipsisProps extends React.ComponentPropsWithoutRef<"span"> {
   isDark?: boolean;
 }
 
-function PaginationStyled({ className, ...props }: React.ComponentProps<"nav">) {
+function PaginationStyled({ className, ...props }: React.ComponentPropsWithoutRef<"nav">) {
   return (
     <StyledPagination
       role="navigation"
@@ -136,11 +136,11 @@ function PaginationStyled({ className, ...props }: React.ComponentProps<"nav">) 
   );
 }
 
-function PaginationContent({ className, ...props }: React.ComponentProps<"ul">) {
+function PaginationContent({ className, ...props }: React.ComponentPropsWithoutRef<"ul">) {
   return <StyledPaginationContent className={className} {...props} />;
 }
 
-function PaginationItem({ ...props }: React.ComponentProps<"li">) {
+function PaginationItem({ ...props }: React.ComponentPropsWithoutRef<"li">) {
   return <StyledPaginationItem {...props} />;
 }
 

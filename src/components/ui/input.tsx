@@ -64,7 +64,7 @@ const StyledInput = styled.input<{ $isDark?: boolean }>`
   }
 `;
 
-interface InputProps extends React.ComponentProps<"input"> {
+interface InputProps extends React.ComponentPropsWithoutRef<"input"> {
   isDark?: boolean;
 }
 

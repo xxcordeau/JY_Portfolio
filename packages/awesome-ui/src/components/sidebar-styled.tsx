@@ -296,7 +296,7 @@ const StyledSidebarInset = styled.main<{ $sidebarWidth?: string; $collapsed?: bo
 `;
 
 // Provider Component
-interface SidebarStyledProviderProps extends React.ComponentProps<"div"> {
+interface SidebarStyledProviderProps extends React.ComponentPropsWithoutRef<"div"> {
   defaultOpen?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -366,39 +366,39 @@ function SidebarStyledProvider({
 }
 
 // Component Props Interfaces
-interface SidebarStyledProps extends React.ComponentProps<"div"> {
+interface SidebarStyledProps extends React.ComponentPropsWithoutRef<"div"> {
   isDark?: boolean;
   side?: "left" | "right";
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: boolean;
 }
 
-interface SidebarHeaderProps extends React.ComponentProps<"div"> {
+interface SidebarHeaderProps extends React.ComponentPropsWithoutRef<"div"> {
   isDark?: boolean;
 }
 
-interface SidebarFooterProps extends React.ComponentProps<"div"> {
+interface SidebarFooterProps extends React.ComponentPropsWithoutRef<"div"> {
   isDark?: boolean;
 }
 
-interface SidebarGroupLabelProps extends React.ComponentProps<"div"> {
+interface SidebarGroupLabelProps extends React.ComponentPropsWithoutRef<"div"> {
   isDark?: boolean;
 }
 
-interface SidebarMenuButtonProps extends React.ComponentProps<"button"> {
+interface SidebarMenuButtonProps extends React.ComponentPropsWithoutRef<"button"> {
   isDark?: boolean;
   active?: boolean;
 }
 
-interface SidebarMenuSubProps extends React.ComponentProps<"ul"> {
+interface SidebarMenuSubProps extends React.ComponentPropsWithoutRef<"ul"> {
   isDark?: boolean;
 }
 
-interface SidebarToggleProps extends React.ComponentProps<"button"> {
+interface SidebarToggleProps extends React.ComponentPropsWithoutRef<"button"> {
   isDark?: boolean;
 }
 
-interface SidebarInsetProps extends React.ComponentProps<"main"> {
+interface SidebarInsetProps extends React.ComponentPropsWithoutRef<"main"> {
   sidebarWidth?: string;
 }
 
@@ -479,7 +479,7 @@ function SidebarHeader({ className, isDark, ...props }: SidebarHeaderProps) {
   return <StyledSidebarHeader $isDark={isDark} $collapsed={state === "collapsed"} className={className} {...props} />;
 }
 
-function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
+function SidebarContent({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   const { state } = useSidebarStyled();
   return <StyledSidebarContent $collapsed={state === "collapsed"} className={className} {...props} />;
 }
@@ -489,7 +489,7 @@ function SidebarFooter({ className, isDark, ...props }: SidebarFooterProps) {
   return <StyledSidebarFooter $isDark={isDark} $collapsed={state === "collapsed"} className={className} {...props} />;
 }
 
-function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
+function SidebarGroup({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return <StyledSidebarGroup className={className} {...props} />;
 }
 
@@ -498,11 +498,11 @@ function SidebarGroupLabel({ className, isDark, ...props }: SidebarGroupLabelPro
   return <StyledSidebarGroupLabel $isDark={isDark} $collapsed={state === "collapsed"} className={className} {...props} />;
 }
 
-function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
+function SidebarMenu({ className, ...props }: React.ComponentPropsWithoutRef<"ul">) {
   return <StyledSidebarMenu className={className} {...props} />;
 }
 
-function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
+function SidebarMenuItem({ className, ...props }: React.ComponentPropsWithoutRef<"li">) {
   return <StyledSidebarMenuItem className={className} {...props} />;
 }
 

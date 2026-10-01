@@ -73,34 +73,34 @@ const StyledContainer = styled.div<{ $maxWidth?: string }>`
 `;
 
 // Component Props Interfaces
-interface PanelProps extends React.ComponentProps<"div"> {
+interface PanelProps extends React.ComponentPropsWithoutRef<"div"> {
   isDark?: boolean;
 }
 
-interface SectionProps extends React.ComponentProps<"section"> {
+interface SectionProps extends React.ComponentPropsWithoutRef<"section"> {
   isDark?: boolean;
 }
 
-interface GridProps extends React.ComponentProps<"div"> {
+interface GridProps extends React.ComponentPropsWithoutRef<"div"> {
   columns?: number;
   gap?: string;
   minColumnWidth?: string;
 }
 
-interface StackProps extends React.ComponentProps<"div"> {
+interface StackProps extends React.ComponentPropsWithoutRef<"div"> {
   gap?: string;
   align?: string;
   justify?: string;
 }
 
-interface FlexProps extends React.ComponentProps<"div"> {
+interface FlexProps extends React.ComponentPropsWithoutRef<"div"> {
   gap?: string;
   align?: string;
   justify?: string;
   wrap?: boolean;
 }
 
-interface ContainerProps extends React.ComponentProps<"div"> {
+interface ContainerProps extends React.ComponentPropsWithoutRef<"div"> {
   maxWidth?: string;
 }
 

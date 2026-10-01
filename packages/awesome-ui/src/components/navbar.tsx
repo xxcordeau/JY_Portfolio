@@ -181,28 +181,28 @@ const StyledHeaderBottom = styled.div<{ $isDark?: boolean }>`
   }
 `;
 
-interface NavbarProps extends Omit<React.ComponentProps<"nav">, 'ref'> {
+interface NavbarProps extends Omit<React.ComponentPropsWithoutRef<"nav">, 'ref'> {
   isDark?: boolean;
   transparent?: boolean;
   sticky?: boolean;
 }
 
-interface NavbarBrandProps extends React.ComponentProps<"div"> {
+interface NavbarBrandProps extends React.ComponentPropsWithoutRef<"div"> {
   isDark?: boolean;
   asChild?: boolean;
 }
 
-interface NavbarLinkProps extends React.ComponentProps<"a"> {
+interface NavbarLinkProps extends React.ComponentPropsWithoutRef<"a"> {
   isDark?: boolean;
   active?: boolean;
   asChild?: boolean;
 }
 
-interface HeaderProps extends React.ComponentProps<"header"> {
+interface HeaderProps extends React.ComponentPropsWithoutRef<"header"> {
   isDark?: boolean;
 }
 
-interface HeaderBottomProps extends React.ComponentProps<"div"> {
+interface HeaderBottomProps extends React.ComponentPropsWithoutRef<"div"> {
   isDark?: boolean;
 }
 
@@ -232,15 +232,15 @@ function NavbarBrand({ className, isDark, children, ...props }: NavbarBrandProps
   );
 }
 
-function NavbarContent({ className, ...props }: React.ComponentProps<"div">) {
+function NavbarContent({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return <StyledNavbarContent className={className} {...props} />;
 }
 
-function NavbarMenu({ className, ...props }: React.ComponentProps<"ul">) {
+function NavbarMenu({ className, ...props }: React.ComponentPropsWithoutRef<"ul">) {
   return <StyledNavbarMenu className={className} {...props} />;
 }
 
-function NavbarItem({ className, ...props }: React.ComponentProps<"li">) {
+function NavbarItem({ className, ...props }: React.ComponentPropsWithoutRef<"li">) {
   return <StyledNavbarItem className={className} {...props} />;
 }
 
@@ -257,7 +257,7 @@ function NavbarLink({ className, isDark, active, children, ...props }: NavbarLin
   );
 }
 
-function NavbarActions({ className, ...props }: React.ComponentProps<"div">) {
+function NavbarActions({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return <StyledNavbarActions className={className} {...props} />;
 }
 
@@ -288,7 +288,7 @@ function Header({ className, isDark, children, ...props }: HeaderProps) {
   );
 }
 
-function HeaderTop({ className, ...props }: React.ComponentProps<"div">) {
+function HeaderTop({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return <StyledHeaderTop className={className} {...props} />;
 }
 

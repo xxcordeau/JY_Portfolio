@@ -207,12 +207,12 @@ const FilterOption = styled.button<{ $isDark?: boolean; $selected?: boolean }>`
   }
 `;
 
-const FilterActions = styled.div`
+const FilterActions = styled.div<{ $isDark?: boolean }>`
   display: flex;
   gap: 8px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid ${props => props.theme.$isDark 
+  border-top: 1px solid ${props => props.$isDark 
     ? 'rgba(255, 255, 255, 0.1)' 
     : 'rgba(0, 0, 0, 0.1)'};
 `;
@@ -385,7 +385,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
           ))}
           
           {hasActiveFilters && (
-            <FilterActions theme={{ $isDark: isDark }}>
+            <FilterActions $isDark={isDark}>
               <FilterActionButton
                 $isDark={isDark}
                 onClick={onClearFilters}

@@ -102,15 +102,15 @@ const ContentInner = styled.div`
   padding: 0 0 16px;
 `;
 
-interface AccordionItemProps extends React.ComponentProps<typeof AccordionPrimitive.Item> {
+interface AccordionItemProps extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item> {
   isDark?: boolean;
 }
 
-interface AccordionTriggerProps extends React.ComponentProps<typeof AccordionPrimitive.Trigger> {
+interface AccordionTriggerProps extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {
   isDark?: boolean;
 }
 
-function Accordion(props: React.ComponentProps<typeof AccordionPrimitive.Root>) {
+function Accordion(props: React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>) {
   return <AccordionPrimitive.Root {...props} />;
 }
 
@@ -148,7 +148,7 @@ function AccordionContent({
   className,
   children,
   ...props
-}: React.ComponentProps<typeof AccordionPrimitive.Content>) {
+}: React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>) {
   return (
     <StyledContent {...props}>
       <ContentInner className={className}>{children}</ContentInner>

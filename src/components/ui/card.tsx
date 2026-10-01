@@ -53,15 +53,15 @@ const StyledCardFooter = styled.div`
   padding: 0 24px 24px;
 `;
 
-interface CardProps extends React.ComponentProps<"div"> {
+interface CardProps extends React.ComponentPropsWithoutRef<"div"> {
   isDark?: boolean;
 }
 
-interface CardTitleProps extends React.ComponentProps<"h4"> {
+interface CardTitleProps extends React.ComponentPropsWithoutRef<"h4"> {
   isDark?: boolean;
 }
 
-interface CardDescriptionProps extends React.ComponentProps<"p"> {
+interface CardDescriptionProps extends React.ComponentPropsWithoutRef<"p"> {
   isDark?: boolean;
 }
 
@@ -69,7 +69,7 @@ function Card({ className, isDark, ...props }: CardProps) {
   return <StyledCard $isDark={isDark} className={className} {...props} />;
 }
 
-function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+function CardHeader({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return <StyledCardHeader className={className} {...props} />;
 }
 
@@ -81,11 +81,11 @@ function CardDescription({ className, isDark, ...props }: CardDescriptionProps) 
   return <StyledCardDescription $isDark={isDark} className={className} {...props} />;
 }
 
-function CardContent({ className, ...props }: React.ComponentProps<"div">) {
+function CardContent({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return <StyledCardContent className={className} {...props} />;
 }
 
-function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+function CardFooter({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
   return <StyledCardFooter className={className} {...props} />;
 }
 

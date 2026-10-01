@@ -271,13 +271,13 @@ const GridItemStyled = styled.div<{ $isDark?: boolean; $clickable?: boolean }>`
   `}
 `;
 
-const GridImage = styled.div`
+const GridImage = styled.div<{ $isDark?: boolean }>`
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 12px;
-  background: ${props => props.theme.$isDark 
+  background: ${props => props.$isDark 
     ? 'rgba(255, 255, 255, 0.05)' 
     : 'rgba(0, 0, 0, 0.05)'};
 
@@ -327,7 +327,7 @@ export const GridList: React.FC<GridListProps> = ({
           onClick={() => onItemClick?.(item)}
         >
           {item.image && (
-            <GridImage theme={{ $isDark: isDark }}>
+            <GridImage $isDark={isDark}>
               <img src={item.image} alt={item.title} />
             </GridImage>
           )}

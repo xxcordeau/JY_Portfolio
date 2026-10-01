@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { useTheme } from '../../contexts/ThemeContext';
 import { supabase } from '../../lib/supabase';
 import type { DbProject } from '../../lib/types/database';
-import { toast } from '../ui/sonner';
+import { toast } from 'sonner';
 import {
   Plus, Edit2, Trash2, X, Star,
 } from 'lucide-react';

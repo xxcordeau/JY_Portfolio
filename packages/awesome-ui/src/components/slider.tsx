@@ -82,7 +82,7 @@ const StyledSliderThumb = styled(SliderPrimitive.Thumb)<{ $isDark?: boolean }>`
   }
 `;
 
-interface SliderProps extends React.ComponentProps<typeof SliderPrimitive.Root> {
+interface SliderProps extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
   isDark?: boolean;
 }
 

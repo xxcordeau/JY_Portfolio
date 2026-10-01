@@ -34,11 +34,11 @@ const StyledAvatarFallback = styled(AvatarPrimitive.Fallback)<{ $isDark?: boolea
   font-weight: 600;
 `;
 
-interface AvatarProps extends React.ComponentProps<typeof AvatarPrimitive.Root> {
+interface AvatarProps extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> {
   size?: number;
 }
 
-interface AvatarFallbackProps extends React.ComponentProps<typeof AvatarPrimitive.Fallback> {
+interface AvatarFallbackProps extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback> {
   isDark?: boolean;
 }
 
@@ -56,7 +56,7 @@ function Avatar({ className, size, style, ...props }: AvatarProps) {
   );
 }
 
-function AvatarImage({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
+function AvatarImage({ className, ...props }: React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>) {
   return <StyledAvatarImage className={className} {...props} />;
 }
 

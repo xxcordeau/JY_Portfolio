@@ -152,14 +152,14 @@ const listData = [
 // Sample data for TreeView
 const treeData = [
   {
-    id: '1', name: 'src', type: 'folder' as const, children: [
+    id: '1', label: 'src', children: [
       {
-        id: '2', name: 'components', type: 'folder' as const, children: [
-          { id: '3', name: 'Button.tsx', type: 'file' as const },
-          { id: '4', name: 'Card.tsx', type: 'file' as const },
+        id: '2', label: 'components', children: [
+          { id: '3', label: 'Button.tsx' },
+          { id: '4', label: 'Card.tsx' },
         ]
       },
-      { id: '5', name: 'index.ts', type: 'file' as const },
+      { id: '5', label: 'index.ts' },
     ]
   },
 ];
@@ -469,16 +469,16 @@ export default function PackageDemo() {
       <ComponentLabel $isDark={isDark}>Card</ComponentLabel>
       <Grid>
         <Card isDark={isDark}>
-          <CardHeader isDark={isDark}>
+          <CardHeader>
             <CardTitle isDark={isDark}>{isKo ? '카드 제목' : 'Card Title'}</CardTitle>
             <CardDescription isDark={isDark}>
               {isKo ? '카드 설명 텍스트입니다.' : 'Card description text.'}
             </CardDescription>
           </CardHeader>
-          <CardContent isDark={isDark}>
+          <CardContent>
             <p>{isKo ? '카드 본문 내용' : 'Card body content'}</p>
           </CardContent>
-          <CardFooter isDark={isDark}>
+          <CardFooter>
             <Button isDark={isDark} size="sm">Action</Button>
           </CardFooter>
         </Card>
@@ -487,8 +487,7 @@ export default function PackageDemo() {
           isDark={isDark}
           title={isKo ? '총 사용자' : 'Total Users'}
           value="12,345"
-          change="+12.5%"
-          changeType="positive"
+          change={{ value: '+12.5%', trend: 'up' }}
         />
       </Grid>
 
@@ -502,31 +501,31 @@ export default function PackageDemo() {
 
       {/* Tabs */}
       <ComponentLabel $isDark={isDark}>Tabs</ComponentLabel>
-      <Tabs isDark={isDark} defaultValue="tab1">
+      <Tabs defaultValue="tab1">
         <TabsList isDark={isDark}>
           <TabsTrigger isDark={isDark} value="tab1">Tab 1</TabsTrigger>
           <TabsTrigger isDark={isDark} value="tab2">Tab 2</TabsTrigger>
           <TabsTrigger isDark={isDark} value="tab3">Tab 3</TabsTrigger>
         </TabsList>
-        <TabsContent isDark={isDark} value="tab1">
+        <TabsContent value="tab1">
           {isKo ? '첫 번째 탭 내용' : 'First tab content'}
         </TabsContent>
-        <TabsContent isDark={isDark} value="tab2">
+        <TabsContent value="tab2">
           {isKo ? '두 번째 탭 내용' : 'Second tab content'}
         </TabsContent>
-        <TabsContent isDark={isDark} value="tab3">
+        <TabsContent value="tab3">
           {isKo ? '세 번째 탭 내용' : 'Third tab content'}
         </TabsContent>
       </Tabs>
 
       {/* Accordion */}
       <ComponentLabel $isDark={isDark}>Accordion</ComponentLabel>
-      <Accordion isDark={isDark} type="single" collapsible>
+      <Accordion type="single" collapsible>
         <AccordionItem isDark={isDark} value="item-1">
           <AccordionTrigger isDark={isDark}>
             {isKo ? '아코디언 항목 1' : 'Accordion Item 1'}
           </AccordionTrigger>
-          <AccordionContent isDark={isDark}>
+          <AccordionContent>
             {isKo ? '여기에 내용이 표시됩니다.' : 'Content is displayed here.'}
           </AccordionContent>
         </AccordionItem>
@@ -534,7 +533,7 @@ export default function PackageDemo() {
           <AccordionTrigger isDark={isDark}>
             {isKo ? '아코디언 항목 2' : 'Accordion Item 2'}
           </AccordionTrigger>
-          <AccordionContent isDark={isDark}>
+          <AccordionContent>
             {isKo ? '두 번째 항목의 내용입니다.' : 'Second item content.'}
           </AccordionContent>
         </AccordionItem>
@@ -585,9 +584,9 @@ export default function PackageDemo() {
       <Timeline
         isDark={isDark}
         items={[
-          { title: 'v0.1.0', description: isKo ? '초기 릴리즈' : 'Initial release', date: '2024-01' },
-          { title: 'v0.2.0', description: isKo ? '컴포넌트 추가' : 'New components', date: '2024-03' },
-          { title: 'v1.0.0', description: isKo ? '정식 출시' : 'Stable release', date: '2024-06' },
+          { id: 'v0.1.0', title: 'v0.1.0', description: isKo ? '초기 릴리즈' : 'Initial release', time: '2024-01' },
+          { id: 'v0.2.0', title: 'v0.2.0', description: isKo ? '컴포넌트 추가' : 'New components', time: '2024-03' },
+          { id: 'v1.0.0', title: 'v1.0.0', description: isKo ? '정식 출시' : 'Stable release', time: '2024-06' },
         ]}
       />
 
@@ -712,7 +711,7 @@ export default function PackageDemo() {
           items={[
             { id: 'home', label: 'Home', icon: <Home size={20} /> },
             { id: 'search', label: 'Search', icon: <Search size={20} /> },
-            { id: 'alerts', label: 'Alerts', icon: <Bell size={20} />, badge: '3' },
+            { id: 'alerts', label: 'Alerts', icon: <Bell size={20} />, badge: 3 },
             { id: 'profile', label: 'Profile', icon: <User size={20} /> },
           ]}
         />
@@ -849,7 +848,7 @@ export default function PackageDemo() {
       </SectionTitle>
       <Grid>
         <Card isDark={isDark}>
-          <CardContent isDark={isDark} style={{ padding: '20px' }}>
+          <CardContent style={{ padding: '20px' }}>
             <h4 style={{ marginBottom: 12 }}>@jy/awesome-ui</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {['Button', 'Badge', 'Input', 'Textarea', 'RadioGroup', 'Select', 'Slider', 'Switch',
@@ -865,7 +864,7 @@ export default function PackageDemo() {
           </CardContent>
         </Card>
         <Card isDark={isDark}>
-          <CardContent isDark={isDark} style={{ padding: '20px' }}>
+          <CardContent style={{ padding: '20px' }}>
             <h4 style={{ marginBottom: 12 }}>@jy/data-ui-kit</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {['DataChart (Line)', 'DataChart (Bar)', 'DataChart (Area)', 'DataChart (Pie)', 'DataTable', 'DataList', 'TreeView', 'SearchFilter', 'MultiSelect', 'DatePicker', 'TimePicker'

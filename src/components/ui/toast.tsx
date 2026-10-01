@@ -246,23 +246,23 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ isDark = false }) 
 
   return (
     <ToastContainer>
-      {toasts.map((toast) => (
+      {toasts.map((item) => (
         <ToastItem 
-          key={toast.id} 
+          key={item.id} 
           $isDark={isDark} 
-          $variant={toast.variant}
-          $isExiting={toast.isExiting}
+          $variant={item.variant}
+          $isExiting={item.isExiting}
         >
-          <IconWrapper $variant={toast.variant} $isDark={isDark}>
-            {getIcon(toast.variant)}
+          <IconWrapper $variant={item.variant} $isDark={isDark}>
+            {getIcon(item.variant)}
           </IconWrapper>
           <Content>
-            {toast.title && <Title $isDark={isDark}>{toast.title}</Title>}
-            <Message $isDark={isDark}>{toast.message}</Message>
+            {item.title && <Title $isDark={isDark}>{item.title}</Title>}
+            <Message $isDark={isDark}>{item.message}</Message>
           </Content>
           <CloseButton 
             $isDark={isDark}
-            onClick={() => toast.dismiss(toast.id)}
+            onClick={() => toast.dismiss(item.id)}
           >
             <X />
           </CloseButton>

@@ -109,15 +109,15 @@ const StyledContent = styled(PopoverPrimitive.Content)<{ $isDark?: boolean }>`
   }
 `;
 
-interface PopoverContentProps extends React.ComponentProps<typeof PopoverPrimitive.Content> {
+interface PopoverContentProps extends React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> {
   isDark?: boolean;
 }
 
-function Popover(props: React.ComponentProps<typeof PopoverPrimitive.Root>) {
+function Popover(props: React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Root>) {
   return <PopoverPrimitive.Root {...props} />;
 }
 
-function PopoverTrigger(props: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
+function PopoverTrigger(props: React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Trigger>) {
   return <PopoverPrimitive.Trigger {...props} />;
 }
 
@@ -141,7 +141,7 @@ function PopoverContent({
   );
 }
 
-function PopoverAnchor(props: React.ComponentProps<typeof PopoverPrimitive.Anchor>) {
+function PopoverAnchor(props: React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Anchor>) {
   return <PopoverPrimitive.Anchor {...props} />;
 }
 

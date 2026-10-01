@@ -169,7 +169,7 @@ const LinkButton = styled.a<{ $isDark: boolean }>`
   }
 `;
 
-const Section = styled.section`
+const Section = styled.section<{ $isDark?: boolean }>`
   max-width: 1100px;
   margin: 0 auto;
   padding: 80px 40px;
@@ -611,13 +611,13 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
       )}
 
       {hasInteractiveDemo && (
-        <Section style={{ borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}` }}>
+        <Section $isDark={isDark}>
           <SectionTitle $isDark={isDark}>{t.tryDemo}</SectionTitle>
           {renderInteractiveDemo()}
         </Section>
       )}
 
-      <Section style={{ borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}` }}>
+      <Section $isDark={isDark}>
         <SectionTitle $isDark={isDark}>{t.highlights}</SectionTitle>
         <HighlightsList>
           {project.highlights[language].map((highlight, index) => (
@@ -627,7 +627,7 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
       </Section>
 
       {project.challenge && project.solution && (
-        <Section style={{ borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}` }}>
+        <Section $isDark={isDark}>
           <SectionTitle $isDark={isDark}>Challenge & Solution</SectionTitle>
           <ChallengeSolutionGrid>
             <ChallengeCard $isDark={isDark}>
@@ -642,7 +642,7 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
         </Section>
       )}
 
-      <Section style={{ borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}` }}>
+      <Section $isDark={isDark}>
         <TechSectionHeader>
           <TechSectionEyebrow $isDark={isDark}>Built with</TechSectionEyebrow>
           <TechSectionTitle $isDark={isDark}>{t.techStack}</TechSectionTitle>
@@ -719,7 +719,7 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
         </TechStackGrid>
       </Section>
 
-      <Footer language={language} isDark={isDark} />
+      <Footer />
     </DetailContainer>
   );
 }

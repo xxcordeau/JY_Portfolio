@@ -73,15 +73,15 @@ const StyledTabsContent = styled(TabsPrimitive.Content)`
   outline: none;
 `;
 
-interface TabsListProps extends React.ComponentProps<typeof TabsPrimitive.List> {
+interface TabsListProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> {
   isDark?: boolean;
 }
 
-interface TabsTriggerProps extends React.ComponentProps<typeof TabsPrimitive.Trigger> {
+interface TabsTriggerProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> {
   isDark?: boolean;
 }
 
-function Tabs({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Root>) {
+function Tabs({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>) {
   return <StyledTabs className={className} {...props} />;
 }
 
@@ -105,7 +105,7 @@ function TabsTrigger({ className, isDark, ...props }: TabsTriggerProps) {
   );
 }
 
-function TabsContent({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.Content>) {
+function TabsContent({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>) {
   return (
     <StyledTabsContent
       className={className}

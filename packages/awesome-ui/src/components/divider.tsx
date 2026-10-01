@@ -36,7 +36,7 @@ const StyledDivider = styled.div<{
   `}
 `;
 
-interface DividerProps extends React.ComponentProps<"div"> {
+interface DividerProps extends React.ComponentPropsWithoutRef<"div"> {
   isDark?: boolean;
   orientation?: 'horizontal' | 'vertical';
   children?: React.ReactNode;

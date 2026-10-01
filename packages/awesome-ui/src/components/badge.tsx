@@ -60,7 +60,7 @@ const StyledBadge = styled.span<{
   }}
 `;
 
-interface BadgeProps extends React.ComponentProps<"span"> {
+interface BadgeProps extends React.ComponentPropsWithoutRef<"span"> {
   isDark?: boolean;
   variant?: 'default' | 'secondary' | 'destructive' | 'outline';
 }

@@ -699,7 +699,7 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
         </Content>
       </Article>
 
-      <Footer language={language} isDark={isDark} />
+      <Footer />
     </DetailContainer>
   );
 }

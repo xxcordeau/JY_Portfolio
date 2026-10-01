@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 const StyledButton = styled.button<{ 
   $isDark?: boolean;
   $variant?: 'default' | 'outline' | 'ghost' | 'destructive';
-  $size?: 'default' | 'sm' | 'lg';
+  $size?: 'default' | 'sm' | 'lg' | 'icon';
 }>`
   display: inline-flex;
   align-items: center;
@@ -28,6 +28,12 @@ const StyledButton = styled.button<{
           height: 36px;
           padding: 0 20px;
           font-size: 13px;
+        `;
+      case 'icon':
+        return `
+          width: 36px;
+          height: 36px;
+          padding: 0;
         `;
       case 'lg':
         return `
@@ -138,10 +144,10 @@ const StyledButton = styled.button<{
   }
 `;
 
-interface ButtonProps extends React.ComponentProps<"button"> {
+interface ButtonProps extends React.ComponentPropsWithoutRef<"button"> {
   isDark?: boolean;
   variant?: 'default' | 'outline' | 'ghost' | 'destructive';
-  size?: 'default' | 'sm' | 'lg';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ 

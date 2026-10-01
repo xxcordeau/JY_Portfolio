@@ -182,13 +182,13 @@ const KPIValue = styled.div<{ $isDark?: boolean }>`
   line-height: 1;
 `;
 
-const KPIMetrics = styled.div`
+const KPIMetrics = styled.div<{ $isDark?: boolean }>`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid ${props => props.theme.$isDark 
+  border-top: 1px solid ${props => props.$isDark 
     ? 'rgba(255, 255, 255, 0.1)' 
     : 'rgba(0, 0, 0, 0.1)'};
 `;
@@ -252,7 +252,7 @@ export const KPICard: React.FC<KPICardProps> = ({
         </Footer>
       )}
       {metrics && metrics.length > 0 && (
-        <KPIMetrics theme={{ $isDark: isDark }}>
+        <KPIMetrics $isDark={isDark}>
           {metrics.map((metric, index) => (
             <KPIMetric key={index}>
               <MetricLabel $isDark={isDark}>{metric.label}</MetricLabel>
