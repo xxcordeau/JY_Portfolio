@@ -4,19 +4,22 @@ import { useRef, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { DOT_SIZE, dotColor, HERO_ID, P_HANDOFF } from '../lib/dot';
 // public/ 정적 자산 — Next의 정적 import는 StaticImageData 객체를 반환하므로
 // img.src에 그대로 넣을 수 없어 경로 문자열로 참조한다.
 const faceImg = '/images/face.png';
 
 /* ── Layout: tall container + sticky canvas ── */
+// 마지막에 이름이 점으로 모이는 구간이 추가돼 스크롤 길이를 늘렸다.
+// (기존 구간들의 체감 속도는 유지되도록 phase 값을 함께 조정)
 const HeroContainer = styled.div<{ $isDark: boolean }>`
-  height: 350vh;
+  height: 400vh;
   position: relative;
   background: ${p => (p.$isDark ? '#000000' : '#ffffff')};
   transition: background 0.3s ease;
 
   @media (max-width: 768px) {
-    height: 250vh;
+    height: 290vh;
   }
 `;
 
@@ -65,9 +68,21 @@ const MORPH_DURATION = 1200; // ms for morphing transition
 
 // Scroll-driven phase boundaries (progress 0→1)
 const P_FACE_HOLD = 0.10; // Face stays visible at start of scroll
-const P_SCATTER_END = 0.55;
-const P_LINES_START = 0.35;
-const P_LINES_END = 0.80;
+const P_SCATTER_END = 0.50;
+const P_LINES_START = 0.32;
+const P_LINES_END = 0.66;
+// "허정연" 별자리가 한 점으로 빨려 들어가는 구간.
+// P_COLLAPSE_END ~ P_HANDOFF 동안 점이 화면 중앙에 머물고,
+// P_HANDOFF부터는 ScrollDot이 같은 자리에서 이어받는다.
+const P_COLLAPSE_START = 0.80;
+const P_COLLAPSE_END = 0.92;
+const COLLAPSE_STAGGER = 0.45; // 바깥쪽 획일수록 늦게 출발
+
+function easeOutBack(t: number): number {
+  const c1 = 1.4;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
 
 /* ── Types ── */
 interface SampledPoint {
@@ -539,6 +554,17 @@ export default function Hero() {
         ([a, b]) => [cpToParticleIdx[a], cpToParticleIdx[b]],
       );
 
+      // Collapse delay: 중심에서 먼 별자리 점일수록 늦게 모인다 (0 = 중심, 1 = 가장 바깥)
+      const collapseDelay = new Float32Array(count);
+      let maxCollapseDist = 1;
+      for (let i = 0; i < count; i++) {
+        if (!isMapped[i]) continue;
+        const d = Math.hypot(scatterX[i] - cx, scatterY[i] - cy);
+        collapseDelay[i] = d;
+        if (d > maxCollapseDist) maxCollapseDist = d;
+      }
+      for (let i = 0; i < count; i++) collapseDelay[i] /= maxCollapseDist;
+
       /* ── Animation loop ── */
       const startTime = performance.now();
 
@@ -645,7 +671,20 @@ export default function Hero() {
             );
             const easedFade = easeInOutCubic(fadeT);
 
-            if (isMapped[i]) {
+            if (isMapped[i] && progress >= P_COLLAPSE_START) {
+              // ── Collapse: "허정연"이 화면 중심의 한 점으로 빨려 들어간다 ──
+              const T = Math.min(
+                1,
+                (progress - P_COLLAPSE_START) /
+                  (P_COLLAPSE_END - P_COLLAPSE_START),
+              );
+              const raw =
+                T * (1 + COLLAPSE_STAGGER) - collapseDelay[i] * COLLAPSE_STAGGER;
+              const pT = easeInOutCubic(Math.max(0, Math.min(1, raw)));
+              tx = lerp(scatterX[i], cx, pT);
+              ty = lerp(scatterY[i], cy, pT);
+              ts = scatterSize[i] * (1 - pT);
+            } else if (isMapped[i]) {
               // Constellation dot: hold at text position
               tx = scatterX[i];
               ty = scatterY[i];
@@ -683,8 +722,12 @@ export default function Hero() {
           pvx[i] += (Math.random() - 0.5) * JITTER;
           pvy[i] += (Math.random() - 0.5) * JITTER;
 
-          // Mouse repulsion (idle + constellation phase)
-          if (progress < 0.02 || progress > P_SCATTER_END) {
+          // Mouse repulsion (idle + constellation phase).
+          // 점으로 모이는 동안에는 흐트러지지 않도록 끈다.
+          if (
+            progress < 0.02 ||
+            (progress > P_SCATTER_END && progress < P_COLLAPSE_START)
+          ) {
             const mx = mouseRef.current.x;
             const my = mouseRef.current.y;
             if (mx > -9000) {
@@ -709,14 +752,26 @@ export default function Hero() {
         const dark = isDarkRef.current;
         ctx.clearRect(0, 0, w, h);
 
-        // Constellation lines (fade in during scatter/settled phase)
-        const lineAlpha = Math.max(
+        // Collapse 진행도 (0 → 1): 선을 흐리고 중심 점을 키우는 데 쓴다
+        const collapseT = Math.max(
           0,
           Math.min(
             1,
-            (progress - P_LINES_START) / (P_LINES_END - P_LINES_START),
+            (progress - P_COLLAPSE_START) / (P_COLLAPSE_END - P_COLLAPSE_START),
           ),
         );
+
+        // Constellation lines (fade in during scatter/settled phase,
+        // 점으로 모이는 동안 다시 사라진다)
+        const lineAlpha =
+          Math.max(
+            0,
+            Math.min(
+              1,
+              (progress - P_LINES_START) / (P_LINES_END - P_LINES_START),
+            ),
+          ) *
+          (1 - collapseT);
         if (lineAlpha > 0.01) {
           const strokeAlpha = lineAlpha * (dark ? 0.6 : 0.5);
           ctx.strokeStyle = dark
@@ -744,6 +799,20 @@ export default function Hero() {
           ctx.beginPath();
           ctx.arc(px[i], py[i], s, 0, Math.PI * 2);
           ctx.fill();
+        }
+
+        // Core dot: 모여든 이름이 하나의 점이 된다.
+        // ScrollDot과 같은 크기·색이라, P_HANDOFF에서 ScrollDot으로
+        // 바뀌어도 같은 점으로 보인다.
+        if (progress >= P_COLLAPSE_START && progress < P_HANDOFF) {
+          const grow = Math.max(0, Math.min(1, (collapseT - 0.55) / 0.45));
+          const r = (DOT_SIZE / 2) * (grow > 0 ? easeOutBack(grow) : 0);
+          if (r > 0.1) {
+            ctx.fillStyle = dotColor(dark);
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
       }
 
@@ -854,7 +923,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <HeroContainer ref={containerRef} $isDark={isDark}>
+    <HeroContainer id={HERO_ID} ref={containerRef} $isDark={isDark}>
       <StickyFrame $isDark={isDark}>
         <Canvas ref={canvasRef} />
         <SrOnly>

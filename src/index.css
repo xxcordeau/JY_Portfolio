@@ -6,3 +6,19 @@
 @layer base {
   html, body, #root { min-height: 100vh; height: 100%; margin: 0; }
 }
+
+/* ── 테마 전환: 토글 버튼에서 점 하나가 원으로 퍼지며 새 테마가 드러난다 ──
+   원 애니메이션은 ThemeContext에서 WAAPI로 ::view-transition-new(root)에 건다.
+   기본 크로스페이드는 끈다. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* 전환 중에는 요소별 색 트랜지션을 꺼서 원 안의 새 테마가 한 번에 선명하게 보이게 한다 */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
+}

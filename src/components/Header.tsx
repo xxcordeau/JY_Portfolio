@@ -1,7 +1,7 @@
 'use client';
 
 import styled from 'styled-components';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type MouseEvent } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Moon, Sun, Menu, X } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
@@ -281,6 +281,13 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
   const pathname = usePathname() || '';
   const t = translations[language];
 
+  // 테마 전환 원이 누른 버튼 한가운데서 퍼지도록 버튼 중심을 넘긴다
+  // (키보드로 눌러도 clientX/Y 대신 버튼 위치를 쓰므로 같은 연출)
+  const handleThemeToggle = (e: MouseEvent<HTMLButtonElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    toggleDarkMode({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       // Show capsule after scrolling past hero area (roughly 200px)
@@ -378,7 +385,7 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
           <Separator $isDark={isDark} />
 
           <Controls>
-            <IconButton $isDark={isDark} onClick={toggleDarkMode} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
+            <IconButton $isDark={isDark} onClick={handleThemeToggle} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
               {isDark ? <Sun /> : <Moon />}
             </IconButton>
             <LangButton $isDark={isDark} onClick={toggleLanguage} aria-label={language === 'ko' ? 'Switch to English' : '한국어로 전환'}>
@@ -404,7 +411,7 @@ export default function Header({ navigateToHome, onContactClick }: HeaderProps) 
           return <MobileNavButton key={key} $isDark={isDark} onClick={onClick}>{label}</MobileNavButton>;
         })}
         <MobileButtonGroup>
-          <IconButton $isDark={isDark} onClick={toggleDarkMode} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
+          <IconButton $isDark={isDark} onClick={handleThemeToggle} aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
             {isDark ? <Sun /> : <Moon />}
           </IconButton>
           <LangButton $isDark={isDark} onClick={toggleLanguage} aria-label={language === 'ko' ? 'Switch to English' : '한국어로 전환'}>
