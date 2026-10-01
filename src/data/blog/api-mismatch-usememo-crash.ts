@@ -3,8 +3,8 @@ import { BlogPost } from '../blogData';
 export const apiMismatchUsememoCrash: BlogPost = {
   id: 'api-mismatch-usememo-crash',
   title: {
-    ko: 'API 응답 형식 불일치와 useMemo 크래시 — undefined는 조용히 퍼져요',
-    en: 'API Response Mismatch and useMemo Crash — undefined Spreads Silently'
+    ko: 'API 응답 형식이 어긋나 터진 useMemo, undefined는 조용히 퍼져요',
+    en: 'How an API Response Mismatch Crashed useMemo, and Why undefined Spreads Silently'
   },
   excerpt: {
     ko: 'API가 배열을 바로 반환하는데 response.data.content로 접근하면 undefined가 됩니다. 그 undefined가 useMemo까지 전파되어 크래시를 일으킨 과정을 기록했습니다.',

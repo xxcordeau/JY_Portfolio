@@ -49,7 +49,7 @@ export const FilterSystemPost = ({ language }: PostProps) => {
         
         <h2>해결 과정</h2>
         
-        <h3>1️⃣ 구조 재설계 — 독립형 상태 관리</h3>
+        <h3>1️⃣ 독립형 상태 관리로 구조 재설계</h3>
         
         <p>문제의 핵심이 전역 의존성이었어요. 그래서 각 필터를 독립적으로 관리하는 useFilter composable을 설계했습니다.</p>
         
@@ -148,7 +148,7 @@ export const FilterSystemPost = ({ language }: PostProps) => {
       
       <h2>Solution Process</h2>
       
-      <h3>1️⃣ Structural Redesign — Independent State Management</h3>
+      <h3>1️⃣ Redesigning the Structure Around Independent State</h3>
       
       <p>The core of the problem was global dependency. So I designed a useFilter composable that manages each filter independently.</p>
       

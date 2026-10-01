@@ -32,7 +32,7 @@ export const TreeManagementPost = ({ language }: PostProps) => {
         
         <h2>과정과 문제 탐색</h2>
         
-        <h3>a. 초기 접근 – 단순 재귀 렌더링</h3>
+        <h3>a. 처음 시도한 단순 재귀 렌더링</h3>
         
         <p>처음엔 Vue의 기본 <code>&lt;a-tree&gt;</code> 컴포넌트를 그대로 사용했어요.</p>
         
@@ -75,7 +75,7 @@ export const TreeManagementPost = ({ language }: PostProps) => {
         
         <p>때문에 부모 노드가 아직 로드되지 않았는데 자식 노드를 찾으려다 실패하는 경우가 많았어요.</p>
         
-        <h3>c. 해결 전략 – 노드 상태 관리 + Lazy-loading 제어</h3>
+        <h3>c. 노드 상태 관리와 Lazy-loading 제어로 해결</h3>
         
         <p>우선 노드가 자체 상태를 가지도록 명확히 모델링했어요</p>
         
@@ -186,7 +186,7 @@ export const useTreeSelection = () => {
       
       <h2>Process and Problem Exploration</h2>
       
-      <h3>a. Initial Approach – Simple Recursive Rendering</h3>
+      <h3>a. Starting with Simple Recursive Rendering</h3>
       
       <p>Initially, I used Vue's basic <code>&lt;a-tree&gt;</code> component as is.</p>
       
@@ -229,7 +229,7 @@ export const useTreeSelection = () => {
       
       <p>This often led to failures when trying to find child nodes before parent nodes were loaded.</p>
       
-      <h3>c. Solution Strategy – Node State Management + Lazy-loading Control</h3>
+      <h3>c. Fixing It with Node State Management and Lazy-loading Control</h3>
       
       <p>First, I clearly modeled nodes to have their own state:</p>
       

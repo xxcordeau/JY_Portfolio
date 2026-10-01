@@ -33,7 +33,7 @@ export const DesignUserActionPost = ({ language }: PostProps) => {
 
         <p><strong>CTA(Call to Action)의 위치를 먼저 정했어요.</strong> 모바일에서는 하단 고정, 데스크톱에서는 우측 사이드 고정. 스크롤을 아무리 내려도 '구매하기' 버튼은 항상 보이게 했어요.</p>
 
-        <p><strong>정보의 순서를 행동 기준으로 재배치했어요.</strong> 사용자가 구매 결정을 내리는 데 필요한 정보 순서로 — 가격 → 옵션 → 주요 특징 → 상세 설명 → 리뷰. '상세 설명'은 예쁘지만, 실제로 그걸 끝까지 읽는 사용자는 많지 않아요.</p>
+        <p><strong>정보의 순서를 행동 기준으로 재배치했어요.</strong> 사용자가 구매 결정을 내리는 데 필요한 순서대로 가격 → 옵션 → 주요 특징 → 상세 설명 → 리뷰로 바꿨어요. '상세 설명'은 예쁘지만, 실제로 그걸 끝까지 읽는 사용자는 많지 않아요.</p>
 
         <p><strong>시각적 무게를 행동에 집중시켰어요.</strong> '구매하기' 버튼이 primary 색상에 큰 사이즈로, '장바구니' 버튼은 outlined로. 둘 다 같은 크기에 같은 스타일이면 사용자가 0.5초 더 고민하게 돼요. 그 0.5초가 전환율에 영향을 줘요.</p>
 
@@ -75,13 +75,13 @@ export const DesignUserActionPost = ({ language }: PostProps) => {
       <p>Before: "What information should I show on this screen?"</p>
       <p>Now: <strong>"What action will the user take on this screen?"</strong></p>
 
-      <p>For a product detail page, the user's action is "Buy" or "Select Options." That means the path toward that action needs to be the clearest thing on the page. Information exists to support the action — it's not the goal itself.</p>
+      <p>For a product detail page, the user's action is "Buy" or "Select Options." That means the path toward that action needs to be the clearest thing on the page. Information exists to support the action. It isn't the goal itself.</p>
 
       <p>When I redesigned with this perspective, the structure changed completely.</p>
 
       <p><strong>I decided the CTA (Call to Action) placement first.</strong> Fixed to the bottom on mobile, fixed to the right side on desktop. No matter how far you scrolled, the "Buy Now" button was always visible.</p>
 
-      <p><strong>I reordered information based on the action.</strong> In the order users need to make a purchase decision — price, options, key features, detailed description, reviews. The "detailed description" section looks nice, but in reality, not many users read it all the way through.</p>
+      <p><strong>I reordered information based on the action.</strong> I put it in the order users need to make a purchase decision: price, options, key features, detailed description, then reviews. The "detailed description" section looks nice, but in reality, not many users read it all the way through.</p>
 
       <p><strong>I concentrated visual weight on the action.</strong> The "Buy Now" button got the primary color and a large size, while the "Add to Cart" button was outlined. If both buttons are the same size and style, the user hesitates for an extra 0.5 seconds. That 0.5 seconds affects conversion rates.</p>
 

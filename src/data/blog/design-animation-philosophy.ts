@@ -3,8 +3,8 @@ import { BlogPost } from '../blogData';
 export const designAnimationPhilosophy: BlogPost = {
   id: 'design-animation-philosophy',
   title: {
-    ko: '애니메이션을 넣기 전에 물어봐야 할 한 가지 — \'이걸 빼면 뭘 잃는가\'',
-    en: 'One Question Before Adding Animation — What Do We Lose Without It?'
+    ko: '애니메이션을 넣기 전에 \'이걸 빼면 뭘 잃지?\'부터 물어봐요',
+    en: 'Before Adding Animation, Ask What You\'d Lose Without It'
   },
   excerpt: {
     ko: '포트폴리오 히어로 파티클 애니메이션을 만들면서 고민한 인터랙션 철학과 기능적/표현적 애니메이션의 차이를 정리했어요.',

@@ -37,7 +37,7 @@ export const IconSystemPost = ({ language }: PostProps) => {
         
         <h2>구현</h2>
         
-        <h3>a. 아이콘 메타 데이터 — useIcon.ts</h3>
+        <h3>a. 아이콘 메타 데이터 (useIcon.ts)</h3>
         
         <pre><code>{`export const iconPack = {
   SUCCESS: { iconName: 'check-circle', iconColor: '#27ae60', size: '16', marginRight: '4px' },
@@ -51,7 +51,7 @@ export const getIconColor = (name: string) => iconPack[name]?.iconColor || '#333
         
         <p>이 덕분에 <strong>디자인 토큰처럼 일관된 시각 표현</strong>이 가능해졌습니다.</p>
         
-        <h3>b. 전역 아이콘 컴포넌트 — AppIcon</h3>
+        <h3>b. 전역 아이콘 컴포넌트 (AppIcon)</h3>
         
         <pre><code>{`<template>
   <span v-if="iconPack[props.name]" :style="\`margin-right:\${computedMargin}!important;\`">
@@ -151,7 +151,7 @@ const computedMargin = computed(() => props.marginRight ?? iconPack[props.name]?
       
       <h2>Implementation</h2>
       
-      <h3>a. Icon Metadata — useIcon.ts</h3>
+      <h3>a. Icon Metadata (useIcon.ts)</h3>
       
       <pre><code>{`export const iconPack = {
   SUCCESS: { iconName: 'check-circle', iconColor: '#27ae60', size: '16', marginRight: '4px' },
@@ -165,7 +165,7 @@ export const getIconColor = (name: string) => iconPack[name]?.iconColor || '#333
       
       <p>Thanks to this, <strong>consistent visual representation like design tokens</strong> became possible.</p>
       
-      <h3>b. Global Icon Component — AppIcon</h3>
+      <h3>b. Global Icon Component (AppIcon)</h3>
       
       <pre><code>{`<template>
   <span v-if="iconPack[props.name]" :style="\`margin-right:\${computedMargin}!important;\`">

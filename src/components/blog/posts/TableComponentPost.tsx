@@ -106,7 +106,7 @@ export const TableComponentPost = ({ language }: PostProps) => {
         
         <p>API에는 오직 <code>pageNo/pageSize/sortField/sortOrder</code>만 전송하고, UI 전용 필드는 <code>TablePagination</code>에서만 관리하도록 분리했어요.</p>
         
-        <h3>b. 공통 composable - useTable</h3>
+        <h3>b. 공통 composable (useTable)</h3>
         
         <pre><code>{`export const useTable = <TQuery extends Pagination, TRow>(
   apiList: (q: Pagination, signal?: AbortSignal) => Promise<{ items: TRow[]; total: number }>
@@ -123,7 +123,7 @@ export const TableComponentPost = ({ language }: PostProps) => {
         
         <p>이 구조로 중복 로딩과 깜빡임이 거의 사라졌어요.</p>
         
-        <h3>c. 공통 UI - &lt;AppTable /&gt;</h3>
+        <h3>c. 공통 UI (&lt;AppTable /&gt;)</h3>
         
         <p>양방향 바인딩을 완전히 제거하고, 모든 상태를 부모가 직접 제어하도록 만들었어요.</p>
         
@@ -231,7 +231,7 @@ export const TableComponentPost = ({ language }: PostProps) => {
       
       <p>Only <code>pageNo/pageSize/sortField/sortOrder</code> are sent to the API, while UI-only fields are managed separately in <code>TablePagination</code>.</p>
       
-      <h3>b. Common Composable - useTable</h3>
+      <h3>b. Common Composable (useTable)</h3>
       
       <pre><code>{`export const useTable = <TQuery extends Pagination, TRow>(
   apiList: (q: Pagination, signal?: AbortSignal) => Promise<{ items: TRow[]; total: number }>
@@ -248,7 +248,7 @@ export const TableComponentPost = ({ language }: PostProps) => {
       
       <p>With this structure, duplicate loading and flickering almost disappeared.</p>
       
-      <h3>c. Common UI - &lt;AppTable /&gt;</h3>
+      <h3>c. Common UI (&lt;AppTable /&gt;)</h3>
       
       <p>Completely removed two-way binding, making the parent directly control all state.</p>
       

@@ -12,7 +12,7 @@ export const ApiMismatchMemoPost = ({ language }: PostProps) => {
   if (language === 'ko') {
     return (
       <Content>
-        <h1>API 응답 형식 불일치와 useMemo 크래시 — undefined는 조용히 퍼져요</h1>
+        <h1>API 응답 형식이 어긋나 터진 useMemo, undefined는 조용히 퍼져요</h1>
 
         <h2>발단</h2>
 
@@ -101,7 +101,7 @@ console.log('[step2] content:', response.data.content); // undefined 출력됨`}
 
   return (
     <Content>
-      <h1>API Response Mismatch and useMemo Crash — undefined Spreads Silently</h1>
+      <h1>How an API Response Mismatch Crashed useMemo, and Why undefined Spreads Silently</h1>
 
       <h2>The Problem</h2>
 
@@ -131,11 +131,11 @@ console.log('[step2] content:', response.data.content); // undefined 출력됨`}
   { id: 2, name: "..." }
 ]`}</code></pre>
 
-      <p><code>response.data.content</code> is <code>undefined</code> because arrays don't have a <code>content</code> property. That <code>undefined</code> got stored in state, <code>useMemo</code> received it and tried calling <code>.filter()</code> — crash.</p>
+      <p><code>response.data.content</code> is <code>undefined</code> because arrays don't have a <code>content</code> property. That <code>undefined</code> got stored in state, <code>useMemo</code> received it and tried calling <code>.filter()</code>, and it crashed.</p>
 
       <h2>Investigation</h2>
 
-      <p>The error message alone didn't make it obvious where <code>undefined</code> came from. <code>useMemo</code> wasn't calling the API directly — it received state from somewhere upstream.</p>
+      <p>The error message alone didn't make it obvious where <code>undefined</code> came from. <code>useMemo</code> wasn't calling the API directly. It received state from somewhere upstream.</p>
 
       <p>I narrowed it down with binary search, logging values into <code>window.__omStep</code> at each stage to track where <code>undefined</code> appeared:</p>
 
@@ -151,7 +151,7 @@ console.log('[step2] content:', response.data.content); // undefined printed`}</
 
       <p><code>undefined</code> appeared at step 2. <code>response.data</code> was fine, but <code>response.data.content</code> was <code>undefined</code> because the API returned an array directly.</p>
 
-      <p>That <code>undefined</code> got saved into <code>useState</code>, and during rendering, <code>useMemo</code> received it and tried calling <code>.filter()</code> — boom.</p>
+      <p>That <code>undefined</code> got saved into <code>useState</code>, and during rendering, <code>useMemo</code> received it and tried calling <code>.filter()</code>. Boom.</p>
 
       <h2>Solution</h2>
 
@@ -181,7 +181,7 @@ console.log('[step2] content:', response.data.content); // undefined printed`}</
 
       <h2>Lessons Learned</h2>
 
-      <p><code>undefined</code> doesn't throw immediately. It gets quietly stored in state, passes through multiple components, and explodes at the furthest point downstream. The error location and the cause location are different — that's what makes it hard to trace.</p>
+      <p><code>undefined</code> doesn't throw immediately. It gets quietly stored in state, passes through multiple components, and explodes at the furthest point downstream. The place where it fails and the place where it starts are different, and that's what makes it hard to trace.</p>
 
       <p>Don't blindly trust API response shapes in integration code. Defensively verify the format you agreed on with the backend, and use <code>Array.isArray</code> or optional chaining to handle it explicitly. That habit catches these silent bugs before they become white screens.</p>
     </Content>

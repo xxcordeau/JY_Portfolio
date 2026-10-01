@@ -16,7 +16,7 @@ export const DesignColorSystemPost = ({ language }: PostProps) => {
 
         <h2>배경</h2>
 
-        <p>Keyrke 프로젝트에서 디자인 시스템을 만들 때, 가장 처음 막힌 게 색상이었어요. '메인 컬러를 뭘로 하지?' 같은 거창한 고민이 아니라, 훨씬 실무적인 문제였어요. 버튼의 hover 색은 뭘로 할 건지, disabled 상태는 어떤 회색을 쓸 건지, 에러 메시지의 빨간색은 배경이 어두울 때도 같은 값을 쓸 건지 — 이런 것들이요.</p>
+        <p>Keyrke 프로젝트에서 디자인 시스템을 만들 때, 가장 처음 막힌 게 색상이었어요. '메인 컬러를 뭘로 하지?' 같은 거창한 고민이 아니라, 훨씬 실무적인 문제였어요. 버튼의 hover 색은 뭘로 할 건지, disabled 상태는 어떤 회색을 쓸 건지, 에러 메시지의 빨간색은 배경이 어두울 때도 같은 값을 쓸 건지 같은 것들이요.</p>
 
         <p>처음엔 매번 눈으로 보면서 '이 정도면 되겠지' 하고 색을 골랐어요. 그랬더니 화면마다 미묘하게 다른 회색이 쓰이고, 같은 '비활성' 상태인데 이 화면에선 opacity 0.4이고 저 화면에선 opacity 0.5인 상황이 생겼어요. 혼자 작업할 땐 감으로 맞출 수 있었는데, 팀원이 같이 쓰기 시작하니까 바로 무너졌어요.</p>
 
@@ -36,7 +36,7 @@ blue-900: 강조 텍스트`}</code></pre>
 
         <p>이렇게 정해두면 새 화면을 만들 때 '이 버튼 hover를 어떤 색으로 하지?' 같은 고민이 사라져요. blue-700이에요. 끝. 다른 사람이 작업해도 같은 결과가 나와요.</p>
 
-        <p><strong>gray도 같은 방식으로 나눴어요.</strong> 사실 UI에서 가장 많이 쓰이는 건 gray거든요. 배경, 보더, 비활성 텍스트, 구분선, placeholder — 전부 gray의 변형이에요. gray를 체계 없이 쓰면 화면이 탁해 보이고, 체계적으로 쓰면 깔끔해 보여요. 차이는 미세한데, 느낌은 확연히 달라요.</p>
+        <p><strong>gray도 같은 방식으로 나눴어요.</strong> 사실 UI에서 가장 많이 쓰이는 건 gray거든요. 배경, 보더, 비활성 텍스트, 구분선, placeholder가 전부 gray의 변형이에요. gray를 체계 없이 쓰면 화면이 탁해 보이고, 체계적으로 쓰면 깔끔해 보여요. 차이는 미세한데, 느낌은 확연히 달라요.</p>
 
         <p><strong>다크 모드 색상은 별도로 매핑했어요.</strong> 라이트 모드에서 gray-100이 배경이라면, 다크 모드에서는 gray-900이 배경이 돼요. 단순히 뒤집는 게 아니라, 각 역할(배경, 표면, 텍스트, 보더)별로 라이트/다크 매핑 테이블을 만들었어요. 이 과정에서 '색상은 값이 아니라 역할'이라는 걸 확실히 배웠어요.</p>
 
@@ -64,9 +64,9 @@ blue-900: 강조 텍스트`}</code></pre>
 
       <h2>Background</h2>
 
-      <p>When I was building the design system for the Keyrke project, the very first thing I got stuck on was color. It wasn't a grand question like "What should our primary color be?" — it was far more practical. What color should a button's hover state be? Which gray goes on a disabled state? Should the red for error messages stay the same value on a dark background? Those kinds of things.</p>
+      <p>When I was building the design system for the Keyrke project, the very first thing I got stuck on was color. It wasn't a grand question like "What should our primary color be?" It was far more practical. What color should a button's hover state be? Which gray goes on a disabled state? Should the red for error messages stay the same value on a dark background? Those kinds of things.</p>
 
-      <p>At first, I picked colors by eye every time — "this looks about right." The result was subtly different grays on every screen, and the same "disabled" state showing up as opacity 0.4 on one screen and 0.5 on another. When I was working alone, I could keep things consistent by feel. The moment a teammate started using the same components, it all fell apart.</p>
+      <p>At first, I picked colors by eye every time, going with whatever "looked about right." The result was subtly different grays on every screen, and the same "disabled" state showing up as opacity 0.4 on one screen and 0.5 on another. When I was working alone, I could keep things consistent by feel. The moment a teammate started using the same components, it all fell apart.</p>
 
       <h2>Investigation</h2>
 
@@ -84,9 +84,9 @@ blue-900: Emphasis text`}</code></pre>
 
       <p>With this in place, questions like "What color should this button's hover be?" simply disappear. It's blue-700. Done. Someone else working on the project arrives at the same result.</p>
 
-      <p><strong>I applied the same approach to gray.</strong> Gray is actually the most-used color in any UI. Backgrounds, borders, disabled text, dividers, placeholders — they're all variations of gray. When gray is used without a system the screen looks muddy; when it's used systematically, it looks clean. The differences are subtle, but the impression is strikingly different.</p>
+      <p><strong>I applied the same approach to gray.</strong> Gray is actually the most-used color in any UI. Backgrounds, borders, disabled text, dividers, and placeholders are all variations of gray. When gray is used without a system the screen looks muddy; when it's used systematically, it looks clean. The differences are subtle, but the impression is strikingly different.</p>
 
-      <p><strong>Dark mode colors were mapped separately.</strong> If gray-100 is the background in light mode, then gray-900 becomes the background in dark mode. Rather than simply inverting the scale, I built a light/dark mapping table for each role — background, surface, text, border. This process made it crystal clear that "color is a role, not a value."</p>
+      <p><strong>Dark mode colors were mapped separately.</strong> If gray-100 is the background in light mode, then gray-900 becomes the background in dark mode. Rather than simply inverting the scale, I built a light/dark mapping table for each role (background, surface, text, border). This process made it crystal clear that "color is a role, not a value."</p>
 
       <pre><code>{`/* Name by role, not by value */
 --color-bg-primary      /* light: white, dark: gray-950 */

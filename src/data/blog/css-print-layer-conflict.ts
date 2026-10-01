@@ -3,8 +3,8 @@ import { BlogPost } from '../blogData';
 export const cssPrintLayerConflict: BlogPost = {
   id: 'css-print-layer-conflict',
   title: {
-    ko: '@media print과 CSS 레이어의 충돌 — 인쇄 헤더가 사라지지 않던 이유',
-    en: '@media print vs CSS Layers Conflict — Why the Print Header Wouldn\'t Hide'
+    ko: '인쇄할 때 헤더가 사라지지 않던 이유, @media print와 CSS 레이어의 충돌',
+    en: 'Why the Print Header Wouldn\'t Hide: @media print vs CSS Layers'
   },
   excerpt: {
     ko: '@layer 안에 작성한 @media print 규칙이 왜 무시되는지, CSS 캐스케이드 레이어의 우선순위 구조를 파헤쳐봤습니다.',

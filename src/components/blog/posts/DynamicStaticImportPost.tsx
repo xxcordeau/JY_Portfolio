@@ -157,13 +157,13 @@ import { uploadFile } from "@/lib/api/file";
 
       <h2>Results</h2>
 
-      <p>The warnings weren't completely eliminated. Shared API modules belong in the main chunk since they're used across multiple pages. The warnings weren't problems themselves — they were <strong>signals for understanding the bundle structure</strong>.</p>
+      <p>The warnings weren't completely eliminated. Shared API modules belong in the main chunk since they're used across multiple pages. The warnings weren't problems themselves. They were <strong>signals for understanding the bundle structure</strong>.</p>
 
       <p>The key was identifying which large modules were in which chunks, and explicitly splitting only those that could be separated.</p>
 
       <h2>Lessons Learned</h2>
 
-      <p>Vite's code splitting doesn't automatically optimize everything — <strong>the results depend on import patterns and dependency relationships.</strong></p>
+      <p>Vite's code splitting doesn't automatically optimize everything. <strong>The results depend on import patterns and dependency relationships.</strong></p>
 
       <p>Approaching warnings with the sole goal of eliminating them can lead to unintended bundle structures. Understanding why warnings occur and determining which modules belong in which chunks should come first.</p>
     </Content>

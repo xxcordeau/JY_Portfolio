@@ -27,7 +27,7 @@ export const CommonUtilsPost = ({ language }: PostProps) => {
         
         <h2>과정과 문제 탐색</h2>
         
-        <h3>A. i18n 옵션 문자열 빌더 — useBuildOptionText</h3>
+        <h3>A. i18n 옵션 문자열 빌더 (useBuildOptionText)</h3>
         
         <h4>문제</h4>
         
@@ -48,7 +48,7 @@ export const useBuildOptionText = () => buildOptionText`}</code></pre>
         
         <p>템플릿에서는 <code>useBuildOptionText()(option)</code> 한 줄이면 끝. 모든 문구와 포맷이 통일되고 SSR/CSR 환경에서도 안전해졌어요.</p>
         
-        <h3>B. 메뉴 권한 탐색 — useFindPermissionValue, useFindPermissionValueInput</h3>
+        <h3>B. 메뉴 권한 탐색 (useFindPermissionValue, useFindPermissionValueInput)</h3>
         
         <h4>문제</h4>
         
@@ -74,7 +74,7 @@ export const useFindPermissionValueInput = (menuId, type, menuPage = useMenuItem
         
         <p>권한 로직이 한 곳으로 통합되고, 화면별 분기나 예외 처리가 크게 줄었습니다.</p>
         
-        <h3>C. 파일 유형·용량 포맷 — useMimetypeCheck, useFileSizeFormat</h3>
+        <h3>C. 파일 유형·용량 포맷 (useMimetypeCheck, useFileSizeFormat)</h3>
         
         <h4>문제</h4>
         
@@ -144,7 +144,7 @@ export const useFileSizeFormat = (size) => { /* 1024 단위 포맷 */ }`}</code>
       
       <h2>Process and Problem Exploration</h2>
       
-      <h3>A. i18n Option String Builder — useBuildOptionText</h3>
+      <h3>A. i18n Option String Builder (useBuildOptionText)</h3>
       
       <h4>Problem</h4>
       
@@ -165,7 +165,7 @@ export const useBuildOptionText = () => buildOptionText`}</code></pre>
       
       <p>In templates, <code>useBuildOptionText()(option)</code> in one line is enough. All wording and formats are unified and safe even in SSR/CSR environments.</p>
       
-      <h3>B. Menu Permission Search — useFindPermissionValue, useFindPermissionValueInput</h3>
+      <h3>B. Menu Permission Search (useFindPermissionValue, useFindPermissionValueInput)</h3>
       
       <h4>Problem</h4>
       
@@ -191,7 +191,7 @@ export const useFindPermissionValueInput = (menuId, type, menuPage = useMenuItem
       
       <p>Permission logic was integrated in one place, and screen-specific branching or exception handling was greatly reduced.</p>
       
-      <h3>C. File Type/Size Format — useMimetypeCheck, useFileSizeFormat</h3>
+      <h3>C. File Type/Size Format (useMimetypeCheck, useFileSizeFormat)</h3>
       
       <h4>Problem</h4>
       

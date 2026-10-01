@@ -179,7 +179,7 @@ resolve: {
       <ul>
         <li>Admin pages, shop pages, and order pages were all mixed in a single <code>src/components/pages/</code> directory</li>
         <li>Impossible to distinguish admin-only components from shop components by filename alone</li>
-        <li>Build output was a single chunk <code>index.js</code> at 2,647 KB — slow initial load</li>
+        <li>Build output was a single 2,647 KB <code>index.js</code> chunk, so the initial load was slow</li>
         <li>No clear convention for where to place new page files</li>
       </ul>
 
@@ -317,9 +317,9 @@ resolve: {
 
       <h2>Lessons Learned</h2>
 
-      <p>File structure issues don't immediately affect functionality, making them easy to postpone — but they ultimately impact the entire team's velocity.</p>
+      <p>File structure issues don't immediately affect functionality, which makes them easy to postpone. But they ultimately slow down the whole team.</p>
 
-      <p>Code splitting isn't a one-line config change — it's about changing the import approach itself. If the structure isn't organized first, it's hard to even determine where to apply lazy imports.</p>
+      <p>Code splitting isn't a one-line config change. It means changing how you import things in the first place. If the structure isn't organized first, it's hard to even tell where lazy imports belong.</p>
 
       <p>In the end, <strong>structure cleanup and performance improvement go hand in hand</strong>.</p>
     </Content>

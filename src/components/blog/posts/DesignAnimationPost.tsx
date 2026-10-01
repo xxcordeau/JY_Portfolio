@@ -12,11 +12,11 @@ export const DesignAnimationPost = ({ language }: PostProps) => {
   if (language === 'ko') {
     return (
       <Content>
-        <h1>애니메이션을 넣기 전에 물어봐야 할 한 가지 — '이걸 빼면 뭘 잃는가'</h1>
+        <h1>애니메이션을 넣기 전에 '이걸 빼면 뭘 잃지?'부터 물어봐요</h1>
 
         <h2>배경</h2>
 
-        <p>이 포트폴리오 사이트의 히어로 섹션을 만들면서 꽤 긴 시간을 애니메이션에 썼어요. 얼굴 이미지가 파티클로 분해되고, 인사말로 모였다가 흩어지고, 텍스트로 다시 모이고, 마지막에 별처럼 날아가는 — 꽤 복잡한 스크롤 기반 애니메이션이에요.</p>
+        <p>이 포트폴리오 사이트의 히어로 섹션을 만들면서 꽤 긴 시간을 애니메이션에 썼어요. 얼굴 이미지가 파티클로 분해되고, 인사말로 모였다가 흩어지고, 텍스트로 다시 모이고, 마지막에 별처럼 날아가는, 꽤 복잡한 스크롤 기반 애니메이션이에요.</p>
 
         <p>만들고 나서 뿌듯했는데, 동시에 이런 생각도 했어요. '이게 정말 필요한 건가?' 멋있긴 한데, 포트폴리오를 보러 온 사람이 원하는 건 프로젝트 경력과 기술 스택이지 애니메이션 구경이 아니잖아요.</p>
 
@@ -26,7 +26,7 @@ export const DesignAnimationPost = ({ language }: PostProps) => {
 
         <p><strong>애니메이션은 크게 두 종류가 있다고 생각해요.</strong></p>
 
-        <p>하나는 <strong>기능적 애니메이션</strong>이에요. 페이지 전환, 모달 열기/닫기, 데이터 로딩, 토스트 알림 — 이런 것들에 붙는 애니메이션이요. 이건 '장식'이 아니라 '정보'에 가까워요. 모달이 아래에서 올라오면 사용자는 '새로운 레이어가 위에 생겼구나'라고 직감적으로 이해하거든요. 이런 애니메이션이 없으면 화면이 '갑자기' 바뀌는 느낌이 들어서 사용자가 현재 상태를 파악하는 데 인지 비용이 들어요.</p>
+        <p>하나는 <strong>기능적 애니메이션</strong>이에요. 페이지 전환, 모달 열기/닫기, 데이터 로딩, 토스트 알림 같은 것들에 붙는 애니메이션이요. 이건 '장식'이 아니라 '정보'에 가까워요. 모달이 아래에서 올라오면 사용자는 '새로운 레이어가 위에 생겼구나'라고 직감적으로 이해하거든요. 이런 애니메이션이 없으면 화면이 '갑자기' 바뀌는 느낌이 들어서 사용자가 현재 상태를 파악하는 데 인지 비용이 들어요.</p>
 
         <p>기능적 애니메이션에 제가 주로 쓰는 기준이 있어요.</p>
 
@@ -68,11 +68,11 @@ transition: 300ms ~ 400ms ease-in-out;`}</code></pre>
 
   return (
     <Content>
-      <h1>One Question Before Adding Animation — What Do We Lose Without It?</h1>
+      <h1>Before Adding Animation, Ask What You'd Lose Without It</h1>
 
       <h2>Background</h2>
 
-      <p>While building the hero section of this portfolio site, I spent a considerable amount of time on animation. The face image breaks apart into particles, gathers into a greeting, scatters, reassembles into text, and finally flies away like stars — it's a fairly complex scroll-driven animation.</p>
+      <p>While building the hero section of this portfolio site, I spent a considerable amount of time on animation. The face image breaks apart into particles, gathers into a greeting, scatters, reassembles into text, and finally flies away like stars. It's a fairly complex scroll-driven animation.</p>
 
       <p>I felt proud after finishing it, but at the same time, a thought crossed my mind: "Is this really necessary?" It looks cool, sure, but people visiting a portfolio want to see project experience and tech stacks, not watch an animation show.</p>
 
@@ -82,7 +82,7 @@ transition: 300ms ~ 400ms ease-in-out;`}</code></pre>
 
       <p><strong>I think animations fall into two broad categories.</strong></p>
 
-      <p>The first is <strong>functional animation</strong>. Page transitions, modal open/close, data loading, toast notifications — animations attached to these kinds of interactions. These aren't "decoration" but closer to "information." When a modal slides up from the bottom, users intuitively understand that a new layer has appeared on top. Without these animations, the screen feels like it changes "abruptly," and users have to spend cognitive effort figuring out the current state.</p>
+      <p>The first is <strong>functional animation</strong>, the kind attached to page transitions, modal open/close, data loading, and toast notifications. These aren't "decoration" but closer to "information." When a modal slides up from the bottom, users intuitively understand that a new layer has appeared on top. Without these animations, the screen feels like it changes "abruptly," and users have to spend cognitive effort figuring out the current state.</p>
 
       <p>I have guidelines I typically follow for functional animations.</p>
 
@@ -109,7 +109,7 @@ transition: 300ms ~ 400ms ease-in-out;`}</code></pre>
 
       <p><strong>You need to maintain 60fps.</strong> When using Canvas or requestAnimationFrame with a large number of particles, frames drop on low-end devices. On this site, I capped the particle count at 5,000 and managed position data with Float32Array to reduce GC overhead.</p>
 
-      <p><strong>You need to consider motion-sensitive users.</strong> If the prefers-reduced-motion media query is active, animations should be reduced or replaced with static alternatives. This isn't optional — it's an accessibility baseline.</p>
+      <p><strong>You need to consider motion-sensitive users.</strong> If the prefers-reduced-motion media query is active, animations should be reduced or replaced with static alternatives. This isn't optional. It's an accessibility baseline.</p>
 
       <p><strong>It shouldn't impact loading performance.</strong> If an animation library adds 100KB to the bundle size, you need to ask whether the animation is worth that 100KB. The hero animation on this site was built with the native Canvas API without any external libraries, intentionally to minimize the bundle impact.</p>
 

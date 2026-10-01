@@ -12,7 +12,7 @@ export const CssPrintLayerPost = ({ language }: PostProps) => {
   if (language === 'ko') {
     return (
       <Content>
-        <h1>@media print과 CSS 레이어의 충돌 — 인쇄 헤더가 사라지지 않던 이유</h1>
+        <h1>인쇄할 때 헤더가 사라지지 않던 이유, @media print와 CSS 레이어의 충돌</h1>
 
         <h2>발단</h2>
 
@@ -36,12 +36,12 @@ export const CssPrintLayerPost = ({ language }: PostProps) => {
 
         <p>명시도(specificity)가 아무리 높아도 상관없어요. 레이어 밖에 작성된 스타일이 레이어 안의 스타일을 덮어씁니다.</p>
 
-        <pre><code>{`/* @layer 밖 — 항상 우선순위 높음 */
+        <pre><code>{`/* @layer 밖: 항상 우선순위 높음 */
 .header {
   display: block;
 }
 
-/* @layer base 안 — 항상 우선순위 낮음 */
+/* @layer base 안: 항상 우선순위 낮음 */
 @layer base {
   @media print {
     .header {
@@ -81,7 +81,7 @@ export const CssPrintLayerPost = ({ language }: PostProps) => {
 
         <p>혹은 인쇄 스타일을 위한 별도 레이어를 가장 마지막에 선언하는 방법도 있어요.</p>
 
-        <pre><code>{`/* 레이어 순서 선언 — 나중에 선언된 레이어가 우선순위 높음 */
+        <pre><code>{`/* 레이어 순서 선언: 나중에 선언된 레이어가 우선순위 높음 */
 @layer base, components, print;
 
 @layer print {
@@ -109,7 +109,7 @@ export const CssPrintLayerPost = ({ language }: PostProps) => {
 
   return (
     <Content>
-      <h1>@media print vs CSS Layers Conflict — Why the Print Header Wouldn't Hide</h1>
+      <h1>Why the Print Header Wouldn't Hide: @media print vs CSS Layers</h1>
 
       <h2>The Problem</h2>
 
@@ -133,12 +133,12 @@ export const CssPrintLayerPost = ({ language }: PostProps) => {
 
       <p>Specificity doesn't matter. Styles written outside layers override styles inside layers.</p>
 
-      <pre><code>{`/* Outside @layer — always higher priority */
+      <pre><code>{`/* Outside @layer: always higher priority */
 .header {
   display: block;
 }
 
-/* Inside @layer base — always lower priority */
+/* Inside @layer base: always lower priority */
 @layer base {
   @media print {
     .header {
@@ -151,9 +151,9 @@ export const CssPrintLayerPost = ({ language }: PostProps) => {
 
       <h2>Investigation</h2>
 
-      <p>At first I thought it was a selector issue — spent a while checking if I needed a different selector than <code>.header</code>.</p>
+      <p>At first I thought it was a selector issue, and spent a while checking whether I needed something other than <code>.header</code>.</p>
 
-      <p>Then I thought using <code>!important</code> inside <code>@media print</code> would work. There's actually a special reversal rule: <code>!important</code> inside a layer has higher priority than <code>!important</code> outside — the layer priority flips for <code>!important</code> declarations.</p>
+      <p>Then I thought using <code>!important</code> inside <code>@media print</code> would work. There's actually a special reversal rule: <code>!important</code> inside a layer has higher priority than <code>!important</code> outside it. For <code>!important</code> declarations, the layer priority flips.</p>
 
       <pre><code>{`@layer base {
   @media print {
@@ -178,7 +178,7 @@ export const CssPrintLayerPost = ({ language }: PostProps) => {
 
       <p>Alternatively, declare a dedicated print layer last in the layer order:</p>
 
-      <pre><code>{`/* Layer order declaration — later layers have higher priority */
+      <pre><code>{`/* Layer order declaration: later layers have higher priority */
 @layer base, components, print;
 
 @layer print {
@@ -189,7 +189,7 @@ export const CssPrintLayerPost = ({ language }: PostProps) => {
   }
 }`}</code></pre>
 
-      <p>Layer declaration order matters — layers declared later have higher priority. Placing the <code>print</code> layer last lets print styles override other layers.</p>
+      <p>Layer declaration order matters. Layers declared later have higher priority. Placing the <code>print</code> layer last lets print styles override other layers.</p>
 
       <h2>Result</h2>
 
@@ -199,7 +199,7 @@ export const CssPrintLayerPost = ({ language }: PostProps) => {
 
       <p>CSS <code>@layer</code> is a powerful tool, but without knowing that styles outside layers always beat styles inside layers, you'll get unexpected results.</p>
 
-      <p>Styles that apply only in specific contexts — like print styles — need careful placement in the layer structure. Declaring them directly outside any layer, or placing a dedicated print layer last in the layer order, is the safe approach.</p>
+      <p>Styles that only apply in specific contexts, like print styles, need careful placement in the layer structure. Declaring them directly outside any layer, or placing a dedicated print layer last in the layer order, is the safe approach.</p>
     </Content>
   );
 };

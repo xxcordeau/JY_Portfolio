@@ -12,7 +12,7 @@ export const HiddenDivPost = ({ language }: PostProps) => {
   if (language === 'ko') {
     return (
       <Content>
-        <h1>숨겨진 div의 역습 — React에서 hidden 클래스는 조건부 렌더링이 아니에요</h1>
+        <h1>숨겨진 div의 역습, React에서 hidden 클래스는 조건부 렌더링이 아니에요</h1>
 
         <h2>발단</h2>
 
@@ -54,7 +54,7 @@ export const HiddenDivPost = ({ language }: PostProps) => {
 
         <p>조건부 렌더링을 사용해야 합니다. JSX 단락 평가(short-circuit evaluation)를 쓰면 조건이 <code>false</code>일 때 컴포넌트 자체가 마운트되지 않아요.</p>
 
-        <pre><code>{`{/* 단락 평가 — false면 아무것도 마운트되지 않음 */}
+        <pre><code>{`{/* 단락 평가: false면 아무것도 마운트되지 않음 */}
 {activeTab === 'list' && (
   <DataTable data={items.map(item => processItem(item))} />
 )}
@@ -92,7 +92,7 @@ const [listData, setListData] = useState([]);
 
   return (
     <Content>
-      <h1>The Hidden Div Strike Back — CSS hidden Is Not Conditional Rendering in React</h1>
+      <h1>The Hidden Div Strikes Back, or Why CSS hidden Isn't Conditional Rendering in React</h1>
 
       <h2>The Problem</h2>
 
@@ -121,7 +121,7 @@ const [listData, setListData] = useState([]);
 
       <h2>Investigation</h2>
 
-      <p>At first I wondered if the class name was the issue. I thought Tailwind's <code>hidden</code> (<code>display: none !important</code>) might behave differently — but however CSS hides something, it's unrelated to JS execution.</p>
+      <p>At first I wondered if the class name was the issue. I thought Tailwind's <code>hidden</code> (<code>display: none !important</code>) might behave differently. But no matter how CSS hides something, it has nothing to do with whether JS runs.</p>
 
       <p>Looking at the component tree in React DevTools, the hidden tab's components were mounted and present. Their <code>useEffect</code> hooks were fetching data.</p>
 
@@ -134,7 +134,7 @@ const [listData, setListData] = useState([]);
 
       <p>Use conditional rendering. JSX short-circuit evaluation means when the condition is <code>false</code>, the component never mounts:</p>
 
-      <pre><code>{`{/* Short-circuit — nothing mounts when false */}
+      <pre><code>{`{/* Short-circuit: nothing mounts when false */}
 {activeTab === 'list' && (
   <DataTable data={items.map(item => processItem(item))} />
 )}
@@ -148,7 +148,7 @@ const [listData, setListData] = useState([]);
 
       <h2>Caveats</h2>
 
-      <p>With conditional rendering, components unmount and remount on tab switches — meaning internal state resets. If you need to preserve state between tabs, two options:</p>
+      <p>With conditional rendering, components unmount and remount on every tab switch, so their internal state resets. If you need to preserve state between tabs, there are two options:</p>
 
       <pre><code>{`// 1. Lift state up
 const [listData, setListData] = useState([]);
@@ -159,13 +159,13 @@ const [listData, setListData] = useState([]);
   <DataTable data={activeTab === 'list' ? items.map(processItem) : []} />
 </div>`}</code></pre>
 
-      <p>When state preservation isn't important, conditional rendering performs better — heavy components don't mount unnecessarily.</p>
+      <p>When you don't need to preserve state, conditional rendering performs better because heavy components don't mount unnecessarily.</p>
 
       <h2>Lessons Learned</h2>
 
       <p>CSS controls what gets shown on screen. React conditional rendering controls what exists in the DOM. They operate at different layers.</p>
 
-      <p>Hiding with CSS means "invisible." Conditional rendering means "non-existent." For performance-sensitive components, control existence — not just visibility.</p>
+      <p>Hiding with CSS means "invisible." Conditional rendering means "non-existent." For performance-sensitive components, control whether they exist, not just whether they're visible.</p>
     </Content>
   );
 };

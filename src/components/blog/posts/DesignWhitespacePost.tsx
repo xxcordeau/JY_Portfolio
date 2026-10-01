@@ -12,11 +12,11 @@ export const DesignWhitespacePost = ({ language }: PostProps) => {
   if (language === 'ko') {
     return (
       <Content>
-        <h1>여백이 두려웠던 시절 — 빈 공간은 비어 있는 게 아니에요</h1>
+        <h1>여백이 두려웠던 시절, 빈 공간은 비어 있는 게 아니었어요</h1>
 
         <h2>배경</h2>
 
-        <p>처음 UI를 만들기 시작했을 때, 화면에 빈 공간이 보이면 불안했어요. '여기에 뭘 더 넣어야 하지?' 하는 생각이 자동으로 들었거든요. 카드 사이의 간격이 넓으면 '너무 허전한 거 아닌가', 섹션 아래에 여백이 크면 '콘텐츠가 부족해 보이지 않나' — 그런 고민을 계속 했어요.</p>
+        <p>처음 UI를 만들기 시작했을 때, 화면에 빈 공간이 보이면 불안했어요. '여기에 뭘 더 넣어야 하지?' 하는 생각이 자동으로 들었거든요. 카드 사이의 간격이 넓으면 '너무 허전한 거 아닌가', 섹션 아래에 여백이 크면 '콘텐츠가 부족해 보이지 않나' 하는 고민을 계속 했어요.</p>
 
         <p>그래서 초기에 만들었던 화면들은 하나같이 빽빽했어요. 정보는 많이 담겨 있는데, 어디를 먼저 봐야 할지 모르겠는 화면. 텍스트와 버튼과 아이콘이 서로 숨 쉴 틈 없이 붙어 있는 레이아웃. 기능적으로는 문제가 없었지만, 화면을 열었을 때 '편하다'는 느낌이 전혀 들지 않았어요.</p>
 
@@ -34,7 +34,7 @@ export const DesignWhitespacePost = ({ language }: PostProps) => {
 
         <p><strong>요소 간 관계가 가까울수록 간격이 좁아야 해요.</strong> 라벨과 입력 필드 사이는 4~8px이면 충분해요. 하지만 입력 필드 그룹과 다음 그룹 사이는 최소 24px, 섹션과 섹션 사이는 48~80px 정도가 필요해요. 이걸 게슈탈트 심리학에서는 '근접성의 원리'라고 하는데, 이름은 어려워도 원리는 단순해요. 가까이 있으면 같은 것, 멀리 있으면 다른 것.</p>
 
-        <p><strong>여백은 일정한 단위로 움직여야 해요.</strong> 저는 보통 4px 또는 8px을 기본 단위로 쓰는데, 모든 간격이 이 배수로 떨어지게 해요. 12px, 16px, 24px, 32px, 48px, 64px — 이렇게요. 규칙 없이 '이 정도면 되겠지' 하고 넣으면 화면 전체에서 미묘한 불일치가 쌓이거든요. 사용자가 의식하진 못하지만 '뭔가 정돈 안 된 느낌'을 받게 돼요.</p>
+        <p><strong>여백은 일정한 단위로 움직여야 해요.</strong> 저는 보통 4px 또는 8px을 기본 단위로 쓰는데, 모든 간격이 이 배수로 떨어지게 해요. 12px, 16px, 24px, 32px, 48px, 64px처럼요. 규칙 없이 '이 정도면 되겠지' 하고 넣으면 화면 전체에서 미묘한 불일치가 쌓이거든요. 사용자가 의식하진 못하지만 '뭔가 정돈 안 된 느낌'을 받게 돼요.</p>
 
         <p><strong>모바일에서의 여백은 단순히 줄이는 게 아니에요.</strong> 데스크톱에서 섹션 간격이 80px이라고 해서 모바일에서 40px로 반으로 줄이면 비례가 깨져요. 모바일은 화면 자체가 좁으니까, 비율로 생각해야 해요. 저는 보통 데스크톱 여백의 60~70% 정도를 모바일에 적용하는데, 이것도 화면을 직접 보면서 조정하는 게 맞아요.</p>
 
@@ -49,7 +49,7 @@ export const DesignWhitespacePost = ({ language }: PostProps) => {
 
   return (
     <Content>
-      <h1>When I Was Afraid of Whitespace — Empty Space Isn't Really Empty</h1>
+      <h1>I Used to Be Afraid of Whitespace. Empty Space Isn't Really Empty</h1>
 
       <h2>Background</h2>
 
@@ -69,7 +69,7 @@ export const DesignWhitespacePost = ({ language }: PostProps) => {
 
       <p>Through subsequent projects, I developed my own set of guidelines.</p>
 
-      <p><strong>The closer the relationship between elements, the tighter the spacing should be.</strong> Between a label and its input field, 4-8px is plenty. But between one input group and the next, you need at least 24px, and between sections, 48-80px. In Gestalt psychology this is called the "principle of proximity" — fancy name, simple idea. Things close together seem related; things far apart seem separate.</p>
+      <p><strong>The closer the relationship between elements, the tighter the spacing should be.</strong> Between a label and its input field, 4-8px is plenty. But between one input group and the next, you need at least 24px, and between sections, 48-80px. In Gestalt psychology this is called the "principle of proximity." Fancy name, simple idea. Things close together seem related; things far apart seem separate.</p>
 
       <p><strong>Whitespace should move in consistent increments.</strong> I typically use 4px or 8px as my base unit, and every spacing value is a multiple of it: 12px, 16px, 24px, 32px, 48px, 64px. When you eyeball it with "that looks about right," subtle inconsistencies accumulate across the whole screen. Users can't consciously spot them, but they get a sense that "something feels unpolished."</p>
 
@@ -77,9 +77,9 @@ export const DesignWhitespacePost = ({ language }: PostProps) => {
 
       <h2>Lessons Learned</h2>
 
-      <p>Whitespace doesn't exist because there's not enough content — it's deliberately created so that content can be seen properly. "Filling the screen" and "designing the screen" are completely different tasks. After I stopped being afraid of empty space, the feel of everything I built changed dramatically.</p>
+      <p>Whitespace doesn't exist because there's not enough content. It's deliberately created so that content can be seen properly. "Filling the screen" and "designing the screen" are completely different tasks. After I stopped being afraid of empty space, the feel of everything I built changed dramatically.</p>
 
-      <p>Even now, the first thing I do when building a screen isn't deciding "what to put here" — it's deciding "what <em>not</em> to put here."</p>
+      <p>Even now, the first thing I do when building a screen isn't deciding "what to put here." It's deciding "what <em>not</em> to put here."</p>
     </Content>
   );
 };
