@@ -1,4 +1,5 @@
 import s from './infra.module.css';
+import CopyEmailButton from './CopyEmailButton';
 
 /**
  * IT 고객 엔지니어(인프라) 직무용 단독 페이지 — /infra/
@@ -255,7 +256,7 @@ export default function InfraPortfolio() {
           </ul>
 
           <div className={s.heroActions}>
-            <a className={s.btnPrimary} href={`mailto:${EMAIL}`}>메일 보내기</a>
+            <CopyEmailButton email={EMAIL} label="메일 주소 복사하기" />
             <a className={s.btnSecondary} href="https://github.com/xxcordeau" target="_blank" rel="noreferrer">GitHub</a>
           </div>
         </header>
@@ -366,15 +367,14 @@ export default function InfraPortfolio() {
         <footer className={s.footer}>
           <p>
             <strong>허정연</strong>
-            <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+            <span>{EMAIL}</span>
           </p>
-          <a href="/" className={s.footLink}>개발 포트폴리오 보기</a>
         </footer>
       </main>
 
       {/* 모바일 하단 고정 버튼 */}
       <div className={s.bottomBar}>
-        <a className={s.btnPrimary} href={`mailto:${EMAIL}`}>메일 보내기</a>
+        <CopyEmailButton email={EMAIL} label="메일 주소 복사하기" />
       </div>
     </div>
   );

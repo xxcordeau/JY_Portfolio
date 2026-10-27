@@ -349,8 +349,33 @@
 }
 .footer p { display: flex; flex-direction: column; gap: 2px; }
 .footer strong { font-size: 16px; color: var(--grey900); }
-.footer a { color: var(--grey600); }
-.footLink { text-decoration: underline; text-underline-offset: 3px; }
+.footer span { user-select: text; }
+
+/* ── 복사 토스트 ── */
+.btnPrimary { border: 0; cursor: pointer; font-family: inherit; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  z-index: 20;
+  max-width: calc(100vw - 40px);
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: rgba(25, 31, 40, 0.92);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.toastShow { opacity: 1; transform: translate(-50%, 0); }
+.toast:empty { padding: 0; }
 
 /* ── 모바일 하단 고정 버튼 ── */
 .bottomBar { display: none; }
@@ -402,6 +427,8 @@
     background: linear-gradient(to bottom, transparent, var(--bg) 30%);
   }
   .bottomBar .btnPrimary { display: flex; width: 100%; }
+  /* 하단 고정 버튼 위로 띄운다 */
+  .toast { bottom: calc(92px + env(safe-area-inset-bottom)); }
 }
 
 /* ── Print: 추천인에게 PDF로 넘길 때 ── */
