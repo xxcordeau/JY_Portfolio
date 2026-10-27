@@ -142,7 +142,7 @@ const FLOW = [
 const EXPERIENCE = [
   {
     company: '동훈아이텍',
-    role: 'R&D센터 · 소프트웨어 엔지니어 (정규직)',
+    role: 'R&D센터 · 개발자 (정규직)',
     period: '2023.08 – 재직 중',
     items: [
       'Jenkins, Ansible, Harbor로 CI/CD 파이프라인을 처음부터 만들어 수동 배포를 없앴어요.',
@@ -226,7 +226,7 @@ export default function InfraPortfolio() {
     <div className={s.root}>
       <main className={s.page}>
         <header className={s.hero}>
-          <p className={s.heroLabel}>IT 고객 엔지니어 · 툴 컴퓨팅 및 서버 인프라</p>
+          <p className={s.heroLabel}>IT 고객 엔지니어 지원 · 툴 컴퓨팅 및 서버 인프라</p>
           <h1 className={s.heroTitle}>
             장비에 붙은 컴퓨터를
             <br />
