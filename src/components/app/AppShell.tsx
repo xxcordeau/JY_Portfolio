@@ -120,6 +120,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   const isAdminPage = pathname.startsWith('/admin');
+  // 직무별 단독 페이지 — 공통 헤더·챗봇·복사 방지 없이 children만 렌더
+  const isStandalonePage = pathname.startsWith('/infra');
 
   // body 클래스로 CSS 보호 토글
   useEffect(() => {
@@ -133,7 +135,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   // 포트폴리오 페이지에서 복사/우클릭/드래그 저장 방지
   useEffect(() => {
-    if (isAdminPage) return;
+    if (isAdminPage || isStandalonePage) return;
 
     const block = (e: Event) => e.preventDefault();
 
@@ -161,7 +163,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
       document.removeEventListener('dragstart', block);
       document.removeEventListener('keydown', blockKeys);
     };
-  }, [isAdminPage]);
+  }, [isAdminPage, isStandalonePage]);
+
+  if (isStandalonePage) return <>{children}</>;
 
   return (
     <ContactModalContext.Provider value={{ open: () => setContactModalOpen(true) }}>

@@ -1,0 +1,412 @@
+/* IT 고객 엔지니어 페이지 — 토스 톤(흰 배경, 블루 포인트, 회색 단계)
+   기존 사이트의 data-theme(라이트/다크)을 그대로 따른다 */
+
+.root {
+  --bg: #ffffff;
+  --band: #f2f4f6;
+  --card: #f9fafb;
+  --grey900: #191f28;
+  --grey800: #333d4b;
+  --grey700: #4e5968;
+  --grey600: #6b7684;
+  --grey500: #8b95a1;
+  --grey300: #d1d6db;
+  --grey200: #e5e8eb;
+  --blue: #3182f6;
+  --blue-press: #1b64da;
+  --blue-soft: #e8f3ff;
+  --orange: #e67700;
+  --orange-soft: #fff4e6;
+  --btn2: #f2f4f6;
+
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--grey900);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+
+:global(html[data-theme='dark']) .root {
+  --bg: #17171c;
+  --band: #101013;
+  --card: #202027;
+  --grey900: #ffffff;
+  --grey800: #e4e4e5;
+  --grey700: #c3c3c6;
+  --grey600: #9e9ea4;
+  --grey500: #7e7e87;
+  --grey300: #3c3c47;
+  --grey200: #2c2c35;
+  --blue: #3182f6;
+  --blue-press: #4593fc;
+  --blue-soft: #1d2a40;
+  --orange: #ffa94d;
+  --orange-soft: #3a2a17;
+  --btn2: #2c2c35;
+}
+
+/* 사이트 전역 스타일이 제목 굵기를 400으로 초기화하므로 여기서 되돌린다 */
+.root h1, .root h2 { font-weight: 700; }
+.root ul, .root ol { margin: 0; padding: 0; list-style: none; }
+.root p { margin: 0; }
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ── Hero ── */
+.hero { padding: 80px 24px 48px; }
+
+.heroLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+.heroTitle {
+  margin: 12px 0 0;
+  font-size: 40px;
+  line-height: 1.32;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.heroDesc {
+  margin-top: 20px !important;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--grey700);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 36px !important;
+}
+
+.stats li {
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.stats span { display: block; font-size: 13px; color: var(--grey600); }
+.stats strong { display: block; margin-top: 4px; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+
+.heroActions { display: flex; gap: 8px; margin-top: 28px; }
+
+.btnPrimary,
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  padding: 0 28px;
+  border-radius: 16px;
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btnPrimary { background: var(--blue); color: #fff; }
+.btnPrimary:hover { background: var(--blue-press); }
+.btnSecondary { background: var(--btn2); color: var(--grey800); }
+.btnSecondary:hover { background: var(--grey200); }
+.btnPrimary:active, .btnSecondary:active { transform: scale(0.97); }
+
+/* ── Sections: 섹션 사이 회색 띠 ── */
+.section {
+  padding: 48px 24px;
+  border-top: 16px solid var(--band);
+}
+
+.title {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+
+.desc {
+  margin-top: 8px !important;
+  font-size: 16px;
+  color: var(--grey600);
+}
+
+/* ── Badge ── */
+.badge {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.badge_done { background: var(--blue-soft); color: var(--blue); }
+.badge_near { background: var(--btn2); color: var(--grey700); }
+.badge_next { background: var(--orange-soft); color: var(--orange); }
+
+/* ── Job fit list ── */
+.list { margin-top: 24px !important; }
+
+.listItem {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--grey200);
+}
+.listItem:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.listHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.listHead strong { font-size: 17px; font-weight: 700; }
+.listItem p { margin-top: 6px; font-size: 15px; color: var(--grey700); }
+
+/* ── Incidents accordion ── */
+.accordion { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+
+.acc {
+  border-radius: 20px;
+  background: var(--card);
+}
+
+.accHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+  padding: 20px 22px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.accHead::-webkit-details-marker { display: none; }
+
+.accText { display: flex; flex-direction: column; gap: 4px; }
+.accArea { font-size: 13px; font-weight: 600; color: var(--grey500); }
+.accText strong { font-size: 17px; font-weight: 700; line-height: 1.45; }
+
+.chevron {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  margin-right: 4px;
+  border-right: 2px solid var(--grey500);
+  border-bottom: 2px solid var(--grey500);
+  transform: translateY(-3px) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.acc[open] .chevron { transform: translateY(2px) rotate(-135deg); }
+
+.accBody {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0 22px 22px;
+}
+
+.accBody div { display: grid; grid-template-columns: 72px 1fr; gap: 12px; }
+.accBody dt { font-size: 14px; font-weight: 600; color: var(--grey500); padding-top: 1px; }
+.accBody dd { margin: 0; font-size: 15px; color: var(--grey800); }
+
+.accPrevent {
+  margin-top: 2px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--blue-soft);
+}
+.accPrevent dt, .accPrevent dd { color: var(--blue); }
+.accPrevent dd { font-weight: 500; }
+
+/* ── System flow ── */
+.flow { display: flex; flex-direction: column; gap: 12px; margin-top: 24px !important; }
+
+.flowStep {
+  position: relative;
+  padding: 22px;
+  border-radius: 20px;
+  background: var(--card);
+}
+
+/* 단계 사이 연결선 */
+.flowStep + .flowStep::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 37px;
+  width: 2px;
+  height: 12px;
+  background: var(--grey300);
+}
+
+.flowNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.flowStep > strong { font-size: 17px; font-weight: 700; vertical-align: middle; }
+
+.flowStep ul { margin-top: 12px !important; padding-left: 40px !important; }
+.flowStep ul li {
+  position: relative;
+  font-size: 15px;
+  color: var(--grey700);
+}
+.flowStep ul li + li { margin-top: 4px; }
+
+/* ── Experience ── */
+.jobs { margin-top: 24px !important; }
+
+.job { padding: 22px 0; border-bottom: 1px solid var(--grey200); }
+.jobs .job:first-child { padding-top: 0; }
+.jobs .job:last-child { border-bottom: 0; padding-bottom: 0; }
+.section > .job { margin-top: 20px; padding: 0; border: 0; }
+
+.jobHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 2px 12px;
+}
+.jobHead strong { font-size: 19px; font-weight: 700; }
+.jobHead span { font-size: 14px; color: var(--grey500); }
+
+.jobRole { margin-top: 2px !important; font-size: 15px; color: var(--grey600); }
+
+.jobItems { margin-top: 12px !important; }
+.jobItems li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 15px;
+  color: var(--grey800);
+}
+.jobItems li + li { margin-top: 8px; }
+.jobItems li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--grey500);
+}
+
+/* ── Skills ── */
+.skillGroups { display: flex; flex-direction: column; gap: 24px; margin-top: 24px; }
+.skillName { font-size: 14px; font-weight: 600; color: var(--grey600); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px !important; }
+
+.chip,
+.chipNext {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+}
+.chip { background: var(--card); color: var(--grey800); }
+.chipNext { background: var(--orange-soft); color: var(--grey800); }
+.chipNext em { font-style: normal; font-size: 12px; font-weight: 600; color: var(--orange); }
+
+/* ── Footer ── */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px 48px;
+  border-top: 16px solid var(--band);
+  font-size: 14px;
+  color: var(--grey600);
+}
+.footer p { display: flex; flex-direction: column; gap: 2px; }
+.footer strong { font-size: 16px; color: var(--grey900); }
+.footer a { color: var(--grey600); }
+.footLink { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── 모바일 하단 고정 버튼 ── */
+.bottomBar { display: none; }
+
+@media (max-width: 640px) {
+  .hero { padding: 56px 20px 36px; }
+  .heroTitle { font-size: 30px; }
+  .heroDesc { font-size: 16px; }
+  .heroActions { display: none; }
+
+  .stats { grid-template-columns: 1fr; gap: 0; border-radius: 16px; background: var(--card); overflow: hidden; }
+  .stats li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-radius: 0;
+    background: transparent;
+  }
+  .stats li + li { border-top: 1px solid var(--grey200); }
+  .stats strong { margin-top: 0; font-size: 16px; }
+  .stats span { font-size: 14px; }
+
+  .section { padding: 40px 20px; border-top-width: 12px; }
+  .title { font-size: 22px; }
+  .desc { font-size: 15px; }
+
+  .listHead { align-items: flex-start; }
+  .listHead strong { font-size: 16px; }
+
+  .accHead { padding: 18px 20px; }
+  .accText strong { font-size: 16px; }
+  .accBody { padding: 0 20px 20px; }
+  .accBody div { grid-template-columns: 1fr; gap: 2px; }
+  .accBody dt { font-size: 13px; }
+
+  .jobHead strong { font-size: 17px; }
+
+  .footer { padding: 28px 20px calc(120px + env(safe-area-inset-bottom)); border-top-width: 12px; }
+
+  .bottomBar {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(to bottom, transparent, var(--bg) 30%);
+  }
+  .bottomBar .btnPrimary { display: flex; width: 100%; }
+}
+
+/* ── Print: 추천인에게 PDF로 넘길 때 ── */
+@media print {
+  .heroActions, .bottomBar, .chevron { display: none; }
+  .section { border-top: 1px solid #e5e8eb; }
+  .acc, .listItem, .job, .flowStep { break-inside: avoid; }
+}
