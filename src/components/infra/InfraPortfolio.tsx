@@ -229,9 +229,9 @@ export default function InfraPortfolio() {
         <header className={s.hero}>
           <p className={s.heroLabel}>IT 고객 엔지니어 지원 · 툴 컴퓨팅 및 서버 인프라</p>
           <h1 className={s.heroTitle}>
-            장비에 붙은 컴퓨터를
+            코드부터 장비까지
             <br />
-            고치고 지켜온
+            장애 원인을 끝까지 찾는
             <br />
             허정연이에요
           </h1>
