@@ -121,7 +121,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   const isAdminPage = pathname.startsWith('/admin');
   // 직무별 단독 페이지 — 공통 헤더·챗봇·복사 방지 없이 children만 렌더
-  const isStandalonePage = pathname.startsWith('/infra');
+  const isStandalonePage = pathname.startsWith('/infra') || pathname.startsWith('/design');
 
   // body 클래스로 CSS 보호 토글
   useEffect(() => {
