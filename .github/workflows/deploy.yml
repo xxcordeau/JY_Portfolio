@@ -27,8 +27,11 @@ jobs:
       - run: npm ci
 
       # Next.js 정적 빌드 (SSG) + portfolio.txt / sitemap.xml / robots.txt 생성
+      # 타입 검사가 Node 기본 힙(약 2GB)을 넘겨 죽는 일이 있어 한도를 4GB로 올린다.
       - name: Build
         run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
       # ── GitHub Pages 배포 ──
       - name: Setup Pages
