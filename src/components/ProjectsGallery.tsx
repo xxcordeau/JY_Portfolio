@@ -121,13 +121,13 @@ const BackButton = styled.button<{ $isDark: boolean }>`
   gap: 8px;
   padding: 10px 22px;
   background: ${p => p.$isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)'};
-  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
   border-radius: 100px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   font-size: 14px;
   font-weight: 500;
   color: ${p => p.$isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)'};
+  border: none;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
@@ -140,7 +140,6 @@ const BackButton = styled.button<{ $isDark: boolean }>`
 
   &:hover {
     color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)'};
     svg { transform: translateX(-3px); }
   }
 

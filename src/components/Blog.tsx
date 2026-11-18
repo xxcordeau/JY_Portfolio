@@ -52,13 +52,13 @@ const BackButton = styled.button<{ $isDark: boolean }>`
   align-items: center;
   gap: 6px;
   padding: 10px 22px;
-  border: 1px solid ${p => (p.$isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)')};
   border-radius: 100px;
   background: ${p => (p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.7)')};
   color: ${p => (p.$isDark ? '#f5f5f7' : '#1d1d1f')};
   font-size: 14px;
   font-weight: 500;
   font-family: inherit;
+  border: none;
   cursor: pointer;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);

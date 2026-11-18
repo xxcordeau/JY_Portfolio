@@ -53,8 +53,8 @@ const BackButton = styled.button<{ $isDark: boolean }>`
   display: flex;
   align-items: center;
   gap: 8px;
-  background: transparent;
-  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
+  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'};
+  border: none;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   padding: 10px 20px;
   border-radius: 20px;
@@ -219,23 +219,20 @@ const Button = styled.a<{ $isDark: boolean; $variant?: 'primary' | 'secondary' }
   cursor: pointer;
   
   ${props => props.$variant === 'primary' ? `
-    background: ${props.$isDark 
-      ? 'linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%)'
-      : 'linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%)'};
-    color: white;
+    background: ${props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+    color: ${props.$isDark ? '#1d1d1f' : '#ffffff'};
     border: none;
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px ${props.$isDark ? 'rgba(78, 205, 196, 0.3)' : 'rgba(0, 122, 255, 0.3)'};
+      opacity: 0.85;
     }
   ` : `
-    background: transparent;
+    background: ${props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'};
     color: ${props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    border: 1px solid ${props.$isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
+    border: none;
 
     &:hover {
-      background: ${props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'};
+      background: ${props.$isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.09)'};
     }
   `}
 

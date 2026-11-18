@@ -56,8 +56,8 @@ const fadeUp = keyframes`
   to   { opacity: 1; transform: translateY(0); }
 `;
 
-const SubScreen = styled.section<{ $isDark: boolean; $inView: boolean; $align?: 'center' | 'start' }>`
-  min-height: 100vh;
+const SubScreen = styled.section<{ $isDark: boolean; $inView: boolean; $align?: 'center' | 'start'; $fit?: boolean }>`
+  min-height: ${p => p.$fit ? 'auto' : '100vh'};
   scroll-snap-align: start;
   scroll-snap-stop: normal;
   display: flex;
@@ -65,7 +65,7 @@ const SubScreen = styled.section<{ $isDark: boolean; $inView: boolean; $align?: 
   justify-content: center;
   background: ${p => p.$isDark ? '#000' : '#ffffff'};
   transition: background 0.3s ease;
-  padding: ${p => p.$align === 'start' ? '120px 0 80px' : '80px 0'};
+  padding: ${p => p.$fit ? '120px 0' : p.$align === 'start' ? '120px 0 80px' : '80px 0'};
   width: 100%;
 
   opacity: 0;
@@ -286,7 +286,7 @@ const ClientDesc = styled.div<{ $isDark: boolean }>`
   margin-top: 4px;
   font-size: 12px;
   line-height: 1.5;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.45)'};
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)'};
   letter-spacing: -0.1px;
 `;
 
@@ -344,7 +344,7 @@ const TabRow = styled.div<{ $isDark: boolean }>`
   margin-bottom: 36px;
   border-radius: 100px;
   overflow: hidden;
-  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
+  background: ${p => p.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'};
 `;
 
 const Tab = styled.button<{ $isDark: boolean; $active: boolean }>`
@@ -409,10 +409,12 @@ const IconItem = styled.div<{ $isDark: boolean; $faded?: boolean }>`
   box-shadow: ${p => p.$isDark
     ? '0 2px 8px rgba(0,0,0,0.3)'
     : '0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03)'};
-  opacity: ${p => p.$faded ? 0.2 : 1};
-  filter: ${p => p.$faded ? 'grayscale(1)' : 'none'};
+  opacity: ${p => p.$faded ? 0.2 : 0.85};
+  filter: grayscale(1);
 
   &:hover {
+    opacity: 1;
+    filter: none;
     transform: scale(1.15);
     z-index: 10;
     box-shadow: ${p => p.$isDark
@@ -551,14 +553,6 @@ const TimelineTitleRow = styled.div`
   gap: 8px;
 `;
 
-const CompanyLogo = styled.img<{ $isDark: boolean; $isWhiteLogo?: boolean; $darkLogo?: boolean }>`
-  height: 16px;
-  object-fit: contain;
-  flex-shrink: 0;
-  filter: ${p => (p.$isWhiteLogo && !p.$isDark) || (p.$darkLogo && p.$isDark) ? 'invert(1)' : 'none'};
-  opacity: 0.7;
-`;
-
 const TimelineTitle = styled.div<{ $isDark: boolean }>`
   font-size: 16px;
   font-weight: 600;
@@ -568,22 +562,22 @@ const TimelineTitle = styled.div<{ $isDark: boolean }>`
 
 const TimelinePeriod = styled.span<{ $isDark: boolean }>`
   font-size: 12px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)'};
   font-weight: 500;
   white-space: nowrap;
   flex-shrink: 0;
 `;
 
-const TimelineSub = styled.div`
+const TimelineSub = styled.div<{ $isDark: boolean }>`
   font-size: 13px;
-  color: #86868b;
+  color: ${p => p.$isDark ? '#a1a1a6' : '#6e6e73'};
   margin-bottom: 8px;
 `;
 
-const TimelineDesc = styled.p`
-  font-size: 13px;
-  color: #86868b;
-  line-height: 1.65;
+const TimelineDesc = styled.p<{ $isDark: boolean }>`
+  font-size: 14px;
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.72)' : 'rgba(0,0,0,0.68)'};
+  line-height: 1.7;
   margin: 0 0 8px 0;
 `;
 
@@ -632,7 +626,7 @@ const AchievementList = styled.ul<{ $open: boolean }>`
 
 const AchievementItem = styled.li<{ $isDark: boolean }>`
   font-size: 13px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)'};
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.72)' : 'rgba(0,0,0,0.68)'};
   padding-left: 16px;
   position: relative;
   line-height: 1.7;
@@ -742,23 +736,6 @@ function useReplayInView(ref: React.RefObject<HTMLElement>, threshold = 0.15) {
   return [inView, animKey] as [boolean, number];
 }
 
-const COMPANY_LOGOS: Record<string, { src: string; white?: boolean; dark?: boolean }> = {
-  '윈앤티켓': { src: '/logos/winnticket.png' },
-  'WinnTicket': { src: '/logos/winnticket.png' },
-  'SnapClub': { src: '/logos/snapclub.webp', white: true },
-  '동훈아이텍': { src: '/logos/donghun.png', dark: true },
-  'Donghun': { src: '/logos/donghun.png', dark: true },
-  '통인익스프레스': { src: '/logos/tongin.png' },
-  'Tongin Express': { src: '/logos/tongin.png' },
-};
-
-function findCompanyLogo(name: string) {
-  for (const key of Object.keys(COMPANY_LOGOS)) {
-    if (name.includes(key)) return COMPANY_LOGOS[key];
-  }
-  return null;
-}
-
 const CLIENTS: { name: string; logo: string; white?: boolean; dark?: boolean; desc: { ko: string; en: string } }[] = [
   { name: 'WinnTicket', logo: '/logos/winnticket.png', desc: { ko: '공연·레저 티켓 예매', en: 'Event ticket booking' } },
   { name: 'SnapClub', logo: '/logos/snapclub.webp', white: true, desc: { ko: '호주 포토부스 키오스크', en: 'Photo booth kiosk in Australia' } },
@@ -837,6 +814,7 @@ export default function About() {
       {/* ── Screen 2: Skills ── */}
       <SubScreen
         id="skills"
+        $fit
         $isDark={isDark}
         $inView={skillsInView}
         ref={skillsRef as React.RefObject<HTMLElement>}
@@ -905,6 +883,7 @@ export default function About() {
       {/* ── Screen 3: Clients ── */}
       <SubScreen
         id="clients"
+        $fit
         $isDark={isDark}
         $inView={clientsInView}
         ref={clientsRef as React.RefObject<HTMLElement>}
@@ -972,17 +951,13 @@ export default function About() {
                     <TimelineContent>
                       <TimelineHeader>
                         <TimelineTitleRow>
-                          {(() => {
-                            const logo = findCompanyLogo(exp.company.ko);
-                            return logo ? <CompanyLogo src={logo.src} alt="" $isDark={isDark} $isWhiteLogo={logo.white} $darkLogo={logo.dark} /> : null;
-                          })()}
                           <TimelineTitle $isDark={isDark}>{exp.company[language]}</TimelineTitle>
                         </TimelineTitleRow>
                         <TimelinePeriod $isDark={isDark}>{exp.period}</TimelinePeriod>
                       </TimelineHeader>
-                      <TimelineSub>{exp.position[language]}</TimelineSub>
+                      <TimelineSub $isDark={isDark}>{exp.position[language]}</TimelineSub>
                       {exp.description[language] && (
-                        <TimelineDesc>{exp.description[language]}</TimelineDesc>
+                        <TimelineDesc $isDark={isDark}>{exp.description[language]}</TimelineDesc>
                       )}
                       {exp.achievements[language].length > 0 && (
                         <>
@@ -1035,9 +1010,9 @@ export default function About() {
                         <TimelineTitle $isDark={isDark}>{edu.school[language]}</TimelineTitle>
                         <TimelinePeriod $isDark={isDark}>{edu.period}</TimelinePeriod>
                       </TimelineHeader>
-                      <TimelineSub>{edu.degree[language]} · {edu.major[language]}</TimelineSub>
+                      <TimelineSub $isDark={isDark}>{edu.degree[language]} · {edu.major[language]}</TimelineSub>
                       {edu.description[language] && (
-                        <TimelineDesc>{edu.description[language]}</TimelineDesc>
+                        <TimelineDesc $isDark={isDark}>{edu.description[language]}</TimelineDesc>
                       )}
                     </TimelineContent>
                   </TimelineItem>

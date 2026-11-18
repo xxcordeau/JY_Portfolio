@@ -4,6 +4,8 @@
  */
 
 const _DV = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons';
+// 버전 없는 devicon 경로의 AWS 로고가 403을 반환해서, 받아지는 버전(v2.15.1)에 고정한다.
+const _DV_AWS = 'https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/icons';
 const _SI = 'https://cdn.simpleicons.org';
 
 export const TECH_ICONS: Record<string, string> = {
@@ -101,8 +103,8 @@ export const TECH_ICONS: Record<string, string> = {
   'Docker':             `${_DV}/docker/docker-original.svg`,
   'Kubernetes':         `${_DV}/kubernetes/kubernetes-plain.svg`,
   'Terraform':          `${_DV}/terraform/terraform-original.svg`,
-  'AWS':                `${_DV}/amazonwebservices/amazonwebservices-plain-wordmark.svg`,
-  'AWS S3':             `${_DV}/amazonwebservices/amazonwebservices-plain-wordmark.svg`,
+  'AWS':                `${_DV_AWS}/amazonwebservices/amazonwebservices-plain-wordmark.svg`,
+  'AWS S3':             `${_DV_AWS}/amazonwebservices/amazonwebservices-plain-wordmark.svg`,
   'GCP':                `${_DV}/googlecloud/googlecloud-original.svg`,
   'Azure':              `${_DV}/azure/azure-original.svg`,
   'Vercel':             `${_DV}/vercel/vercel-original.svg`,

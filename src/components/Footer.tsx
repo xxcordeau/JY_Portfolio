@@ -1,8 +1,6 @@
 'use client';
 
 import styled from 'styled-components';
-import { Shield } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -21,40 +19,6 @@ const FooterContainer = styled.footer<{ $isDark: boolean }>`
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-`;
-
-const AdminButton = styled.button<{ $isDark: boolean }>`
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
-  border-radius: 8px;
-  color: #86868b;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-
-  &:hover {
-    background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'};
-    color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  }
-
-  svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  @media (max-width: 768px) {
-    position: static;
-    margin: 0 auto 20px;
-  }
 `;
 
 const FooterContent = styled.div`
@@ -149,14 +113,9 @@ export default function Footer({ onContactClick }: FooterProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
   const t = translations[language];
-  const router = useRouter();
 
   return (
     <FooterContainer $isDark={isDark}>
-      <AdminButton $isDark={isDark} onClick={() => router.push('/admin')}>
-        <Shield />
-        Admin
-      </AdminButton>
       <Container>
         <FooterContent>
           <Copyright>{t.copyright}</Copyright>

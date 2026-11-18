@@ -35,9 +35,6 @@ const Capsule = styled.nav<{ $isDark: boolean }>`
     : 'rgba(255, 255, 255, 0.85)'};
   backdrop-filter: blur(24px) saturate(1.8);
   -webkit-backdrop-filter: blur(24px) saturate(1.8);
-  border: 1px solid ${p => p.$isDark
-    ? 'rgba(255, 255, 255, 0.08)'
-    : 'rgba(0, 0, 0, 0.06)'};
   box-shadow: ${p => p.$isDark
     ? '0 4px 24px rgba(0, 0, 0, 0.4)'
     : '0 4px 24px rgba(0, 0, 0, 0.06)'};

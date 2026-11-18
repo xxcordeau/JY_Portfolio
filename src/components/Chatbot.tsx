@@ -161,11 +161,11 @@ const CategoryButton = styled.button<{ $isDark: boolean }>`
   width: 100%;
   padding: 14px 18px;
   background: ${props => props.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'};
   border-radius: 16px;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   font-size: 14px;
   font-weight: 500;
+  border: none;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -176,7 +176,6 @@ const CategoryButton = styled.button<{ $isDark: boolean }>`
 
   &:hover {
     background: ${props => props.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
-    border-color: ${props => props.$isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.12)'};
   }
 
   &:active {
@@ -196,11 +195,11 @@ const QuestionButton = styled.button<{ $isDark: boolean }>`
   width: 100%;
   padding: 12px 16px;
   background: ${props => props.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'};
   border-radius: 14px;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   font-size: 13.5px;
   font-weight: 400;
+  border: none;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
@@ -210,7 +209,6 @@ const QuestionButton = styled.button<{ $isDark: boolean }>`
 
   &:hover {
     background: ${props => props.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
-    border-color: ${props => props.$isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.12)'};
   }
 
   &:active {
@@ -242,7 +240,7 @@ const ToggleButton = styled.button<{ $isDark: boolean; $isOpen: boolean }>`
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
+  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -258,7 +256,6 @@ const ToggleButton = styled.button<{ $isDark: boolean; $isOpen: boolean }>`
 
   &:hover {
     transform: scale(1.02);
-    border-color: ${props => props.$isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)'};
   }
 
   &:active {

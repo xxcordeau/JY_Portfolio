@@ -99,42 +99,6 @@ const SnapWrap = styled.div<{ $inView: boolean; $snap: boolean }>`
   }
 `;
 
-/* Floating admin access button — fixed bottom-left */
-export const AdminFloatBtn = styled.button<{ $isDark: boolean }>`
-  position: fixed;
-  bottom: 24px;
-  left: 24px;
-  z-index: 900;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'};
-  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
-  border-radius: 100px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)'};
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  &:hover {
-    background: ${p => p.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)'};
-    color: ${p => p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'};
-  }
-
-  svg { width: 13px; height: 13px; }
-
-  @media (max-width: 768px) {
-    bottom: 16px;
-    left: 16px;
-    padding: 7px 12px;
-  }
-`;
-
 export function SnapSection({ children, snap = true, id }: { children: ReactNode; snap?: boolean; id?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(() => getPopNav());

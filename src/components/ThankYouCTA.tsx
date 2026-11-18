@@ -139,10 +139,9 @@ const ContactBtn = styled.button<{ $isDark: boolean }>`
 `;
 
 const GithubBtn = styled.a<{ $isDark: boolean }>`
-  padding: 12px 28px;
-  border-radius: 100px;
+  padding: 12px 4px;
   background: transparent;
-  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
+  border: none;
   color: ${p => p.$isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)'};
   font-size: 14px;
   font-weight: 500;
@@ -161,9 +160,7 @@ const GithubBtn = styled.a<{ $isDark: boolean }>`
   }
 
   &:hover {
-    background: ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'};
     color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)'};
   }
 
   @media (prefers-reduced-motion: reduce) {

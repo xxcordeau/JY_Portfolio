@@ -258,12 +258,12 @@ const DirectEmailButton = styled.a<{ $isDark: boolean }>`
   background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   text-decoration: none;
-  border: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
   border-radius: 12px;
   font-size: 15px;
   font-weight: 500;
   transition: all 0.2s ease;
   letter-spacing: -0.2px;
+  border: none;
   cursor: pointer;
   text-align: center;
 

@@ -61,11 +61,11 @@ const BackButton = styled.button<{ $isDark: boolean }>`
   left: 40px;
   background: ${props => props.$isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)'};
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
   padding: 10px 22px;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 500;
+  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -77,7 +77,6 @@ const BackButton = styled.button<{ $isDark: boolean }>`
   font-family: inherit;
 
   &:hover {
-    border-color: ${props => props.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)'};
   }
 
   @media (max-width: 768px) {
@@ -422,8 +421,8 @@ const CodeLanguage = styled.span`
 `;
 
 const CopyButton = styled.button<{ $isDark: boolean }>`
-  background: transparent;
-  border: 1px solid ${props => props.$isDark ? '#3d3d3d' : '#c5c5c7'};
+  background: ${props => props.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'};
+  border: none;
   color: ${props => props.$isDark ? '#a1a1a6' : '#1d1d1f'};
   padding: 6px 12px;
   border-radius: 8px;

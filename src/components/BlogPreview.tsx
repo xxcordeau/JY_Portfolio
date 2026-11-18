@@ -187,7 +187,7 @@ const PostTitle = styled.h3<{ $isDark: boolean }>`
 const PostInfo = styled.span<{ $isDark: boolean }>`
   display: block;
   font-size: 12px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'};
+  color: ${p => p.$isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)'};
   margin-top: 3px;
   font-weight: 400;
 `;
@@ -237,9 +237,8 @@ const ViewAllBottom = styled.div`
 
 const ViewAllButton = styled.button<{ $isDark: boolean }>`
   background: none;
-  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
-  padding: 12px 32px;
-  border-radius: 100px;
+  border: none;
+  padding: 12px 4px;
   font-size: 14px;
   font-weight: 500;
   color: ${p => p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)'};
@@ -254,7 +253,6 @@ const ViewAllButton = styled.button<{ $isDark: boolean }>`
 
   &:hover {
     color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    border-color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)'};
     svg { transform: translateX(3px); }
   }
 `;

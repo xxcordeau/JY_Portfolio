@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTheme } from '../../contexts/ThemeContext';
-import { Shield } from 'lucide-react';
 import Header from '../Header';
 import ScrollDot from '../ScrollDot';
 import Contact from '../Contact';
@@ -11,7 +10,6 @@ import Chatbot from '../Chatbot';
 import {
   GlobalStyle,
   AppContainer,
-  AdminFloatBtn,
   setPopNav,
 } from './shared';
 import { ContactModalContext } from './ContactModalContext';
@@ -188,10 +186,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
             onOpenChange={setContactModalOpen}
           />
           <Chatbot onContactClick={() => setContactModalOpen(true)} />
-          <AdminFloatBtn $isDark={isDark} onClick={() => router.push('/admin')}>
-            <Shield />
-            Admin
-          </AdminFloatBtn>
         </>
       )}
     </ContactModalContext.Provider>

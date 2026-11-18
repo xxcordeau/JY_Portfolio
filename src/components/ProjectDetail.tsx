@@ -31,11 +31,11 @@ const BackButton = styled.button<{ $isDark: boolean }>`
   left: 40px;
   background: ${props => props.$isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)'};
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)'};
   padding: 12px 24px;
   border-radius: 100px;
   font-size: 14px;
   font-weight: 500;
+  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -150,10 +150,10 @@ const LinkButton = styled.a<{ $isDark: boolean }>`
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: transparent;
+  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'};
+  border: none;
   color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
   text-decoration: none;
-  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)'};
   border-radius: 100px;
   font-size: 14px;
   font-weight: 500;

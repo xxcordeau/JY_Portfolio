@@ -55,7 +55,6 @@ const CAREERS: Career[] = [
         ],
         results: [
           '화면마다 달랐던 UI를 하나의 규칙으로 통일',
-          '새 화면 제작 속도 약 2배 향상',
           '현대모비스, 현대오토에버, 현대케피코 납품 및 운영',
         ],
         tools: 'Figma, Vue',
