@@ -604,7 +604,9 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
   let codeBlockCounter = 0;
 
   const renderPostContent = () => {
-    const dbContent = language === 'ko' ? dbPost?.content_ko : dbPost?.content_en;
+    // 페이지 상단에 제목이 이미 크게 나오므로, 본문 맨 앞의 H1(# 제목)은 빼고 보여준다.
+    const dbContent = (language === 'ko' ? dbPost?.content_ko : dbPost?.content_en)
+      ?.replace(/^\s*#\s+[^\n]*\n+/, '');
     if (dbContent && dbContent.trim().length > 0) {
       codeBlockCounter = 0;
       return (
