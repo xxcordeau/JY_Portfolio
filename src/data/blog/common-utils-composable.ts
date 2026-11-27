@@ -7,8 +7,8 @@ export const commonUtilsComposable: BlogPost = {
     en: 'Common Utility/Composable Separation Case Study'
   },
   excerpt: {
-    ko: 'i18n 처리, 권한 체크, 파일 포맷, 아이콘 스타일 등 중복 로직을 명시적 함수 호출 가능한 유틸/컴포저블로 분리한 경험을 공유합니다.',
-    en: 'Sharing experience of separating duplicate logic like i18n handling, permission checks, file formats, and icon styles into explicitly callable utils/composables.'
+    ko: 'i18n 처리, 권한 체크, 파일 포맷, 아이콘 스타일처럼 화면마다 중복되던 로직을 명시적으로 호출하는 유틸/컴포저블로 분리한 기록이에요.',
+    en: 'How I pulled duplicated logic (i18n handling, permission checks, file formats, icon styles) out of individual screens into explicitly called utils and composables.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const commonUtilsComposable: BlogPost = {
     en: '9 min'
   },
   tags: ['Vue', 'Composable', 'Utils', 'Code Quality'],
-  thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/common-utils-composable.png',
   component: 'CommonUtilsPost'
 };

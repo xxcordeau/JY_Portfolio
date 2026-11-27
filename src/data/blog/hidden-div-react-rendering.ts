@@ -7,8 +7,8 @@ export const hiddenDivReactRendering: BlogPost = {
     en: 'The Hidden Div Strikes Back, or Why CSS hidden Isn\'t Conditional Rendering in React'
   },
   excerpt: {
-    ko: 'className="hidden"으로 숨긴 컴포넌트가 여전히 JS를 실행하고 있었어요. display:none과 조건부 렌더링의 차이를 정리했습니다.',
-    en: 'A component hidden with className="hidden" was still executing JavaScript. Clarifying the difference between display:none and conditional rendering.'
+    ko: 'className="hidden"으로 숨긴 컴포넌트가 여전히 JS를 실행하고 있었어요. display:none과 조건부 렌더링이 어떻게 다른지 정리했어요.',
+    en: 'A component hidden with className="hidden" was still running JavaScript. Here is how display:none differs from conditional rendering.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const hiddenDivReactRendering: BlogPost = {
     en: '4 min'
   },
   tags: ['React', 'JSX', '렌더링'],
-  thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/hidden-div-react-rendering.png',
   component: 'HiddenDivPost'
 };

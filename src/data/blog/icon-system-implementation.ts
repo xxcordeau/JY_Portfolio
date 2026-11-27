@@ -7,8 +7,8 @@ export const iconSystemImplementation: BlogPost = {
     en: 'Global Icon System Implementation Experience'
   },
   excerpt: {
-    ko: '수십 개 화면에 걸친 아이콘의 색상, 크기, 상태를 일관되게 관리하기 위한 메타데이터 기반 전역 아이콘 시스템 구축 경험을 공유합니다.',
-    en: 'Sharing experience of building a metadata-based global icon system to consistently manage colors, sizes, and states of icons across dozens of screens.'
+    ko: '수십 개 화면에 걸친 아이콘의 색상, 크기, 상태를 한곳에서 관리하려고 메타데이터 기반 전역 아이콘 시스템을 만든 경험이에요.',
+    en: 'How I built a metadata-based global icon system to keep icon colors, sizes, and states consistent across dozens of screens.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const iconSystemImplementation: BlogPost = {
     en: '6 min'
   },
   tags: ['Vue', 'Design System', 'Icons', 'UI Consistency'],
-  thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/icon-system-implementation.png',
   component: 'IconSystemPost'
 };

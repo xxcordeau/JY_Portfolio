@@ -7,8 +7,8 @@ export const rolePermissionSystem: BlogPost = {
     en: 'Role-Based Access Control System'
   },
   excerpt: {
-    ko: '사용자 역할에 따른 페이지/기능 접근 제어를 중앙 composable로 통합하여 일관된 권한 관리를 구현한 경험을 공유합니다.',
-    en: 'Sharing experience of implementing consistent permission management by integrating page/feature access control based on user roles into a central composable.'
+    ko: '역할마다 다른 페이지/기능 접근 조건을 중앙 composable 하나로 모아 라우터, UI, API가 같은 권한 로직을 쓰게 만든 과정이에요.',
+    en: 'How I pulled role-based page and feature access checks into one central composable so the router, UI, and API calls all share the same permission logic.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const rolePermissionSystem: BlogPost = {
     en: '8 min'
   },
   tags: ['Vue', 'Security', 'Access Control', 'Authorization'],
-  thumbnail: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/role-permission-system.png',
   component: 'RolePermissionPost'
 };

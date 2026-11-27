@@ -7,8 +7,8 @@ export const treeStructureManagement: BlogPost = {
     en: 'Tree-Based User/Asset Management UI Implementation Experience'
   },
   excerpt: {
-    ko: 'Lazy-loading, 자동 확장, 양방향 동기화가 필요한 복잡한 트리 UI를 구현하며 배운 상태 관리 전략을 공유합니다.',
-    en: 'Sharing state management strategies learned while implementing complex tree UI with Lazy-loading, auto-expansion, and bi-directional synchronization.'
+    ko: 'Lazy-loading, 자동 확장, 양방향 동기화가 얽힌 트리 UI를 만들면서 노드 상태를 어떻게 나눠 관리했는지 정리했어요.',
+    en: 'Notes from building a tree UI that needed lazy-loading, auto-expansion, and two-way sync, and how I split state per node to keep it under control.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const treeStructureManagement: BlogPost = {
     en: '8 min'
   },
   tags: ['Vue', 'State Management', 'Tree UI', 'Performance'],
-  thumbnail: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/tree-structure-management.png',
   component: 'TreeManagementPost'
 };

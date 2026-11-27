@@ -7,8 +7,8 @@ export const reactPageRefactoring: BlogPost = {
     en: 'React Page Structure Refactoring and Code Splitting Experience'
   },
   excerpt: {
-    ko: '73개의 페이지 파일이 뒤섞인 구조를 도메인 기반으로 재편하고, React.lazy + Suspense로 초기 번들을 79% 줄인 경험을 공유합니다.',
-    en: 'Reorganized 73 mixed page files into domain-based structure and reduced initial bundle by 79% with React.lazy + Suspense.'
+    ko: '페이지 파일 73개가 뒤섞여 있던 구조를 도메인 기준으로 다시 나누고, React.lazy와 Suspense로 초기 번들을 79% 줄인 과정이에요.',
+    en: 'I reorganized 73 mixed page files by domain and cut the initial bundle by 79% with React.lazy and Suspense.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const reactPageRefactoring: BlogPost = {
     en: '8 min'
   },
   tags: ['React', 'TypeScript', 'Vite', 'Code Splitting', 'Refactoring'],
-  thumbnail: 'https://images.unsplash.com/photo-1618477388954-7852f32655ec?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/react-page-refactoring.png',
   component: 'ReactPageRefactoringPost'
 };

@@ -12,43 +12,37 @@ export const ViewStatePost = ({ language }: PostProps) => {
   if (language === 'ko') {
     return (
       <Content>
-        <h1>에러/로딩/빈 상태 UI의 전역 표준화</h1>
-        
-        <p><strong>스택:</strong> Nuxt 3, Vue 3, TypeScript, Ant Design Vue</p>
-        
-        <p><strong>원칙:</strong> 전역 컴포넌트 + 경량 composable + 명시적 함수 호출(arrow only) + onMounted 초기 순서 고정</p>
-        
+        <p>Nuxt 3, Vue 3, TypeScript, Ant Design Vue 환경에서 작업했어요. 원칙은 전역 컴포넌트와 가벼운 composable을 쓰고, 상태는 명시적 함수 호출(arrow 함수만)로 바꾸고, onMounted에서 초기 순서를 고정하는 것이었어요.</p>
+
         <h2>원인</h2>
-        
-        <p>각 화면에서 로딩·에러·빈 상태를 제각각 구현하면서 UX는 들쭉날쭉하고, 코드 복붙이 늘어났어요.</p>
-        
-        <p>특히 에러 핸들링 구조가 불균형해 운영 단계에서 혼선이 컸습니다.</p>
-        
+
+        <p>화면마다 로딩, 에러, 빈 상태를 따로 구현하다 보니 UX가 들쭉날쭉했고 복붙한 코드도 늘어났어요. 에러 처리 구조가 화면마다 달라서 운영할 때 혼선이 컸어요.</p>
+
         <ul>
-          <li>페이지/테이블/카드마다 <strong>로딩/에러/빈 상태 UI</strong>가 제각각 → UX 불일관, 중복 코드 증가</li>
-          <li>컴포넌트마다 <code>try/catch</code>와 스피너/경고문 복붙 → <strong>수정 비용↑</strong></li>
-          <li>일부 화면은 빈 상태에서 <strong>다음 액션(추가/불러오기/필터 해제)</strong> 가이드 부재 → 전환율 저하</li>
-          <li>에러 메시지 문구/에러코드 처리/재시도 버튼 정책이 페이지마다 달라 <strong>운영 혼선</strong></li>
+          <li>페이지, 테이블, 카드마다 로딩/에러/빈 상태 UI가 달라서 UX가 맞지 않고 중복 코드가 늘었어요.</li>
+          <li>컴포넌트마다 <code>try/catch</code>와 스피너, 경고문을 복붙해 둬서 하나를 고치려면 여러 파일을 손대야 했어요.</li>
+          <li>일부 화면은 빈 상태에서 다음 액션(추가, 불러오기, 필터 해제) 안내가 없어서 전환율이 떨어졌어요.</li>
+          <li>에러 문구, 에러코드 처리, 재시도 버튼 정책이 페이지마다 달라 운영 중에 헷갈렸어요.</li>
         </ul>
-        
-        <p>이로인해 어디서나 같은 경험을 보장하는 <strong>전역 상태 뷰 표준</strong>과 <strong>경량 API</strong> 확립을 하고자 했어요.</p>
-        
+
+        <p>그래서 어느 화면에서든 같은 경험을 주는 전역 상태 뷰 표준과 가벼운 API를 만들기로 했어요.</p>
+
         <h2>과정과 문제 탐색</h2>
-        
-        <p>데이터 상태 관리와 UI 표현을 분리하고, 로딩→호출→표시 순서를 <code>onMounted</code>에서 명시적으로 고정했습니다. watch 의존은 제거하고, 모든 상태 전환을 명시적 함수로 제어했어요</p>
-        
+
+        <p>데이터 상태 관리와 UI 표현을 나누고, 로딩, 호출, 표시 순서를 <code>onMounted</code>에서 명시적으로 고정했어요. watch 의존은 없애고 상태 전환은 모두 명시적 함수로 처리했어요.</p>
+
         <ul>
-          <li>화면별로 섞여 있던 상태 분기를 <strong>표준 상태 모델</strong>로 통합</li>
-          <li>상태 렌더는 전역 컴포넌트로, <strong>데이터 로딩 흐름</strong>은 composable로 분리</li>
-          <li>onMounted에서 <strong>초기 순서(설정→호출→표시)</strong>를 고정하고, 상태 전환은 <strong>명시적 함수</strong>로만</li>
+          <li>화면별로 섞여 있던 상태 분기를 표준 상태 모델 하나로 합쳤어요.</li>
+          <li>상태 렌더링은 전역 컴포넌트가, 데이터 로딩 흐름은 composable이 맡도록 나눴어요.</li>
+          <li>onMounted에서 초기 순서(설정, 호출, 표시)를 고정하고, 상태는 명시적 함수로만 바꾸게 했어요.</li>
         </ul>
-        
+
         <h2>해결 방안</h2>
-        
+
         <h3>a. 상태 모델 표준화</h3>
-        
-        <p>페이지마다 다른 로딩·에러·빈 분기를 통일하기 위해 <code>ViewPhase</code>라는 단일 상태 흐름을 정의했어요.</p>
-        
+
+        <p>페이지마다 다른 로딩, 에러, 빈 분기를 통일하려고 <code>ViewPhase</code>라는 단일 상태 흐름을 정의했어요.</p>
+
         <pre><code>{`// types/view-state.ts
 export type ViewPhase = 'idle' | 'loading' | 'success' | 'empty' | 'error'
 
@@ -57,11 +51,11 @@ export interface ViewState<T> {
   data: T | null
   error: { code?: string; message: string } | null
 }`}</code></pre>
-        
+
         <h3>b. 공통 composable</h3>
-        
-        <p>상태 변경 로직을 composable 하나로 통합하고, 명시적 호출만 허용 후 내부에서 상태 객체를 완전히 교체하도록 했어요.</p>
-        
+
+        <p>상태 변경 로직을 composable 하나에 모았어요. 명시적 호출만 허용하고, 호출할 때마다 내부에서 상태 객체를 통째로 교체해요.</p>
+
         <pre><code>{`// composables/useViewState.ts
 import { ref } from 'vue'
 
@@ -77,17 +71,17 @@ export const useViewState = <T>() => {
 
   return { state, setLoading, setSuccess, setEmpty, setError }
 }`}</code></pre>
-        
-        <p><code>state.phase</code>를 기준으로 뷰를 렌더링하고, <code>setLoading(),setSuccess(),setError()</code> 등으로만 상태를 바꾸게 됩니다. <code>watch</code>가 사라지면서 코드 가독성과 제어력이 좋아졌어요.</p>
-        
+
+        <p>뷰는 <code>state.phase</code>를 보고 렌더링하고, 상태는 <code>setLoading(),setSuccess(),setError()</code> 같은 함수로만 바꿔요. <code>watch</code>가 빠지니 코드를 읽기 쉬워졌고, 상태가 언제 바뀌는지 따라가기도 편해졌어요.</p>
+
         <h3>c. 전역 상태 컴포넌트 3종</h3>
-        
-        <p>페이지별로 제각각 쓰이던 로딩/에러/빈 UI를 전역화하여 <strong>사용자가 어디서든 같은 피드백을 받도록</strong> 정리했습니다.</p>
-        
+
+        <p>페이지마다 따로 쓰던 로딩/에러/빈 UI를 전역 컴포넌트로 만들어서, 사용자가 어디서든 같은 피드백을 받도록 했어요.</p>
+
         <h4>(1) 스켈레톤(로딩)</h4>
-        
-        <p>단순 스피너 대신 Ant Design의 Skeleton을 래핑했습니다. 화면 크기나 스타일에 맞춰 rows만 다르게 넘기면 될 수 있도록 하였어요</p>
-        
+
+        <p>단순 스피너 대신 Ant Design의 Skeleton을 감쌌어요. 화면 크기나 스타일에 맞춰 rows 값만 다르게 넘기면 돼요.</p>
+
         <pre><code>{`<!-- components/AppSkeleton.vue -->
 <template>
   <a-skeleton :loading="true" active :paragraph="{ rows: rows }" />
@@ -95,11 +89,11 @@ export const useViewState = <T>() => {
 <script setup lang="ts">
 const props = defineProps<{ rows?: number }>()
 </script>`}</code></pre>
-        
+
         <h4>(2) 에러 패널(재시도 포함)</h4>
-        
-        <p>재시도 버튼과 에러 문구 구조를 통일했습니다. (i18n사용)</p>
-        
+
+        <p>재시도 버튼과 에러 문구 구조를 통일했어요. 문구는 i18n으로 관리해요.</p>
+
         <pre><code>{`<!-- components/AppError.vue -->
 <template>
   <a-result status="error" :title="title" :sub-title="subtitle">
@@ -112,11 +106,11 @@ const props = defineProps<{ rows?: number }>()
 const props = defineProps<{ title?: string; subtitle?: string; onRetry: () => void }>()
 const onRetry = () => props.onRetry()
 </script>`}</code></pre>
-        
+
         <h4>(3) 빈 상태(다음 액션 제안)</h4>
-        
-        <p>단순 No data UI로 끝내지 않고, 다음 액션(생성·필터 해제 등)을 바로 안내하도록 설계했어요</p>
-        
+
+        <p>"No data"만 보여주고 끝내지 않고, 생성이나 필터 해제 같은 다음 액션을 바로 안내하도록 만들었어요.</p>
+
         <pre><code>{`<!-- components/AppEmpty.vue -->
 <template>
   <a-result status="info" :title="title" :sub-title="subtitle">
@@ -131,11 +125,11 @@ const onRetry = () => props.onRetry()
 const props = defineProps<{ title?: string; subtitle?: string; onPrimary?: () => void }>()
 const onPrimary = () => props.onPrimary?.()
 </script>`}</code></pre>
-        
+
         <h4>(4) 페이지 패턴 (onMounted로 순서 고정)</h4>
-        
-        <p>각 상태별로 UI가 분리되어 있지만, <strong>로딩 → 데이터 확인 → 성공/빈/에러 분기</strong>의 패턴이 완전히 고정된 구조로 수정하였어요</p>
-        
+
+        <p>상태별 UI는 컴포넌트로 나뉘어 있지만, 페이지에서는 로딩, 데이터 확인, 성공/빈/에러 분기 순서를 늘 같은 구조로 고정했어요.</p>
+
         <pre><code>{`<!-- pages/Logs.vue (요지) -->
 <script setup lang="ts">
 import { useViewState } from '@/composables/useViewState'
@@ -181,69 +175,61 @@ onMounted(async () => { await load() })
     <LogTable :rows="state.data!.items" />
   </div>
 </template>`}</code></pre>
-        
+
         <h3>d. 테이블/카드/모달 어디서나 동일 패턴</h3>
-        
-        <p><strong>결과적으로</strong> 상태 렌더링이 완전히 일관되기 시작했습니다.</p>
-        
+
+        <p>이렇게 바꾸고 나니 상태를 렌더링하는 방식이 화면마다 같아졌어요.</p>
+
         <ul>
-          <li><strong>테이블</strong>: 데이터 없음 → <code>&lt;AppEmpty&gt;</code>로 "필터 초기화"/"새로 만들기" 제안</li>
-          <li><strong>카드 그리드</strong>: API 실패 → <code>&lt;AppError onRetry=…&gt;</code>로 즉시 재시도</li>
-          <li><strong>모달</strong>: 제출 중 → <code>&lt;AppSkeleton rows=2&gt;</code>로 피드백</li>
+          <li>테이블: 데이터가 없으면 빈 상태 컴포넌트로 "필터 초기화"나 "새로 만들기"를 제안해요.</li>
+          <li>카드 그리드: API 호출이 실패하면 에러 패널에서 바로 재시도할 수 있어요.</li>
+          <li>모달: 제출 중에는 로딩 상태로 피드백을 줘요.</li>
         </ul>
-        
-        <p>모든 UI 단위가 동일한 로직 패턴을 따르기 때문에 유지보수 시 상태 흐름을 따로 고민할 일이 사라지게 되었어요.</p>
-        
-        <h2>결과</h2>
-        
-        <p>중복 코드를 대폭 감소하고 UX 일관성 확보와 전환율 개선으로 운영 효율이 올라갔다고 판단하였습니다.</p>
-        
-        <h2>배운 점</h2>
-        
-        <p>에러 문구·재시도·가이드 액션을 <strong>정책으로 표준화</strong>하면서, 기능보다 먼저 <strong>UX 품질을 높이는 구조적 개선</strong>의 중요성을 다시 느꼈어요. 이 패턴 이후로 새 페이지를 만들 때마다 <strong>상태 설계</strong>부터 생각하게 되는 계기가 되었습니다.</p>
+
+        <p>모든 UI 단위가 같은 로직 패턴을 따르니까, 유지보수할 때 상태 흐름을 따로 고민할 일이 없어졌어요.</p>
+
+        <h2>정리</h2>
+
+        <p>중복 코드가 크게 줄었고, UX가 일관되고 전환율도 나아져서 운영 효율이 올라갔다고 판단했어요.</p>
+
+        <p>에러 문구, 재시도, 가이드 액션을 정책으로 정해 두면서, 기능을 더하기 전에 구조부터 손보는 쪽이 UX 품질에 더 도움이 된다는 걸 다시 느꼈어요. 이 작업 이후로는 새 페이지를 만들 때 상태 설계부터 해요.</p>
       </Content>
     );
   }
 
   return (
     <Content>
-      <h1>Global Standardization of Error/Loading/Empty State UI</h1>
-      
-      <p><strong>Stack:</strong> Nuxt 3, Vue 3, TypeScript, Ant Design Vue</p>
-      
-      <p><strong>Principles:</strong> Global components + lightweight composable + explicit function calls (arrow only) + fixed onMounted initial order</p>
-      
+      <p>I built this on Nuxt 3, Vue 3, TypeScript, and Ant Design Vue. The ground rules were global components, a lightweight composable, explicit function calls (arrow functions only) for state changes, and a fixed initial order in onMounted.</p>
+
       <h2>Background</h2>
-      
-      <p>As each screen implemented loading, error, and empty states inconsistently, UX became uneven and code duplication increased.</p>
-      
-      <p>Especially, the imbalanced error handling structure caused confusion at the operational stage.</p>
-      
+
+      <p>Each screen implemented loading, error, and empty states its own way, so the UX was uneven and copy-pasted code kept piling up. Error handling in particular differed from screen to screen, which caused a lot of confusion once we were in operation.</p>
+
       <ul>
-        <li><strong>Loading/error/empty state UI</strong> inconsistent across pages/tables/cards → Inconsistent UX, increased duplicate code</li>
-        <li><code>try/catch</code> and spinner/warning duplication in each component → <strong>High modification cost↑</strong></li>
-        <li>Some screens lacked <strong>next action guides (add/reload/clear filter)</strong> in empty state → Lower conversion rate</li>
-        <li>Error message wording/error code handling/retry button policies varied by page → <strong>Operational confusion</strong></li>
+        <li>Pages, tables, and cards each had their own loading/error/empty UI, so the UX didn't match and duplicate code grew.</li>
+        <li>Every component repeated the same <code>try/catch</code> plus a spinner or warning text, so one change meant touching many files.</li>
+        <li>Some screens gave no hint about the next action (add, reload, clear filters) in the empty state, and conversion suffered.</li>
+        <li>Error wording, error code handling, and retry button rules varied by page, which confused the operations side.</li>
       </ul>
-      
-      <p>This led to the need to establish <strong>global state view standards</strong> and <strong>lightweight APIs</strong> that ensure the same experience everywhere.</p>
-      
-      <h2>Process and Problem Exploration</h2>
-      
-      <p>We separated data state management and UI representation, explicitly fixing the loading→call→display order in <code>onMounted</code>. We removed watch dependencies and controlled all state transitions with explicit functions</p>
-      
+
+      <p>So I set out to build a global standard for state views, with a small API, so users get the same experience everywhere.</p>
+
+      <h2>Process</h2>
+
+      <p>I separated data state management from UI rendering and fixed the order of loading, fetching, and displaying explicitly in <code>onMounted</code>. I dropped the watch dependencies and moved every state transition into explicit functions.</p>
+
       <ul>
-        <li>Integrated state branches scattered across screens into a <strong>standard state model</strong></li>
-        <li>Separated state rendering into global components and <strong>data loading flow</strong> into composables</li>
-        <li>Fixed <strong>initial order (setup→call→display)</strong> in onMounted, state transitions only through <strong>explicit functions</strong></li>
+        <li>Merged the state branches scattered across screens into one standard state model.</li>
+        <li>Global components handle state rendering, and a composable handles the data loading flow.</li>
+        <li>onMounted fixes the initial order (setup, fetch, display), and state only changes through explicit functions.</li>
       </ul>
-      
+
       <h2>Solution</h2>
-      
-      <h3>a. State Model Standardization</h3>
-      
-      <p>To unify different loading, error, and empty branches across pages, we defined a single state flow called <code>ViewPhase</code>.</p>
-      
+
+      <h3>a. Standard state model</h3>
+
+      <p>To unify the different loading, error, and empty branches across pages, I defined a single state flow called <code>ViewPhase</code>.</p>
+
       <pre><code>{`// types/view-state.ts
 export type ViewPhase = 'idle' | 'loading' | 'success' | 'empty' | 'error'
 
@@ -252,11 +238,11 @@ export interface ViewState<T> {
   data: T | null
   error: { code?: string; message: string } | null
 }`}</code></pre>
-      
-      <h3>b. Common Composable</h3>
-      
-      <p>We integrated state change logic into one composable, allowing only explicit calls and completely replacing the state object internally.</p>
-      
+
+      <h3>b. Shared composable</h3>
+
+      <p>All state change logic lives in one composable. Only explicit calls are allowed, and each call replaces the whole state object.</p>
+
       <pre><code>{`// composables/useViewState.ts
 import { ref } from 'vue'
 
@@ -272,17 +258,17 @@ export const useViewState = <T>() => {
 
   return { state, setLoading, setSuccess, setEmpty, setError }
 }`}</code></pre>
-      
-      <p>Views are rendered based on <code>state.phase</code>, and state is changed only through <code>setLoading(),setSuccess(),setError()</code>. With <code>watch</code> removed, code readability and control improved.</p>
-      
-      <h3>c. Three Global State Components</h3>
-      
-      <p>We globalized loading/error/empty UI that was used inconsistently across pages so that <strong>users receive the same feedback everywhere</strong>.</p>
-      
-      <h4>(1) Skeleton (Loading)</h4>
-      
-      <p>We wrapped Ant Design's Skeleton instead of a simple spinner. You can just pass different rows according to screen size or style</p>
-      
+
+      <p>Views render based on <code>state.phase</code>, and state only changes through functions like <code>setLoading(),setSuccess(),setError()</code>. With <code>watch</code> gone, the code is easier to read and it's easier to see when state changes.</p>
+
+      <h3>c. Three global state components</h3>
+
+      <p>I turned the loading, error, and empty UI that each page had built separately into global components, so users get the same feedback wherever they are.</p>
+
+      <h4>(1) Skeleton (loading)</h4>
+
+      <p>Instead of a plain spinner, I wrapped Ant Design's Skeleton. You only pass a different rows value depending on screen size or style.</p>
+
       <pre><code>{`<!-- components/AppSkeleton.vue -->
 <template>
   <a-skeleton :loading="true" active :paragraph="{ rows: rows }" />
@@ -290,11 +276,11 @@ export const useViewState = <T>() => {
 <script setup lang="ts">
 const props = defineProps<{ rows?: number }>()
 </script>`}</code></pre>
-      
-      <h4>(2) Error Panel (with Retry)</h4>
-      
-      <p>We unified the retry button and error message structure. (using i18n)</p>
-      
+
+      <h4>(2) Error panel (with retry)</h4>
+
+      <p>I unified the retry button and the error message structure. Messages go through i18n.</p>
+
       <pre><code>{`<!-- components/AppError.vue -->
 <template>
   <a-result status="error" :title="title" :sub-title="subtitle">
@@ -307,11 +293,11 @@ const props = defineProps<{ rows?: number }>()
 const props = defineProps<{ title?: string; subtitle?: string; onRetry: () => void }>()
 const onRetry = () => props.onRetry()
 </script>`}</code></pre>
-      
-      <h4>(3) Empty State (Suggesting Next Action)</h4>
-      
-      <p>We designed it to guide next actions (create, clear filters, etc.) immediately, not just ending with No data UI</p>
-      
+
+      <h4>(3) Empty state (suggesting the next action)</h4>
+
+      <p>Rather than stopping at a "No data" screen, it points the user straight to the next action, like creating an item or clearing filters.</p>
+
       <pre><code>{`<!-- components/AppEmpty.vue -->
 <template>
   <a-result status="info" :title="title" :sub-title="subtitle">
@@ -326,11 +312,11 @@ const onRetry = () => props.onRetry()
 const props = defineProps<{ title?: string; subtitle?: string; onPrimary?: () => void }>()
 const onPrimary = () => props.onPrimary?.()
 </script>`}</code></pre>
-      
-      <h4>(4) Page Pattern (Order Fixed with onMounted)</h4>
-      
-      <p>Although UI is separated by each state, the pattern of <strong>loading → data check → success/empty/error branch</strong> was modified into a completely fixed structure</p>
-      
+
+      <h4>(4) Page pattern (order fixed in onMounted)</h4>
+
+      <p>The UI for each state lives in its own component, but every page follows the same fixed sequence: loading, checking the data, then branching to success, empty, or error.</p>
+
       <pre><code>{`<!-- pages/Logs.vue (summary) -->
 <script setup lang="ts">
 import { useViewState } from '@/composables/useViewState'
@@ -376,26 +362,24 @@ onMounted(async () => { await load() })
     <LogTable :rows="state.data!.items" />
   </div>
 </template>`}</code></pre>
-      
-      <h3>d. Same Pattern in Tables/Cards/Modals Everywhere</h3>
-      
-      <p><strong>As a result,</strong> state rendering became completely consistent.</p>
-      
+
+      <h3>d. Same pattern in tables, cards, and modals</h3>
+
+      <p>After this, state rendering worked the same way on every screen.</p>
+
       <ul>
-        <li><strong>Table</strong>: No data → <code>&lt;AppEmpty&gt;</code> suggests "Reset filter"/"Create new"</li>
-        <li><strong>Card Grid</strong>: API failure → <code>&lt;AppError onRetry=…&gt;</code> for immediate retry</li>
-        <li><strong>Modal</strong>: During submission → <code>&lt;AppSkeleton rows=2&gt;</code> for feedback</li>
+        <li>Table: when there's no data, the empty state component suggests "Reset filter" or "Create new".</li>
+        <li>Card grid: when the API call fails, the error panel offers an immediate retry.</li>
+        <li>Modal: while submitting, a loading state gives feedback.</li>
       </ul>
-      
-      <p>Since all UI units follow the same logic pattern, there's no need to think about state flow separately during maintenance.</p>
-      
-      <h2>Results</h2>
-      
-      <p>Duplicate code was significantly reduced, UX consistency was secured, and operational efficiency improved through conversion rate improvement.</p>
-      
-      <h2>Key Takeaways</h2>
-      
-      <p>By <strong>standardizing error messages, retries, and guide actions as policies</strong>, I felt again the importance of <strong>structural improvements that enhance UX quality</strong> before features. After this pattern, I started thinking about <strong>state design</strong> first whenever creating a new page.</p>
+
+      <p>Since every UI unit follows the same logic pattern, I no longer have to think about state flow separately during maintenance.</p>
+
+      <h2>Wrap-up</h2>
+
+      <p>Duplicate code dropped a lot, and with consistent UX and better conversion, I judged that operational efficiency went up.</p>
+
+      <p>Turning error messages, retries, and guide actions into policy reminded me that fixing the structure before adding features does a lot for UX quality. Since then, whenever I create a new page, I start with the state design.</p>
     </Content>
   );
 };

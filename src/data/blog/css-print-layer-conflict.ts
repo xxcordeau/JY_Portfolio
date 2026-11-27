@@ -7,8 +7,8 @@ export const cssPrintLayerConflict: BlogPost = {
     en: 'Why the Print Header Wouldn\'t Hide: @media print vs CSS Layers'
   },
   excerpt: {
-    ko: '@layer 안에 작성한 @media print 규칙이 왜 무시되는지, CSS 캐스케이드 레이어의 우선순위 구조를 파헤쳐봤습니다.',
-    en: 'Investigating why @media print rules inside @layer get ignored, and understanding the CSS cascade layer priority structure.'
+    ko: '@layer 안에 쓴 @media print 규칙이 왜 무시되는지, CSS 캐스케이드 레이어의 우선순위 구조를 따라가며 정리했어요.',
+    en: 'Why @media print rules inside @layer get ignored, and how CSS cascade layer priority actually works.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const cssPrintLayerConflict: BlogPost = {
     en: '5 min'
   },
   tags: ['@media print', 'CSS', '@layer', 'React'],
-  thumbnail: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/css-print-layer-conflict.png',
   component: 'CssPrintLayerPost'
 };

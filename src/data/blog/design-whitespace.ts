@@ -7,8 +7,8 @@ export const designWhitespace: BlogPost = {
     en: 'I Used to Be Afraid of Whitespace. Empty Space Isn\'t Really Empty'
   },
   excerpt: {
-    ko: '화면에 빈 공간이 보이면 불안했던 시절이 있었어요. 여백을 \'구분선 없는 구분선\'으로 바라보게 된 과정을 공유합니다.',
-    en: 'There was a time when blank space on screen made me anxious. Sharing how I came to see whitespace as an invisible divider.'
+    ko: '화면에 빈 공간이 보이면 불안했던 때가 있었어요. 여백을 \'구분선 없는 구분선\'으로 보게 된 과정을 적었어요.',
+    en: 'Blank space on screen used to make me anxious. This is how I came to see whitespace as an invisible divider.'
   },
   category: {
     ko: '디자인',
@@ -20,6 +20,6 @@ export const designWhitespace: BlogPost = {
     en: '7 min'
   },
   tags: ['UI Design', 'Whitespace', 'Layout', 'UX'],
-  thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/design-whitespace.png',
   component: 'DesignWhitespacePost'
 };

@@ -7,8 +7,8 @@ export const dynamicStaticImport: BlogPost = {
     en: 'Dynamic vs Static Import Mixing Issues with React.lazy + Suspense'
   },
   excerpt: {
-    ko: 'React.lazy 코드 스플리팅 적용 후 Vite 빌드에서 발생한 dynamic/static import 혼용 경고의 원인과 해결 과정을 공유합니다.',
-    en: 'Sharing the root cause and resolution of dynamic/static import mixing warnings in Vite builds after applying React.lazy code splitting.'
+    ko: 'React.lazy로 코드 스플리팅을 적용한 뒤 Vite 빌드에서 나온 dynamic/static import 혼용 경고의 원인과, 어떤 모듈을 어떻게 나눴는지 정리했어요.',
+    en: 'Why Vite warned about mixed dynamic and static imports after adding React.lazy code splitting, and how I decided which modules to split.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const dynamicStaticImport: BlogPost = {
     en: '6 min'
   },
   tags: ['React', 'Vite', 'Code Splitting', 'Bundling'],
-  thumbnail: 'https://images.unsplash.com/photo-1551033406-611cf9a28f67?w=800&q=80',
+  thumbnail: '/blog-thumbs/dynamic-static-import.png',
   component: 'DynamicStaticImportPost'
 };

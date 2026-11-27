@@ -7,8 +7,8 @@ export const dashboardWidgetSystem: BlogPost = {
     en: 'Modular Dashboard Widget System'
   },
   excerpt: {
-    ko: '여러 독립 모듈이 공존하는 대시보드를 메타 데이터 기반 동적 렌더링과 공통 상태 관리로 구조화한 경험을 공유합니다.',
-    en: 'Sharing experience of structuring a dashboard with multiple independent modules through metadata-based dynamic rendering and common state management.'
+    ko: '여러 독립 모듈이 한 화면에 모이는 대시보드를 메타 데이터 기반 동적 렌더링과 공통 상태 관리로 정리한 과정이에요.',
+    en: 'How I restructured a dashboard full of independent modules around metadata-driven dynamic rendering and shared state handling.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const dashboardWidgetSystem: BlogPost = {
     en: '7 min'
   },
   tags: ['Vue', 'Dashboard', 'Dynamic Components', 'Modular Design'],
-  thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/dashboard-widget-system.png',
   component: 'DashboardWidgetPost'
 };

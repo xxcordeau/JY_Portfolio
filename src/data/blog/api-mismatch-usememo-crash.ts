@@ -7,8 +7,8 @@ export const apiMismatchUsememoCrash: BlogPost = {
     en: 'How an API Response Mismatch Crashed useMemo, and Why undefined Spreads Silently'
   },
   excerpt: {
-    ko: 'API가 배열을 바로 반환하는데 response.data.content로 접근하면 undefined가 됩니다. 그 undefined가 useMemo까지 전파되어 크래시를 일으킨 과정을 기록했습니다.',
-    en: 'When an API returns an array directly but you access response.data.content, you get undefined. Documenting how that undefined propagated into useMemo and caused a crash.'
+    ko: 'API가 배열을 바로 반환하는데 response.data.content로 접근하면 undefined가 돼요. 그 undefined가 useMemo까지 흘러가 크래시를 낸 과정을 기록했어요.',
+    en: 'When an API returns an array directly but you read response.data.content, you get undefined. This is how that undefined made its way into useMemo and caused a crash.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const apiMismatchUsememoCrash: BlogPost = {
     en: '6 min'
   },
   tags: ['React', 'TypeScript', 'useMemo', '디버깅'],
-  thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/api-mismatch-usememo-crash.png',
   component: 'ApiMismatchMemoPost'
 };

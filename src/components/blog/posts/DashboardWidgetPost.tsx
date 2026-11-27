@@ -12,46 +12,44 @@ export const DashboardWidgetPost = ({ language }: PostProps) => {
   if (language === 'ko') {
     return (
       <Content>
-        <h1>모듈형 대시보드 위젯 시스템</h1>
-        
         <h2>원인</h2>
-        
-        <p>대시보드 페이지에서 여러 기능(보안 현황, 저장소 용량, 작업 진행률, 최근 로그 등)을 한 화면에 보여줘야 했습니다. 그런데 문제는 다음과 같은 문제가 생겼습니다.</p>
-        
+
+        <p>대시보드 한 화면에 보안 현황, 저장소 용량, 작업 진행률, 최근 로그 같은 여러 기능을 보여줘야 했어요. 만들다 보니 이런 문제가 생겼어요.</p>
+
         <ul>
-          <li>각 위젯이 서로 다른 API, 갱신 주기, 렌더 타입(차트/리스트/카드)을 가짐</li>
-          <li>일부 위젯은 사용자가 직접 추가·삭제·배치 순서를 바꿔야 함</li>
-          <li>공통으로 로딩/에러/빈 상태 처리 필요</li>
-          <li>새 위젯을 추가할 때마다 <strong>라우트와 템플릿을 수정</strong>해야 해서 확장성이 떨어짐</li>
+          <li>위젯마다 API, 갱신 주기, 렌더 타입(차트/리스트/카드)이 다름</li>
+          <li>일부 위젯은 사용자가 직접 추가, 삭제하고 순서를 바꿀 수 있어야 함</li>
+          <li>로딩/에러/빈 상태 처리는 공통으로 필요함</li>
+          <li>새 위젯을 넣을 때마다 라우트와 템플릿을 고쳐야 해서 확장이 어려움</li>
         </ul>
-        
-        <p>한 페이지에 여러 개의 독립 모듈이 공존하면서도 일관된 UX를 유지해야 하는 <strong>모듈형 대시보드 위젯 시스템</strong>이 필요했어요</p>
-        
+
+        <p>독립된 모듈 여러 개가 한 페이지에 있으면서도 UX는 일관돼야 했어요. 그래서 모듈형 대시보드 위젯 시스템을 만들기로 했어요.</p>
+
         <h2>과정과 문제 탐색</h2>
-        
-        <p>초기 구현은 단순 반복 렌더링 구조였는데요</p>
-        
+
+        <p>처음에는 컴포넌트를 그대로 나열하는 구조였어요.</p>
+
         <pre><code>{`<SecurityCard />
 <StorageUsage />
 <JobProgress />
 <RecentLogs />`}</code></pre>
-        
-        <p>하지만 이 방식은 다음 문제가 있었어요</p>
-        
+
+        <p>이 방식에는 문제가 있었어요.</p>
+
         <ul>
-          <li>각 컴포넌트마다 <strong>fetch 로직, 로딩 상태, 에러 상태</strong>를 중복 관리</li>
-          <li>위젯 순서를 바꾸려면 <code>&lt;template&gt;</code> 구조를 수정해야 함</li>
+          <li>컴포넌트마다 fetch 로직, 로딩 상태, 에러 상태를 따로 관리함</li>
+          <li>위젯 순서를 바꾸려면 템플릿의 컴포넌트 배치를 직접 고쳐야 함</li>
           <li>새 위젯을 추가하면 router, layout, i18n 등 여러 곳을 손대야 함</li>
         </ul>
-        
-        <p>그래서 아예 위젯을 <strong>데이터로 선언하고, 공통 위젯 엔진이 렌더링하는 구조</strong>로 바꾸고자 했어요</p>
-        
+
+        <p>그래서 위젯을 데이터로 선언하고, 공통 위젯 엔진이 렌더링하는 구조로 바꾸기로 했어요.</p>
+
         <h2>해결 방안</h2>
-        
+
         <h3>a. 위젯 메타 데이터 기반 렌더링</h3>
-        
-        <p>모든 위젯은 하나의 메타 객체로 정의했는데요</p>
-        
+
+        <p>모든 위젯을 하나의 메타 객체로 정의했어요.</p>
+
         <pre><code>{`// types/dashboard-widget.ts
 export interface DashboardWidget {
   id: string
@@ -60,7 +58,7 @@ export interface DashboardWidget {
   api?: string
   refreshInterval?: number
 }`}</code></pre>
-        
+
         <pre><code>{`// widgets/index.ts
 import SecurityCard from '@/widgets/SecurityCard.vue'
 import StorageUsage from '@/widgets/StorageUsage.vue'
@@ -73,13 +71,13 @@ export const widgetList: DashboardWidget[] = [
   { id: 'job', title: '작업 진행률', component: JobProgress, api: '/api/jobs', viewType: 'chart' },
   { id: 'logs', title: '최근 로그', component: RecentLogs, api: '/api/logs', viewType: 'list' },
 ]`}</code></pre>
-        
-        <p>이제 새 위젯을 추가하려면 <strong>객체 1개 등록</strong>으로 쉽게 마무리 할 수 있었어요</p>
-        
+
+        <p>이제 새 위젯은 객체 하나만 등록하면 돼요.</p>
+
         <h3>b. 공통 위젯 래퍼 (로딩/에러/빈 상태 일원화)</h3>
-        
-        <p>모든 위젯은 <code>useViewState</code> composable을 이용해 로딩/에러/빈 상태를 통일했어요</p>
-        
+
+        <p>로딩/에러/빈 상태는 모든 위젯이 <code>useViewState</code> composable로 똑같이 처리해요.</p>
+
         <pre><code>{`<!-- components/DashboardWidgetWrapper.vue -->
 <template>
   <a-card :title="title" class="dashboard-widget">
@@ -114,11 +112,11 @@ onMounted(async () => { await load() })
 <style scoped>
 .dashboard-widget { height: 100%; }
 </style>`}</code></pre>
-        
-        <p>위젯 내부의 데이터 구조가 달라도 wrapper가 모든 상태를 일관되게 관리할 수 있게 되었어요. 각 위젯은 data props만 받아서 렌더에 집중할 수 있어요.</p>
-        
+
+        <p>위젯마다 데이터 구조가 달라도 상태 관리는 래퍼가 맡아요. 각 위젯은 data props만 받아서 그리는 데 집중하면 돼요.</p>
+
         <h3>c. 메인 대시보드 구성</h3>
-        
+
         <pre><code>{`<!-- pages/dashboard.vue -->
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
@@ -153,64 +151,62 @@ onMounted(() => {
   gap: 16px;
 }
 </style>`}</code></pre>
-        
-        <p>이제 <strong>모듈 등록 기반 동적 렌더링</strong>과 <strong>공통 래퍼를 통한 상태/로딩/에러 UI 일원화</strong>를 해결할 수 있었어요</p>
-        
-        <p>(향후 drag-and-drop 정렬, 위젯 숨김, 사용자 저장 기능도 추가할 예정이에요.)</p>
-        
+
+        <p>이렇게 모듈 등록 기반 동적 렌더링과, 공통 래퍼를 통한 상태/로딩/에러 UI 통일을 함께 해결했어요.</p>
+
+        <p>drag-and-drop 정렬, 위젯 숨김, 사용자별 저장 기능은 앞으로 추가할 예정이에요.</p>
+
         <h2>결과</h2>
-        
-        <p>새 위젯 추가 시 템플릿 수정 없이 등록만으로 자동렌더링이 될 수 있도록 하고, 동일한 정책을 공유하여 운영 효율을 개선할 수 있었습니다.</p>
-        
+
+        <p>새 위젯은 템플릿을 고치지 않고 등록만 하면 자동으로 렌더링돼요. 모든 위젯이 같은 상태 처리 정책을 쓰니 운영도 수월해졌어요.</p>
+
         <h2>배운 점</h2>
-        
-        <p>대시보드는 단순 컴포넌트 모음이 아니라 <strong>모듈 엔진 구조</strong>로 설계해야 쉬운 유지보수가 가능하고 Vue의 <code>component</code> 동적 바인딩과 composable 패턴을 활용하면 <strong>확장성과 일관성</strong>을 얻을 수 있다는 것을 배우게 되었습니다.</p>
+
+        <p>대시보드는 컴포넌트를 모아두는 방식보다 모듈 엔진처럼 설계했을 때 유지보수가 쉬웠어요. Vue의 <code>component</code> 동적 바인딩과 composable 패턴을 같이 쓰니 위젯을 늘리기도 쉽고 화면 동작도 일관되게 맞출 수 있었어요.</p>
       </Content>
     );
   }
 
   return (
     <Content>
-      <h1>Modular Dashboard Widget System</h1>
-      
       <h2>Background</h2>
-      
-      <p>On the dashboard page, multiple features (security status, storage capacity, job progress, recent logs, etc.) had to be displayed on one screen. However, the following problems occurred.</p>
-      
+
+      <p>The dashboard had to show several features on one screen: security status, storage capacity, job progress, recent logs, and so on. As I built it, a few problems came up.</p>
+
       <ul>
-        <li>Each widget had different APIs, refresh cycles, and render types (chart/list/card)</li>
-        <li>Some widgets needed users to directly add, delete, and rearrange them</li>
-        <li>Common loading/error/empty state handling needed</li>
-        <li>Every time a new widget was added, <strong>routes and templates had to be modified</strong>, reducing scalability</li>
+        <li>Each widget had its own API, refresh cycle, and render type (chart/list/card)</li>
+        <li>Some widgets had to be added, removed, and reordered by the user</li>
+        <li>Every widget needed loading, error, and empty state handling</li>
+        <li>Adding a new widget meant editing routes and templates every time, which made it hard to scale</li>
       </ul>
-      
-      <p>We needed a <strong>modular dashboard widget system</strong> where multiple independent modules coexist on one page while maintaining consistent UX</p>
-      
+
+      <p>Independent modules had to live on one page and still feel consistent. So I set out to build a modular dashboard widget system.</p>
+
       <h2>Process and Problem Exploration</h2>
-      
-      <p>The initial implementation was a simple repetitive rendering structure</p>
-      
+
+      <p>The first version just listed the components one after another.</p>
+
       <pre><code>{`<SecurityCard />
 <StorageUsage />
 <JobProgress />
 <RecentLogs />`}</code></pre>
-      
-      <p>But this approach had the following problems</p>
-      
+
+      <p>That approach had problems.</p>
+
       <ul>
-        <li>Each component duplicated <strong>fetch logic, loading state, error state</strong> management</li>
-        <li>To change widget order, <code>&lt;template&gt;</code> structure had to be modified</li>
-        <li>Adding a new widget required touching multiple places like router, layout, i18n</li>
+        <li>Every component managed its own fetch logic, loading state, and error state</li>
+        <li>Changing the widget order meant editing the component layout in the template by hand</li>
+        <li>A new widget meant touching the router, layout, i18n, and more</li>
       </ul>
-      
-      <p>So we decided to <strong>declare widgets as data and have a common widget engine render them</strong></p>
-      
+
+      <p>So I decided to declare widgets as data and let a shared widget engine render them.</p>
+
       <h2>Solution</h2>
-      
+
       <h3>a. Widget Metadata-Based Rendering</h3>
-      
-      <p>All widgets were defined as a single meta object</p>
-      
+
+      <p>Every widget is defined as a single meta object.</p>
+
       <pre><code>{`// types/dashboard-widget.ts
 export interface DashboardWidget {
   id: string
@@ -219,7 +215,7 @@ export interface DashboardWidget {
   api?: string
   refreshInterval?: number
 }`}</code></pre>
-      
+
       <pre><code>{`// widgets/index.ts
 import SecurityCard from '@/widgets/SecurityCard.vue'
 import StorageUsage from '@/widgets/StorageUsage.vue'
@@ -232,13 +228,13 @@ export const widgetList: DashboardWidget[] = [
   { id: 'job', title: 'Job Progress', component: JobProgress, api: '/api/jobs', viewType: 'chart' },
   { id: 'logs', title: 'Recent Logs', component: RecentLogs, api: '/api/logs', viewType: 'list' },
 ]`}</code></pre>
-      
-      <p>Now adding a new widget was easily finished by <strong>registering one object</strong></p>
-      
+
+      <p>Adding a widget now takes one registered object.</p>
+
       <h3>b. Common Widget Wrapper (Unifying Loading/Error/Empty States)</h3>
-      
-      <p>All widgets unified loading/error/empty states using the <code>useViewState</code> composable</p>
-      
+
+      <p>All widgets handle loading, error, and empty states the same way through the <code>useViewState</code> composable.</p>
+
       <pre><code>{`<!-- components/DashboardWidgetWrapper.vue -->
 <template>
   <a-card :title="title" class="dashboard-widget">
@@ -273,11 +269,11 @@ onMounted(async () => { await load() })
 <style scoped>
 .dashboard-widget { height: 100%; }
 </style>`}</code></pre>
-      
-      <p>Even if the data structure inside widgets differs, the wrapper can consistently manage all states. Each widget can just focus on rendering by receiving data props.</p>
-      
+
+      <p>Even when widgets use different data shapes, the wrapper owns the state. Each widget just receives data props and renders.</p>
+
       <h3>c. Main Dashboard Composition</h3>
-      
+
       <pre><code>{`<!-- pages/dashboard.vue -->
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
@@ -312,18 +308,18 @@ onMounted(() => {
   gap: 16px;
 }
 </style>`}</code></pre>
-      
-      <p>Now we could solve <strong>module registration-based dynamic rendering</strong> and <strong>state/loading/error UI unification through common wrapper</strong></p>
-      
-      <p>(Future plans include drag-and-drop sorting, widget hiding, and user save functionality.)</p>
-      
+
+      <p>With this, module registration drives the rendering, and the shared wrapper keeps the state, loading, and error UI the same everywhere.</p>
+
+      <p>Drag-and-drop sorting, hiding widgets, and saving per-user layouts are next on the list.</p>
+
       <h2>Results</h2>
-      
-      <p>When adding a new widget, auto-rendering is possible just by registration without template modification, and operational efficiency was improved by sharing the same policy.</p>
-      
+
+      <p>A new widget renders automatically once it's registered, with no template changes. Since every widget follows the same state policy, day-to-day operation got easier too.</p>
+
       <h2>Key Takeaways</h2>
-      
-      <p>Dashboards are not just a collection of components but need to be designed as a <strong>module engine structure</strong> for easy maintenance, and utilizing Vue's <code>component</code> dynamic binding and composable pattern can provide <strong>scalability and consistency</strong>.</p>
+
+      <p>The dashboard was much easier to maintain once I treated it as a module engine instead of a pile of components. Combining Vue's <code>component</code> dynamic binding with composables let me add widgets easily while keeping their behavior consistent.</p>
     </Content>
   );
 };

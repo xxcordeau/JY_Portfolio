@@ -7,8 +7,8 @@ export const designAnimationPhilosophy: BlogPost = {
     en: 'Before Adding Animation, Ask What You\'d Lose Without It'
   },
   excerpt: {
-    ko: '포트폴리오 히어로 파티클 애니메이션을 만들면서 고민한 인터랙션 철학과 기능적/표현적 애니메이션의 차이를 정리했어요.',
-    en: 'Sharing the interaction philosophy behind the portfolio hero particle animation and the difference between functional and expressive animation.'
+    ko: '포트폴리오 히어로 파티클 애니메이션을 만들면서 고민한 것들과, 기능적 애니메이션과 표현적 애니메이션을 어떻게 구분하는지 정리했어요.',
+    en: 'What I thought about while building the portfolio hero particle animation, and how I tell functional animation apart from expressive animation.'
   },
   category: {
     ko: '디자인',
@@ -20,6 +20,6 @@ export const designAnimationPhilosophy: BlogPost = {
     en: '9 min'
   },
   tags: ['Animation', 'UX', 'Interaction Design', 'Performance', 'Canvas'],
-  thumbnail: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/design-animation-philosophy.gif',
   component: 'DesignAnimationPost'
 };

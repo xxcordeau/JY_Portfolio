@@ -7,8 +7,8 @@ export const designColorSystem: BlogPost = {
     en: 'Choosing Colors Is a System, Not a Sense'
   },
   excerpt: {
-    ko: '매번 눈으로 보면서 색을 고르다가 화면마다 미묘하게 다른 회색이 쓰이게 됐어요. 색상을 시스템으로 전환한 경험을 공유합니다.',
-    en: 'Picking colors by eye led to subtly different grays across screens. Sharing how I switched from intuition to a color system.'
+    ko: '매번 눈으로 보면서 색을 고르다가 화면마다 미묘하게 다른 회색이 쓰이게 됐어요. 그래서 색상을 단계와 역할로 정리한 시스템으로 바꿨어요.',
+    en: 'Picking colors by eye left me with subtly different grays on every screen, so I rebuilt our colors as a system of steps and roles.'
   },
   category: {
     ko: '디자인',
@@ -20,6 +20,6 @@ export const designColorSystem: BlogPost = {
     en: '8 min'
   },
   tags: ['Design System', 'Color', 'Dark Mode', 'CSS Variables'],
-  thumbnail: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/design-color-system.png',
   component: 'DesignColorSystemPost'
 };

@@ -12,47 +12,45 @@ export const FilterSystemPost = ({ language }: PostProps) => {
   if (language === 'ko') {
     return (
       <Content>
-        <h1>블로그 검색 필터 시스템 구현 경험</h1>
-        
         <h2>배경</h2>
-        
-        <p>초기에는 단순한 조건 검색만 지원했지만, 프로젝트가 커지면서 다음과 같은 복잡한 요구사항이 생겼습니다.</p>
-        
+
+        <p>처음에는 단순한 조건 검색만 지원했는데, 프로젝트가 커지면서 요구사항이 늘었어요.</p>
+
         <ul>
           <li>다중 조건(날짜, 상태, 사용자, 태그 등) 조합 검색</li>
-          <li>각 조건의 동적 추가/삭제</li>
-          <li>선택된 필터를 태그 형태로 시각화해 직관적으로 제거</li>
-          <li>페이지 이동 및 새로고침 후에도 검색 상태 유지</li>
-          <li>API 쿼리와 UI 필터의 완전한 동기화</li>
+          <li>조건별 동적 추가/삭제</li>
+          <li>선택된 필터를 태그로 보여주고 바로 제거</li>
+          <li>페이지 이동이나 새로고침 후에도 검색 상태 유지</li>
+          <li>API 쿼리와 UI 필터 동기화</li>
         </ul>
-        
-        <h2>문제 원인</h2>
-        
-        <p>모든 필터를 하나의 reactive 객체로 관리했습니다.</p>
-        
+
+        <h2>문제</h2>
+
+        <p>모든 필터를 reactive 객체 하나로 관리하고 있었어요.</p>
+
         <pre><code>{`const searchOption = reactive({
   keyword: '',
   dateRange: [],
   status: '',
   tags: []
 })`}</code></pre>
-        
-        <p>처음엔 단순해 보였지만, 곧 다음 문제가 드러났습니다.</p>
-        
+
+        <p>처음엔 단순해 보였는데, 곧 문제가 드러났어요.</p>
+
         <ul>
-          <li>일부 필터만 변경해도 전체 watch가 반응 → 불필요한 렌더링과 중복 호출</li>
-          <li>router 이동 시 빈 객체로 초기화되어 필터 상태가 사라짐</li>
-          <li>특정 필터만 지워도 전체 필터가 리셋됨</li>
+          <li>필터 하나만 바꿔도 전체 watch가 반응해서 불필요한 렌더링과 중복 호출이 생겼어요.</li>
+          <li>router로 이동하면 빈 객체로 초기화돼서 필터 상태가 사라졌어요.</li>
+          <li>특정 필터만 지워도 전체 필터가 리셋됐어요.</li>
         </ul>
-        
-        <p>즉, <strong>부분 업데이트와 전체 초기화가 충돌하는 구조</strong>였습니다.</p>
-        
+
+        <p>부분 업데이트와 전체 초기화가 서로 부딪히는 구조였어요.</p>
+
         <h2>해결 과정</h2>
-        
-        <h3>1️⃣ 독립형 상태 관리로 구조 재설계</h3>
-        
-        <p>문제의 핵심이 전역 의존성이었어요. 그래서 각 필터를 독립적으로 관리하는 useFilter composable을 설계했습니다.</p>
-        
+
+        <h3>1. 필터별 독립 상태로 재설계</h3>
+
+        <p>모든 필터가 객체 하나에 묶여 서로 의존하고 있는 게 문제였어요. 그래서 필터를 각각 따로 관리하는 useFilter composable을 만들었어요.</p>
+
         <pre><code>{`export const useFilter = () => {
   const keyword = ref('')
   const dateRange = ref<[string, string] | []>([])
@@ -75,13 +73,13 @@ export const FilterSystemPost = ({ language }: PostProps) => {
 
   return { keyword, dateRange, status, tags, resetField, activeFilters }
 }`}</code></pre>
-        
-        <p>이제 필터가 서로 독립적으로 작동하며, 특정 필터만 초기화해도 다른 필터는 영향을 받지 않습니다.</p>
-        
-        <h3>2️⃣ 검색 태그 시스템</h3>
-        
-        <p>선택된 필터를 태그 형태로 표시하고, 닫기 버튼으로 해당 필터를 제거할 수 있도록 했습니다.</p>
-        
+
+        <p>이제 필터끼리 독립적으로 동작해서, 특정 필터만 초기화해도 다른 필터는 그대로예요.</p>
+
+        <h3>2. 검색 태그</h3>
+
+        <p>선택된 필터를 태그로 보여주고, 닫기 버튼으로 해당 필터를 지울 수 있게 했어요.</p>
+
         <pre><code>{`<a-tag
   v-for="(value, key) in activeFilters"
   :key="key"
@@ -90,68 +88,66 @@ export const FilterSystemPost = ({ language }: PostProps) => {
 >
   {{ key }}: {{ value }}
 </a-tag>`}</code></pre>
-        
-        <p>사용자가 필터를 직관적으로 조작할 수 있어 UX가 훨씬 자연스러워졌습니다.</p>
-        
+
+        <p>어떤 필터가 걸려 있는지 보고 그 자리에서 지울 수 있으니 조작이 자연스러워졌어요.</p>
+
         <h2>결과</h2>
-        
+
         <ul>
-          <li>✅ 필터 추가/삭제 시 상태 꼬임 완전히 제거</li>
-          <li>✅ 페이지 이동 및 새로고침 후에도 상태 유지</li>
-          <li>✅ 불필요한 렌더링 및 API 호출 감소</li>
-          <li>✅ 테스트 및 유지보수 용이</li>
+          <li>필터를 추가하거나 지울 때 상태가 꼬이지 않아요.</li>
+          <li>페이지 이동이나 새로고침 후에도 상태가 유지돼요.</li>
+          <li>불필요한 렌더링과 API 호출이 줄었어요.</li>
+          <li>테스트와 유지보수가 쉬워졌어요.</li>
         </ul>
-        
-        <h2>배운 점</h2>
-        
-        <p>이 경험을 통해 "UI·상태·라우터는 서로 독립된 책임 단위로 분리돼야 한다"는 걸 체감했습니다. 복잡한 UI일수록 관계를 느슨하게 만드는 게 유지보수를 쉽게 합니다. 트리 구조나 상태 설계 모두 결국 "의존성을 끊는 설계"가 핵심이었습니다.</p>
+
+        <h2>돌아보며</h2>
+
+        <p>UI, 상태, 라우터는 각자 책임을 나눠 따로 두는 편이 낫다는 걸 이번에 체감했어요. UI가 복잡할수록 서로의 관계를 느슨하게 만들어 둬야 유지보수가 편했어요. 트리 구조 작업도, 이번 필터 작업도 의존성을 끊는 쪽으로 설계를 바꾸면서 풀렸어요.</p>
       </Content>
     );
   }
 
   return (
     <Content>
-      <h1>Blog Search Filter System Implementation Experience</h1>
-      
       <h2>Background</h2>
-      
-      <p>Initially, I only supported simple conditional searches, but as the project grew, the following complex requirements emerged.</p>
-      
+
+      <p>At first the search only supported simple conditions, but as the project grew, the requirements piled up:</p>
+
       <ul>
-        <li>Combined search with multiple conditions (date, status, user, tags, etc.)</li>
-        <li>Dynamic addition/removal of each condition</li>
-        <li>Visualize selected filters as tags for intuitive removal</li>
-        <li>Maintain search state even after page navigation and refresh</li>
-        <li>Complete synchronization between API queries and UI filters</li>
+        <li>Combined search across multiple conditions (date, status, user, tags, etc.)</li>
+        <li>Adding and removing conditions on the fly</li>
+        <li>Showing selected filters as tags that can be removed with one click</li>
+        <li>Keeping the search state after page navigation and refresh</li>
+        <li>Keeping API queries and UI filters in sync</li>
       </ul>
-      
-      <h2>Problem Cause</h2>
-      
-      <p>I managed all filters as a single reactive object.</p>
-      
+
+      <h2>The Problem</h2>
+
+      <p>I was managing every filter in a single reactive object.</p>
+
       <pre><code>{`const searchOption = reactive({
   keyword: '',
   dateRange: [],
   status: '',
   tags: []
 })`}</code></pre>
-      
-      <p>At first, it seemed simple, but soon the following problems became apparent.</p>
-      
+
+      <p>It looked simple at first, but problems soon showed up:</p>
+
       <ul>
-        <li>Even changing a single filter triggered the entire watch → unnecessary rendering and duplicate calls</li>
-        <li>Filter state disappeared when router navigation initialized to an empty object</li>
-        <li>Deleting a specific filter would reset all filters</li>
+        <li>Changing just one filter triggered the whole watch, causing unnecessary renders and duplicate calls</li>
+        <li>Router navigation reset the object to empty, so the filter state disappeared</li>
+        <li>Clearing one filter reset all of them</li>
       </ul>
-      
-      <p>In other words, <strong>partial updates and full initialization conflicted</strong>.</p>
-      
-      <h2>Solution Process</h2>
-      
-      <h3>1️⃣ Redesigning the Structure Around Independent State</h3>
-      
-      <p>The core of the problem was global dependency. So I designed a useFilter composable that manages each filter independently.</p>
-      
+
+      <p>Partial updates and full resets were fighting each other.</p>
+
+      <h2>Fixing It</h2>
+
+      <h3>1. Redesigning Around Independent State</h3>
+
+      <p>The problem was that every filter was tied to one shared object and depended on it. So I wrote a useFilter composable that manages each filter separately.</p>
+
       <pre><code>{`export const useFilter = () => {
   const keyword = ref('')
   const dateRange = ref<[string, string] | []>([])
@@ -174,13 +170,13 @@ export const FilterSystemPost = ({ language }: PostProps) => {
 
   return { keyword, dateRange, status, tags, resetField, activeFilters }
 }`}</code></pre>
-      
-      <p>Now filters work independently, and initializing a specific filter doesn't affect other filters.</p>
-      
-      <h3>2️⃣ Search Tag System</h3>
-      
-      <p>I displayed selected filters as tags and enabled removal of specific filters with a close button.</p>
-      
+
+      <p>Now filters work independently, and resetting one doesn't touch the others.</p>
+
+      <h3>2. Search Tags</h3>
+
+      <p>I showed the selected filters as tags, each with a close button that removes that filter.</p>
+
       <pre><code>{`<a-tag
   v-for="(value, key) in activeFilters"
   :key="key"
@@ -189,21 +185,21 @@ export const FilterSystemPost = ({ language }: PostProps) => {
 >
   {{ key }}: {{ value }}
 </a-tag>`}</code></pre>
-      
-      <p>Users can now manipulate filters intuitively, making the UX much more natural.</p>
-      
+
+      <p>Users can see which filters are active and remove them right there, which feels much more natural.</p>
+
       <h2>Results</h2>
-      
+
       <ul>
-        <li>✅ Completely eliminated state entanglement when adding/removing filters</li>
-        <li>✅ State maintained even after page navigation and refresh</li>
-        <li>✅ Reduced unnecessary rendering and API calls</li>
-        <li>✅ Easy to test and maintain</li>
+        <li>Adding or removing filters no longer tangles the state</li>
+        <li>State survives page navigation and refresh</li>
+        <li>Fewer unnecessary renders and API calls</li>
+        <li>Easier to test and maintain</li>
       </ul>
-      
-      <h2>Key Takeaways</h2>
-      
-      <p>Through this experience, I realized that "UI, state, and router should be separated as independent units of responsibility." The more complex the UI, the easier it is to maintain when relationships are loosely coupled. Both tree structure and state design ultimately come down to "designing to break dependencies."</p>
+
+      <h2>Looking Back</h2>
+
+      <p>This made it clear to me that UI, state, and the router work better as separate units, each with its own responsibility. The more complex the UI, the more it helped to keep those relationships loose. Both the tree work and this filter work got solved by redesigning to cut dependencies.</p>
     </Content>
   );
 };

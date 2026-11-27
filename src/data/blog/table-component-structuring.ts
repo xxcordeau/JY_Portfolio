@@ -7,8 +7,8 @@ export const tableComponentStructuring: BlogPost = {
     en: 'Common Table Component Structuring Experience'
   },
   excerpt: {
-    ko: '페이지네이션, 정렬, URL 동기화가 필요한 복잡한 테이블 시스템을 공통 컴포넌트로 구조화하며 배운 데이터 흐름 제어 전략을 공유합니다.',
-    en: 'Sharing data flow control strategies learned while structuring a complex table system requiring pagination, sorting, and URL synchronization into a common component.'
+    ko: '페이지네이션, 정렬, URL 동기화가 필요한 테이블들을 공통 컴포넌트로 묶으면서 데이터 흐름을 어떻게 통제했는지 정리했어요.',
+    en: 'Notes on how I controlled data flow while turning tables that needed pagination, sorting, and URL sync into one common component.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const tableComponentStructuring: BlogPost = {
     en: '7 min'
   },
   tags: ['Vue', 'Composable', 'Table UI', 'State Management'],
-  thumbnail: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/table-component-structuring.png',
   component: 'TableComponentPost'
 };

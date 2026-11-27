@@ -7,8 +7,8 @@ export const viewStateStandardization: BlogPost = {
     en: 'Global Standardization of Error/Loading/Empty State UI'
   },
   excerpt: {
-    ko: '모든 화면에서 일관된 로딩/에러/빈 상태 경험을 제공하기 위한 전역 컴포넌트와 composable 패턴 구축 사례를 공유합니다.',
-    en: 'Sharing a case of building global components and composable patterns to provide consistent loading/error/empty state experiences across all screens.'
+    ko: '모든 화면에서 로딩, 에러, 빈 상태를 같은 방식으로 보여주려고 전역 컴포넌트와 composable 패턴을 만든 과정을 정리했어요.',
+    en: 'How I built global components and a composable pattern so every screen handles loading, error, and empty states the same way.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const viewStateStandardization: BlogPost = {
     en: '10 min'
   },
   tags: ['Vue', 'UX', 'State Management', 'Error Handling'],
-  thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/view-state-standardization.png',
   component: 'ViewStatePost'
 };

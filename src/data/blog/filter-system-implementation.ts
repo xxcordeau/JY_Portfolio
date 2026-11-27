@@ -7,8 +7,8 @@ export const filterSystemImplementation: BlogPost = {
     en: 'Search Filter System Implementation Experience'
   },
   excerpt: {
-    ko: '다중 조건 조합, 태그 시각화, 상태 유지가 필요한 복잡한 필터 시스템을 구현하며 배운 독립형 상태 관리 전략을 공유합니다.',
-    en: 'Sharing independent state management strategies learned while implementing a complex filter system with multiple conditions, tag visualization, and state persistence.'
+    ko: '다중 조건 조합, 태그 시각화, 상태 유지가 필요한 필터 시스템을 만들면서 필터마다 상태를 따로 관리하도록 바꾼 과정을 정리했어요.',
+    en: 'Building a filter system with combined conditions, tag display, and persisted state, and why I ended up managing each filter\'s state on its own.'
   },
   category: {
     ko: '개발',
@@ -20,6 +20,6 @@ export const filterSystemImplementation: BlogPost = {
     en: '6 min'
   },
   tags: ['Vue', 'State Management', 'Pinia', 'Filter UI'],
-  thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
+  thumbnail: 'https://wdedhluxoicizxqojadx.supabase.co/storage/v1/object/public/blog-thumbnails/filter-system-implementation.png',
   component: 'FilterSystemPost'
 };
