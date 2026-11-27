@@ -44,6 +44,10 @@ jobs:
         with:
           path: out
 
+      # 올린 직후에는 배포 단계가 결과물을 못 찾고 실패하는 일이 있어 잠깐 기다린다
+      - name: Wait for Pages artifact
+        run: sleep 30
+
       - name: Deploy to GitHub Pages
         id: ghpages
         uses: actions/deploy-pages@v4
