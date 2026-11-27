@@ -1,377 +1,311 @@
 'use client';
 
-import { lazy, Suspense } from 'react';
-import styled from 'styled-components';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import styled, { keyframes } from 'styled-components';
+import Link from 'next/link';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useOpenSource } from '../hooks/useOpenSource';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
-import type { OpenSourceProject } from '../data/types';
-import { Github, Package, Star, Download, ArrowLeft, ExternalLink, CheckCircle, Loader2 } from 'lucide-react';
+import { ArrowUpRight, Loader2 } from 'lucide-react';
 
-// Heavy interactive demos — code-split so they don't bloat the initial bundle
+// 데모는 무거워서 코드 분할로 따로 불러온다
 const LibraryDocDemo = lazy(() => import('./interactive/LibraryDocDemo'));
 const DataUIKitGuide = lazy(() => import('./interactive/DataUIKitGuide'));
 
-const spinKeyframes = `
-  @keyframes demo-spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-  }
+/* 홈과 같은 PUUS 톤. 라이브러리는 포트폴리오에서 작은 부분이라
+   통계 카드나 강조 배지 없이 제목, 설명, 설치 한 줄, 기능 목록만 담담하게 보여 준다. */
+
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 `;
 
-const FallbackWrap = styled.div<{ $isDark: boolean }>`
-  min-height: 240px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)'};
-
-  svg {
-    width: 28px;
-    height: 28px;
-    animation: demo-spin 0.9s linear infinite;
-  }
-
-  ${spinKeyframes}
-`;
-
-const DemoFallback = ({ isDark }: { isDark: boolean }) => (
-  <FallbackWrap $isDark={isDark}>
-    <Loader2 />
-  </FallbackWrap>
-);
-
-const DetailContainer = styled.div<{ $isDark: boolean }>`
-  min-height: 100vh;
-  background: ${props => props.$isDark ? '#000000' : '#ffffff'};
-  padding-top: 80px;
-  transition: background 0.3s ease;
-`;
-
-const BackButton = styled.button<{ $isDark: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'};
-  border: none;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  padding: 10px 20px;
-  border-radius: 20px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 500;
-  margin: 40px 0 0 40px;
-
-  &:hover {
-    background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'};
-  }
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  @media (max-width: 768px) {
-    margin: 20px 0 0 20px;
-  }
-`;
-
-const Hero = styled.div`
-  max-width: 1200px;
+const Page = styled.main`
+  max-width: var(--k-page-max);
   margin: 0 auto;
-  padding: 40px 40px 60px;
+  padding: var(--k-space-10) var(--k-space-6) 96px;
+  color: var(--k-text);
+  animation: k-enter 0.25s var(--k-ease) both;
 
   @media (max-width: 768px) {
-    padding: 30px 20px 40px;
+    padding: var(--k-space-6) var(--k-space-4) 72px;
   }
 `;
 
-const HeroHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 30px;
-  margin-bottom: 30px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 20px;
-  }
-`;
-
-const TitleSection = styled.div`
-  flex: 1;
-`;
-
-const Category = styled.span<{ $isDark: boolean }>`
+const BackLink = styled(Link)`
   display: inline-block;
-  font-size: 13px;
-  color: ${props => props.$isDark ? '#4ECDC4' : '#007AFF'};
-  background: ${props => props.$isDark 
-    ? 'rgba(78, 205, 196, 0.1)' 
-    : 'rgba(0, 122, 255, 0.1)'};
-  padding: 6px 14px;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  font-weight: 600;
+  margin-bottom: var(--k-space-6);
+  font-size: var(--k-text-sm);
+  color: var(--k-text-weak);
+  text-decoration: none;
+  transition: color 0.15s var(--k-ease);
+
+  &:hover { color: var(--k-text); }
 `;
 
-const Title = styled.h1<{ $isDark: boolean }>`
-  font-size: 48px;
+const Column = styled.div`
+  max-width: 720px;
+`;
+
+const Title = styled.h1`
+  font-size: var(--k-text-2xl);
   font-weight: 700;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 16px 0;
-  letter-spacing: -1.5px;
-  line-height: 1.1;
-
-  @media (max-width: 768px) {
-    font-size: 32px;
-  }
+  letter-spacing: -0.03em;
+  line-height: 1.3;
 `;
 
-const Description = styled.p<{ $isDark: boolean }>`
-  font-size: 19px;
-  color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
-  line-height: 1.5;
-  margin: 0;
-
-  @media (max-width: 768px) {
-    font-size: 16px;
-  }
+const Lead = styled.p`
+  margin-top: var(--k-space-2);
+  font-size: var(--k-text-lg);
+  line-height: 1.7;
+  color: var(--k-text-sub);
+  word-break: keep-all;
+  text-wrap: pretty;
 `;
 
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 16px;
-  margin-bottom: 30px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+const Meta = styled.p`
+  margin-top: var(--k-space-2);
+  font-size: var(--k-text-sm);
+  color: var(--k-text-weak);
+  font-variant-numeric: tabular-nums;
 `;
 
-const StatCard = styled.div<{ $isDark: boolean }>`
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
-  border-radius: 16px;
-  padding: 20px;
-  text-align: center;
-  backdrop-filter: blur(20px);
-
-  @media (max-width: 768px) {
-    padding: 16px;
-  }
-`;
-
-const StatIcon = styled.div<{ $isDark: boolean }>`
-  width: 32px;
-  height: 32px;
-  margin: 0 auto 10px;
-  border-radius: 8px;
-  background: ${props => props.$isDark 
-    ? 'rgba(78, 205, 196, 0.15)'
-    : 'rgba(0, 122, 255, 0.15)'};
+const Actions = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-    width: 16px;
-    height: 16px;
-    color: ${props => props.$isDark ? '#4ECDC4' : '#007AFF'};
-  }
-`;
-
-const StatValue = styled.div<{ $isDark: boolean }>`
-  font-size: 20px;
-  font-weight: 700;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin-bottom: 4px;
-`;
-
-const StatLabel = styled.div<{ $isDark: boolean }>`
-  font-size: 11px;
-  color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 12px;
   flex-wrap: wrap;
+  gap: var(--k-space-2);
+  margin-top: var(--k-space-5);
 `;
 
-const Button = styled.a<{ $isDark: boolean; $variant?: 'primary' | 'secondary' }>`
+const SecondaryButton = styled.a`
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border-radius: 24px;
-  font-size: 14px;
+  gap: 2px;
+  height: var(--k-control-sm);
+  padding: 0 var(--k-space-3);
+  border: 1px solid var(--k-line-strong);
+  border-radius: var(--k-radius);
+  background: var(--k-bg);
+  color: var(--k-text);
+  font-size: var(--k-text-md);
   font-weight: 600;
   text-decoration: none;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  
-  ${props => props.$variant === 'primary' ? `
-    background: ${props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    color: ${props.$isDark ? '#1d1d1f' : '#ffffff'};
-    border: none;
+  white-space: nowrap;
+  transition: background 0.15s var(--k-ease);
 
-    &:hover {
-      opacity: 0.85;
-    }
-  ` : `
-    background: ${props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'};
-    color: ${props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    border: none;
+  svg { width: 14px; height: 14px; color: var(--k-text-weak); }
 
-    &:hover {
-      background: ${props.$isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.09)'};
-    }
-  `}
+  &:hover { background: var(--k-bg-hover); }
+`;
 
-  svg {
-    width: 16px;
-    height: 16px;
+/* PUUS copy-line: 회색 칸 한 줄 + 오른쪽 작은 복사 버튼 */
+const CopyLine = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--k-space-2);
+  min-height: 52px;
+  margin-top: var(--k-space-4);
+  padding: 0 8px 0 16px;
+  border-radius: 8px;
+  background: var(--k-bg-sub);
+
+  code {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+    font-family: var(--k-font-mono);
+    font-size: var(--k-text-sm);
+    color: var(--k-text);
+  }
+
+  .prompt {
+    color: var(--k-text-weak);
+    user-select: none;
   }
 `;
 
-const ContentSection = styled.div<{ $isDark: boolean }>`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 40px 60px;
+const GhostButton = styled.button`
+  flex: none;
+  height: var(--k-control-sm);
+  padding: 0 var(--k-space-3);
+  border: none;
+  border-radius: var(--k-radius);
+  background: transparent;
+  color: var(--k-text-sub);
+  font: inherit;
+  font-size: var(--k-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s var(--k-ease), color 0.15s var(--k-ease);
 
-  @media (max-width: 768px) {
-    padding: 0 20px 40px;
+  &:hover {
+    background: var(--k-bg-hover);
+    color: var(--k-text);
   }
 `;
 
 const Section = styled.section`
-  margin-bottom: 60px;
+  margin-top: var(--k-space-12);
 
-  @media (max-width: 768px) {
-    margin-bottom: 40px;
+  h2 {
+    font-size: var(--k-text-lg);
+    font-weight: 700;
+    margin-bottom: var(--k-space-4);
   }
 `;
 
-const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 32px;
-  font-weight: 700;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 24px 0;
-  letter-spacing: -0.5px;
-
-  @media (max-width: 768px) {
-    font-size: 24px;
-  }
-`;
-
-const FullDescription = styled.div<{ $isDark: boolean }>`
-  font-size: 17px;
-  color: ${props => props.$isDark ? '#86868b' : '#6e6e73'};
+const Body = styled.div`
+  font-size: var(--k-text-lg);
   line-height: 1.8;
+  color: var(--k-text);
   white-space: pre-line;
+  word-break: keep-all;
+  text-wrap: pretty;
+`;
 
-  @media (max-width: 768px) {
+const Features = styled.ul`
+  list-style: none;
+  border-top: 1px solid var(--k-line);
+
+  li {
+    padding: var(--k-space-3) 0;
+    border-bottom: 1px solid var(--k-line);
     font-size: 15px;
+    line-height: 1.6;
+    color: var(--k-text);
+    word-break: keep-all;
   }
 `;
 
-const FeaturesList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const FeatureItem = styled.div<{ $isDark: boolean }>`
+// 태그는 기술 스택처럼 회색 라벨 + 가운뎃점으로 이어 쓴다
+const TagRow = styled.dl`
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
-  border-radius: 12px;
-  backdrop-filter: blur(20px);
+  gap: var(--k-space-4);
+  margin-top: var(--k-space-6);
+  font-size: var(--k-text-md);
+
+  dt {
+    flex: none;
+    width: 48px;
+    color: var(--k-text-weak);
+  }
+
+  dd {
+    color: var(--k-text-sub);
+    word-break: keep-all;
+  }
+`;
+
+const DemoSection = styled.section`
+  margin-top: 64px;
+  padding-top: var(--k-space-10);
+  border-top: 1px solid var(--k-line);
+  /* 해시 링크(#awesome-ui-kit)로 내려올 때 sticky 헤더에 가리지 않게 */
+  scroll-margin-top: 80px;
+
+  > h2 {
+    font-size: var(--k-text-xl);
+    font-weight: 700;
+    margin-bottom: var(--k-space-6);
+  }
+`;
+
+// 데모 컴포넌트는 손대지 않고, 자체 좌우 여백만 이 페이지 폭에 맞춰 없앤다
+const DemoFrame = styled.div`
+  && > * {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+`;
+
+const FallbackWrap = styled.div`
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--k-text-weak);
 
   svg {
-    width: 18px;
-    height: 18px;
-    color: ${props => props.$isDark ? '#4ECDC4' : '#007AFF'};
-    flex-shrink: 0;
-    margin-top: 2px;
+    width: 24px;
+    height: 24px;
+    animation: ${spin} 0.9s linear infinite;
   }
 `;
 
-const FeatureText = styled.span<{ $isDark: boolean }>`
-  font-size: 15px;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  line-height: 1.5;
-`;
+const DemoFallback = () => (
+  <FallbackWrap>
+    <Loader2 />
+  </FallbackWrap>
+);
 
-const DemoSection = styled.div<{ $isDark: boolean }>`
-  background: ${props => props.$isDark ? '#000000' : '#f5f5f7'};
-  padding: 60px 0;
-  margin: 0 -40px;
-
-  @media (max-width: 768px) {
-    margin: 0 -20px;
-    padding: 40px 0;
-  }
+const Notice = styled.p`
+  font-size: var(--k-text-md);
+  color: var(--k-text-weak);
 `;
 
 interface OpenSourceDetailProps {
   projectId: string;
+  // 호출 쪽 호환용. 뒤로가기는 history 대신 목록으로 가는 링크로 그린다
   onBack: () => void;
 }
 
 const translations = {
   ko: {
-    back: '목록으로',
-    overview: '프로젝트 개요',
-    features: '주요 기능',
-    demo: '데모 및 문서',
-    viewGithub: 'GitHub에서 보기',
-    viewNpm: 'npm에서 보기',
-    viewDemo: '데모 보기',
-    stars: 'Stars',
-    downloads: 'Downloads',
-    components: 'Components',
-    contributors: 'Contributors'
+    back: '← 오픈소스',
+    overview: '소개',
+    features: '기능',
+    tags: '태그',
+    docs: '문서와 예제',
+    demo: '데모',
+    copy: '복사',
+    copied: '복사됨',
+    components: (n: string) => `${n}개 컴포넌트`,
+    stars: (n: string) => `GitHub 스타 ${n}`,
+    downloads: (n: string) => `다운로드 ${n}`,
+    notFound: '라이브러리를 찾을 수 없어요.',
   },
   en: {
-    back: 'Back to List',
-    overview: 'Project Overview',
-    features: 'Key Features',
-    demo: 'Demo & Documentation',
-    viewGithub: 'View on GitHub',
-    viewNpm: 'View on npm',
-    viewDemo: 'View Demo',
-    stars: 'Stars',
-    downloads: 'Downloads',
-    components: 'Components',
-    contributors: 'Contributors'
-  }
+    back: '← Open source',
+    overview: 'Overview',
+    features: 'Features',
+    tags: 'Tags',
+    docs: 'Docs and examples',
+    demo: 'Demo',
+    copy: 'Copy',
+    copied: 'Copied',
+    components: (n: string) => `${n} components`,
+    stars: (n: string) => `${n} GitHub stars`,
+    downloads: (n: string) => `${n} downloads`,
+    notFound: 'Library not found.',
+  },
 };
 
-export default function OpenSourceDetail({
-  projectId,
-  onBack
-}: OpenSourceDetailProps) {
+// DB 문자열의 긴 대시는 가운뎃점으로 바꿔 보여 준다
+const undash = (s: string) => s.replace(/\s*[—–]\s*/g, ' · ');
+
+// '-', '0', 빈 값은 의미 없는 수치라 표시하지 않는다
+const hasValue = (v?: string) => !!v && !['-', '0'].includes(v.trim());
+
+// https://www.npmjs.com/package/jy-awesome-ui → jy-awesome-ui (스코프 패키지도 그대로)
+const packageNameOf = (npmUrl?: string) => {
+  if (!npmUrl) return null;
+  const m = npmUrl.match(/\/package\/(.+?)\/?(?:[?#].*)?$/);
+  return m ? decodeURIComponent(m[1]) : null;
+};
+
+export default function OpenSourceDetail({ projectId }: OpenSourceDetailProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
-  const { projects: openSourceProjects } = useOpenSource();
+  const { projects: openSourceProjects, loading } = useOpenSource();
   const t = translations[language];
   const project = openSourceProjects.find(p => p.id === projectId);
+
+  const [copied, setCopied] = useState(false);
+  const copyTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
 
   useDocumentMeta({
     title: project?.name,
@@ -380,136 +314,120 @@ export default function OpenSourceDetail({
   });
 
   if (!project) {
-    return null;
+    return (
+      <Page>
+        <BackLink href="/opensource">{t.back}</BackLink>
+        {!loading && <Notice>{t.notFound}</Notice>}
+      </Page>
+    );
   }
 
+  const pkg = packageNameOf(project.links.npm);
+  const installCmd = pkg ? `npm install ${pkg}` : null;
+
+  // AppShell이 방문자 화면에서 copy 이벤트를 막지만, clipboard API는 copy 이벤트를 거치지 않아 그대로 동작한다
+  const handleCopy = async () => {
+    if (!installCmd) return;
+    try {
+      await navigator.clipboard.writeText(installCmd);
+      setCopied(true);
+      clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // 보안 컨텍스트가 아니면 clipboard API가 없을 수 있다. 조용히 넘긴다
+    }
+  };
+
+  const meta = [
+    project.category[language],
+    hasValue(project.stats.components) ? t.components(project.stats.components!) : '',
+    hasValue(project.stats.stars) ? t.stars(project.stats.stars) : '',
+    hasValue(project.stats.downloads) ? t.downloads(project.stats.downloads) : '',
+    project.year,
+  ].filter(Boolean).join(' · ');
+
+  const demo = project.links.demo;
+  const demoIsAnchor = !!demo && demo.startsWith('#');
+  const features = project.features[language];
+  const hasDocs = project.id === 'awesome-ui-kit' || project.id === 'data-ui-kit';
+
   return (
-    <DetailContainer $isDark={isDark}>
-      <BackButton $isDark={isDark} onClick={onBack}>
-        <ArrowLeft />
-        {t.back}
-      </BackButton>
+    <Page>
+      <BackLink href="/opensource">{t.back}</BackLink>
 
-      <Hero>
-        <HeroHeader>
-          <TitleSection>
-            <Category $isDark={isDark}>{project.category[language]}</Category>
-            <Title $isDark={isDark}>{project.name}</Title>
-            <Description $isDark={isDark}>
-              {project.description[language]}
-            </Description>
-          </TitleSection>
-        </HeroHeader>
+      <Column>
+        <Title>{project.name}</Title>
+        <Lead>{undash(project.description[language])}</Lead>
+        {meta && <Meta>{meta}</Meta>}
 
-        <StatsGrid>
-          <StatCard $isDark={isDark}>
-            <StatIcon $isDark={isDark}>
-              <Star />
-            </StatIcon>
-            <StatValue $isDark={isDark}>{project.stats.stars}</StatValue>
-            <StatLabel $isDark={isDark}>{t.stars}</StatLabel>
-          </StatCard>
-
-          <StatCard $isDark={isDark}>
-            <StatIcon $isDark={isDark}>
-              <Download />
-            </StatIcon>
-            <StatValue $isDark={isDark}>{project.stats.downloads}</StatValue>
-            <StatLabel $isDark={isDark}>{t.downloads}</StatLabel>
-          </StatCard>
-
-          {project.stats.components && (
-            <StatCard $isDark={isDark}>
-              <StatIcon $isDark={isDark}>
-                <Package />
-              </StatIcon>
-              <StatValue $isDark={isDark}>{project.stats.components}</StatValue>
-              <StatLabel $isDark={isDark}>{t.components}</StatLabel>
-            </StatCard>
+        <Actions>
+          {project.links.github && (
+            <SecondaryButton href={project.links.github} target="_blank" rel="noopener noreferrer">
+              GitHub <ArrowUpRight />
+            </SecondaryButton>
           )}
-
-          <StatCard $isDark={isDark}>
-            <StatIcon $isDark={isDark}>
-              <Github />
-            </StatIcon>
-            <StatValue $isDark={isDark}>{project.stats.contributors}</StatValue>
-            <StatLabel $isDark={isDark}>{t.contributors}</StatLabel>
-          </StatCard>
-        </StatsGrid>
-
-        <ButtonGroup>
-          <Button 
-            $isDark={isDark} 
-            $variant="primary"
-            href={project.links.github}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Github />
-            {t.viewGithub}
-          </Button>
           {project.links.npm && (
-            <Button 
-              $isDark={isDark} 
-              $variant="secondary"
-              href={project.links.npm}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Package />
-              {t.viewNpm}
-            </Button>
+            <SecondaryButton href={project.links.npm} target="_blank" rel="noopener noreferrer">
+              npm <ArrowUpRight />
+            </SecondaryButton>
           )}
-          {project.links.demo && (
-            <Button 
-              $isDark={isDark} 
-              $variant="secondary"
-              href={project.links.demo}
-            >
-              <ExternalLink />
-              {t.viewDemo}
-            </Button>
+          {demo && (
+            demoIsAnchor ? (
+              <SecondaryButton href={demo}>{t.demo}</SecondaryButton>
+            ) : (
+              <SecondaryButton href={demo} target="_blank" rel="noopener noreferrer">
+                {t.demo} <ArrowUpRight />
+              </SecondaryButton>
+            )
           )}
-        </ButtonGroup>
-      </Hero>
+        </Actions>
 
-      <ContentSection $isDark={isDark}>
-        <Section>
-          <SectionTitle $isDark={isDark}>{t.overview}</SectionTitle>
-          <FullDescription $isDark={isDark}>
-            {project.fullDescription[language]}
-          </FullDescription>
-        </Section>
+        {installCmd && (
+          <CopyLine>
+            <code><span className="prompt">$ </span>{installCmd}</code>
+            <GhostButton type="button" onClick={handleCopy} aria-live="polite">
+              {copied ? t.copied : t.copy}
+            </GhostButton>
+          </CopyLine>
+        )}
 
-        <Section>
-          <SectionTitle $isDark={isDark}>{t.features}</SectionTitle>
-          <FeaturesList>
-            {project.features[language].map((feature, index) => (
-              <FeatureItem key={index} $isDark={isDark}>
-                <CheckCircle />
-                <FeatureText $isDark={isDark}>{feature}</FeatureText>
-              </FeatureItem>
-            ))}
-          </FeaturesList>
-        </Section>
-      </ContentSection>
+        {project.fullDescription[language] && (
+          <Section>
+            <h2>{t.overview}</h2>
+            <Body>{undash(project.fullDescription[language])}</Body>
+          </Section>
+        )}
 
-      {project.id === 'awesome-ui-kit' && (
-        <DemoSection $isDark={isDark}>
-          <Suspense fallback={<DemoFallback isDark={isDark} />}>
-            <LibraryDocDemo isDark={isDark} language={language} projectId={project.id} />
-          </Suspense>
+        {features.length > 0 && (
+          <Section>
+            <h2>{t.features}</h2>
+            <Features>
+              {features.map((feature, index) => (
+                <li key={index}>{undash(feature)}</li>
+              ))}
+            </Features>
+          </Section>
+        )}
+
+        {project.tags.length > 0 && (
+          <TagRow>
+            <dt>{t.tags}</dt>
+            <dd>{project.tags.join(' · ')}</dd>
+          </TagRow>
+        )}
+      </Column>
+
+      {hasDocs && (
+        <DemoSection id={project.id}>
+          <h2>{t.docs}</h2>
+          <DemoFrame>
+            <Suspense fallback={<DemoFallback />}>
+              {project.id === 'data-ui-kit' && <DataUIKitGuide isDark={isDark} language={language} />}
+              <LibraryDocDemo isDark={isDark} language={language} projectId={project.id} />
+            </Suspense>
+          </DemoFrame>
         </DemoSection>
       )}
-
-      {project.id === 'data-ui-kit' && (
-        <DemoSection $isDark={isDark}>
-          <Suspense fallback={<DemoFallback isDark={isDark} />}>
-            <DataUIKitGuide isDark={isDark} language={language} />
-            <LibraryDocDemo isDark={isDark} language={language} projectId={project.id} />
-          </Suspense>
-        </DemoSection>
-      )}
-    </DetailContainer>
+    </Page>
   );
 }

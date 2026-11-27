@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef, type ReactNode } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useTheme } from '../../contexts/ThemeContext';
 import Header from '../Header';
-import ScrollDot from '../ScrollDot';
+import CommandPalette from '../CommandPalette';
 import Contact from '../Contact';
 import Chatbot from '../Chatbot';
 import {
@@ -22,7 +22,7 @@ import { ContactModalContext } from './ContactModalContext';
 export default function AppShell({ children }: { children: ReactNode }) {
   const { isDark } = useTheme();
   const [contactModalOpen, setContactModalOpen] = useState(false);
-  const router = useRouter();
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const pathname = usePathname() || '/';
 
   // react-router의 useNavigationType 대체 — popstate로 뒤로/앞으로 이동 감지
@@ -171,8 +171,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
       <AppContainer $isDark={isDark}>
         {!isAdminPage && (
           <Header
-            navigateToHome={() => router.push('/')}
             onContactClick={() => setContactModalOpen(true)}
+            onSearchClick={() => setPaletteOpen(true)}
           />
         )}
         {children}
@@ -180,7 +180,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
       {!isAdminPage && (
         <>
-          <ScrollDot />
+          <CommandPalette
+            open={paletteOpen}
+            onOpenChange={setPaletteOpen}
+            onContact={() => setContactModalOpen(true)}
+          />
           <Contact
             isOpen={contactModalOpen}
             onOpenChange={setContactModalOpen}

@@ -1,339 +1,310 @@
 'use client';
 
-import styled, { keyframes } from 'styled-components';
-import { useTheme } from '../contexts/ThemeContext';
+import { useMemo, useState } from 'react';
+import styled from 'styled-components';
+import Link from 'next/link';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useBlogPosts } from '../hooks/useBlogPosts';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { ArrowLeft } from 'lucide-react';
 import Footer from './Footer';
 
-/* ── Animations ──────────────────────────────────── */
+/* 홈의 글 카드와 같은 규칙: 썸네일 + 제목 + 메타, 장식 없이 토큰만 쓴다 */
 
-const shimmer = keyframes`
-  0%   { background-position: -400% 0; }
-  100% { background-position:  400% 0; }
-`;
-
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-`;
-
-/* ── Layout ──────────────────────────────────────── */
-
-const Page = styled.div<{ $isDark: boolean }>`
-  min-height: 100vh;
-  background: ${p => (p.$isDark ? '#000000' : '#ffffff')};
-  display: flex;
-  flex-direction: column;
-  transition: background 0.3s ease;
-`;
-
-const Container = styled.div`
-  max-width: 1100px;
-  width: 100%;
+const Page = styled.main`
+  max-width: var(--k-page-max);
   margin: 0 auto;
-  padding: 0 40px;
+  padding: var(--k-space-10) var(--k-space-6) 96px;
+  color: var(--k-text);
+  animation: k-enter 0.25s var(--k-ease) both;
 
   @media (max-width: 768px) {
-    padding: 0 20px;
+    padding: var(--k-space-6) var(--k-space-4) 72px;
   }
 `;
 
-/* ── Back Button ─────────────────────────────────── */
+const PageHead = styled.header`
+  margin-bottom: var(--k-space-8);
 
-const BackButton = styled.button<{ $isDark: boolean }>`
-  position: fixed;
-  top: 36px;
-  left: 36px;
-  z-index: 100;
+  h1 {
+    font-size: var(--k-text-2xl);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  p {
+    margin-top: 6px;
+    font-size: var(--k-text-md);
+    color: var(--k-text-weak);
+    word-break: keep-all;
+  }
+`;
+
+/* 분류 탭: 밑줄 탭, 개수는 옅게 */
+const Tabs = styled.div`
+  display: flex;
+  gap: var(--k-space-6);
+  margin-bottom: var(--k-space-8);
+  border-bottom: 1px solid var(--k-line);
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+
+  @media (max-width: 768px) {
+    gap: var(--k-space-5);
+  }
+`;
+
+const Tab = styled.button<{ $active: boolean }>`
+  position: relative;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 22px;
-  border-radius: 100px;
-  background: ${p => (p.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.7)')};
-  color: ${p => (p.$isDark ? '#f5f5f7' : '#1d1d1f')};
-  font-size: 14px;
-  font-weight: 500;
-  font-family: inherit;
+  gap: var(--k-space-1);
+  height: var(--k-control-md);
+  padding: 0;
   border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--k-text-md);
+  font-weight: ${p => (p.$active ? 700 : 500)};
+  color: ${p => (p.$active ? 'var(--k-text)' : 'var(--k-text-sub)')};
+  white-space: nowrap;
   cursor: pointer;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: background 0.25s ease, border-color 0.25s ease;
+  transition: color 0.15s var(--k-ease);
 
-  &:hover {
-    background: ${p => (p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)')};
+  &:hover { color: var(--k-text); }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--k-accent);
+    transform: scaleX(${p => (p.$active ? 1 : 0)});
+    transition: transform 0.2s var(--k-ease);
   }
 
-  @media (max-width: 768px) {
-    top: auto;
-    bottom: 24px;
-    left: 20px;
-    padding: 10px 18px;
-    font-size: 13px;
-  }
-`;
-
-/* ── Header ──────────────────────────────────────── */
-
-const Header = styled.header`
-  padding: 140px 0 0;
-  text-align: center;
-
-  @media (max-width: 768px) {
-    padding: 110px 0 0;
+  span {
+    font-weight: 500;
+    color: var(--k-text-weak);
+    font-variant-numeric: tabular-nums;
   }
 `;
 
-const Eyebrow = styled.span<{ $isDark: boolean }>`
-  display: block;
-  font-size: 13px;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: ${p => (p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)')};
-  margin-bottom: 12px;
-`;
-
-const Title = styled.h1<{ $isDark: boolean }>`
-  font-size: 40px;
-  font-weight: 700;
-  color: ${p => (p.$isDark ? '#f5f5f7' : '#1d1d1f')};
-  margin: 0 0 8px;
-  letter-spacing: -1px;
-  line-height: 1.15;
-  transition: color 0.3s ease;
-
-  @media (max-width: 768px) {
-    font-size: 30px;
-  }
-`;
-
-const Subtitle = styled.p<{ $isDark: boolean }>`
-  font-size: 16px;
-  color: ${p => (p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)')};
-  margin: 0 0 48px;
-  line-height: 1.5;
-  text-align: center;
-`;
-
-/* ── Grid ────────────────────────────────────────── */
-
-const GridSection = styled.section`
-  flex: 1;
-  padding-bottom: 120px;
-
-  @media (max-width: 768px) {
-    padding-bottom: 80px;
-  }
-`;
-
-const Grid = styled.div`
+const Grid = styled.ul`
+  list-style: none;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--k-space-8) var(--k-space-5);
 
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
-    gap: 20px;
   }
 `;
 
-/* ── Card ────────────────────────────────────────── */
+const Card = styled.li`
+  animation: k-enter 0.25s var(--k-ease) both;
 
-const CardWrapper = styled.article`
-  cursor: pointer;
-  animation: ${fadeIn} 0.45s ease both;
-`;
+  a {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
 
-const ImageContainer = styled.div`
-  position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  aspect-ratio: 4 / 3;
+  /* 썸네일 원본이 16:9라 같은 비율 상자에 넣어 잘리는 곳이 없게 한다 */
+  .shot {
+    aspect-ratio: 16 / 9;
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius-lg);
+    background: var(--k-bg-sub);
+    overflow: hidden;
+  }
 
-  img {
+  .shot img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s ease, filter 0.4s ease;
   }
 
-  ${CardWrapper}:hover & img {
-    transform: scale(1.04);
-    filter: blur(3px) brightness(0.65);
+  .title {
+    margin-top: var(--k-space-3);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+    word-break: keep-all;
+    text-wrap: pretty;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .meta {
+    margin-top: 2px;
+    font-size: var(--k-text-sm);
+    color: var(--k-text-weak);
+    font-variant-numeric: tabular-nums;
+  }
+
+  a:hover .title {
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
 `;
 
-const ImageOverlay = styled.div`
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 20px;
-  opacity: 0;
-  transition: opacity 0.35s ease;
+const SkeletonCard = styled.li`
+  .shot {
+    aspect-ratio: 16 / 9;
+    border-radius: var(--k-radius-lg);
+    background: var(--k-bg-sub);
+  }
 
-  ${CardWrapper}:hover & {
-    opacity: 1;
+  .line {
+    height: 14px;
+    margin-top: var(--k-space-3);
+    border-radius: var(--k-radius-sm);
+    background: var(--k-bg-sub);
+  }
+
+  .line + .line {
+    width: 40%;
+    margin-top: var(--k-space-2);
   }
 `;
 
-const OverlayExcerpt = styled.p`
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+const Notice = styled.p`
+  padding: var(--k-space-12) 0;
+  font-size: var(--k-text-md);
+  color: var(--k-text-weak);
+  text-align: center;
 `;
-
-const CardMeta = styled.div`
-  padding: 12px 2px 0;
-`;
-
-const PostTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 15px;
-  font-weight: 600;
-  color: ${p => (p.$isDark ? '#f5f5f7' : '#1d1d1f')};
-  margin: 0;
-  letter-spacing: -0.2px;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-`;
-
-const PostInfo = styled.span<{ $isDark: boolean }>`
-  display: block;
-  font-size: 12px;
-  color: ${p => (p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)')};
-  margin-top: 3px;
-  font-weight: 400;
-`;
-
-/* ── Skeleton ────────────────────────────────────── */
-
-const SkeletonBox = styled.div<{ $isDark: boolean }>`
-  border-radius: 14px;
-  aspect-ratio: 4 / 3;
-  background: linear-gradient(
-    90deg,
-    ${p => (p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)')} 25%,
-    ${p => (p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)')} 50%,
-    ${p => (p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)')} 75%
-  );
-  background-size: 400% 100%;
-  animation: ${shimmer} 1.4s ease infinite;
-`;
-
-const SkeletonLine = styled.div<{ $isDark: boolean; $width?: string }>`
-  height: 14px;
-  border-radius: 7px;
-  width: ${p => p.$width ?? '100%'};
-  background: linear-gradient(
-    90deg,
-    ${p => (p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)')} 25%,
-    ${p => (p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)')} 50%,
-    ${p => (p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)')} 75%
-  );
-  background-size: 400% 100%;
-  animation: ${shimmer} 1.4s ease infinite;
-`;
-
-/* ── Translations ────────────────────────────────── */
 
 const translations = {
   ko: {
-    back: '뒤로가기',
-    eyebrow: 'BLOG',
     title: '블로그',
-    subtitle: '디자인과 개발에 대한 생각을 공유합니다.',
+    subtitle: '일하면서 겪은 문제와 디자인에 대한 생각을 적어요.',
+    all: '전체',
+    empty: '아직 글이 없어요.',
+    error: '글을 불러오지 못했어요. 잠시 뒤에 다시 열어 주세요.',
   },
   en: {
-    back: 'Back',
-    eyebrow: 'BLOG',
     title: 'Blog',
-    subtitle: 'Sharing thoughts on design and development.',
+    subtitle: 'Notes on problems I ran into at work and how I think about design.',
+    all: 'All',
+    empty: 'No posts yet.',
+    error: 'Could not load posts. Please try again in a moment.',
   },
 };
 
-/* ── Component ───────────────────────────────────── */
+// DB 문자열의 줄표는 가운뎃점으로 바꿔 보여 준다
+const undash = (s: string) => s.replace(/\s*[—–]\s*/g, ' · ');
+
+const ALL = '__all__';
 
 interface BlogProps {
   onPostClick: (blogId: string) => void;
   onBack: () => void;
 }
 
-export default function Blog({ onPostClick, onBack }: BlogProps) {
-  const { isDark } = useTheme();
+// 카드 이동은 Link로 처리한다 (새 탭 열기, 미리 불러오기). props 계약은 그대로 둔다.
+export default function Blog(_props: BlogProps) {
   const { language } = useLanguage();
-  const { posts: blogPosts, loading } = useBlogPosts();
+  const { posts, loading, error } = useBlogPosts();
   const t = translations[language];
+  const [active, setActive] = useState(ALL);
+
+  // 분류는 데이터에서 뽑고, 글이 많은 순서로 둔다. 키는 언어와 상관없이 ko 값
+  const categories = useMemo(() => {
+    const map = new Map<string, { label: { ko: string; en: string }; count: number }>();
+    posts.forEach(p => {
+      const key = p.category.ko;
+      if (!key) return;
+      const prev = map.get(key);
+      if (prev) prev.count += 1;
+      else map.set(key, { label: p.category, count: 1 });
+    });
+    return [...map.entries()]
+      .map(([key, v]) => ({ key, ...v }))
+      .sort((a, b) => b.count - a.count);
+  }, [posts]);
+
+  const visible = active === ALL ? posts : posts.filter(p => p.category.ko === active);
 
   return (
-    <Page $isDark={isDark}>
-      <BackButton $isDark={isDark} onClick={onBack}>
-        <ArrowLeft size={16} />
-        {t.back}
-      </BackButton>
+    <>
+      <Page>
+        <PageHead>
+          <h1>{t.title}</h1>
+          <p>{t.subtitle}</p>
+        </PageHead>
 
-      <Container>
-        <Header>
-          <Eyebrow $isDark={isDark}>{t.eyebrow}</Eyebrow>
-          <Title $isDark={isDark}>{t.title}</Title>
-          <Subtitle $isDark={isDark}>{t.subtitle}</Subtitle>
-        </Header>
+        {!loading && categories.length > 1 && (
+          <Tabs role="tablist">
+            <Tab
+              type="button"
+              role="tab"
+              aria-selected={active === ALL}
+              $active={active === ALL}
+              onClick={() => setActive(ALL)}
+            >
+              {t.all} <span>{posts.length}</span>
+            </Tab>
+            {categories.map(c => (
+              <Tab
+                key={c.key}
+                type="button"
+                role="tab"
+                aria-selected={active === c.key}
+                $active={active === c.key}
+                onClick={() => setActive(c.key)}
+              >
+                {c.label[language] || c.key} <span>{c.count}</span>
+              </Tab>
+            ))}
+          </Tabs>
+        )}
 
-        <GridSection>
-          <Grid>
-            {loading
-              ? Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i}>
-                    <SkeletonBox $isDark={isDark} />
-                    <CardMeta>
-                      <SkeletonLine $isDark={isDark} $width="60%" style={{ height: 14, marginBottom: 6 }} />
-                      <SkeletonLine $isDark={isDark} $width="40%" style={{ height: 11 }} />
-                    </CardMeta>
-                  </div>
-                ))
-              : blogPosts.map((post, i) => (
-                  <CardWrapper
-                    key={post.id}
-                    style={{ animationDelay: `${i * 60}ms` }}
-                    onClick={() => onPostClick(post.id)}
-                  >
-                    <ImageContainer>
-                      <ImageWithFallback src={post.thumbnail} alt={post.title[language]} />
-                      <ImageOverlay>
-                        <OverlayExcerpt>{post.excerpt[language]}</OverlayExcerpt>
-                      </ImageOverlay>
-                    </ImageContainer>
-                    <CardMeta>
-                      <PostTitle $isDark={isDark}>{post.title[language]}</PostTitle>
-                      <PostInfo $isDark={isDark}>
-                        {post.category[language]} · {post.date}
-                      </PostInfo>
-                    </CardMeta>
-                  </CardWrapper>
-                ))}
+        {loading ? (
+          <Grid aria-busy="true">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i}>
+                <div className="shot" />
+                <div className="line" />
+                <div className="line" />
+              </SkeletonCard>
+            ))}
           </Grid>
-        </GridSection>
-      </Container>
+        ) : error ? (
+          <Notice>{t.error}</Notice>
+        ) : visible.length === 0 ? (
+          <Notice>{t.empty}</Notice>
+        ) : (
+          <Grid>
+            {visible.map((post, i) => (
+              <Card key={post.id} style={{ animationDelay: `${Math.min(i, 8) * 30}ms` }}>
+                <Link href={`/blog/${post.id}`}>
+                  <div className="shot">
+                    {post.thumbnail && <img src={post.thumbnail} alt="" loading="lazy" />}
+                  </div>
+                  <div className="title">{undash(post.title[language])}</div>
+                  <div className="meta">
+                    {post.category[language]} · {post.date.replace(/-/g, '.')}
+                  </div>
+                </Link>
+              </Card>
+            ))}
+          </Grid>
+        )}
+      </Page>
 
       <Footer />
-    </Page>
+    </>
   );
 }

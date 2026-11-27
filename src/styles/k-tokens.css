@@ -1,0 +1,105 @@
+/* PUUS(keyrke-ui)와 같은 토큰 규칙.
+   회색 단계 + 검정 하나를 강조색으로 쓰고, 그림자는 떠 있는 요소에만 쓴다.
+   다크 모드는 같은 이름의 토큰 값만 바꿔서 컴포넌트 쪽 분기를 없앤다. */
+:root {
+  --k-gray-950: #111111;
+  --k-gray-900: #1f1f1f;
+  --k-gray-800: #333333;
+  --k-gray-700: #4d4d4d;
+  --k-gray-600: #666666;
+  --k-gray-500: #888888;
+  --k-gray-400: #aaaaaa;
+  --k-gray-300: #d1d1d1;
+  --k-gray-200: #e5e5e5;
+  --k-gray-100: #f1f1f1;
+  --k-gray-50: #f7f7f7;
+  --k-white: #ffffff;
+
+  --k-accent: var(--k-gray-950);
+  --k-accent-hover: var(--k-gray-800);
+  --k-on-accent: var(--k-white);
+
+  --k-text: var(--k-gray-950);
+  --k-text-sub: var(--k-gray-600);
+  --k-text-weak: var(--k-gray-500);
+  --k-text-disabled: var(--k-gray-400);
+
+  --k-bg: var(--k-white);
+  --k-bg-sub: var(--k-gray-50);
+  --k-bg-hover: var(--k-gray-100);
+  --k-bg-pop: var(--k-white);
+  --k-line: var(--k-gray-200);
+  --k-line-strong: var(--k-gray-300);
+
+  --k-font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --k-font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  --k-text-xs: 12px;
+  --k-text-sm: 13px;
+  --k-text-md: 14px;
+  --k-text-lg: 16px;
+  --k-text-xl: 20px;
+  --k-text-2xl: 26px;
+
+  --k-space-1: 4px;
+  --k-space-2: 8px;
+  --k-space-3: 12px;
+  --k-space-4: 16px;
+  --k-space-5: 20px;
+  --k-space-6: 24px;
+  --k-space-8: 32px;
+  --k-space-10: 40px;
+  --k-space-12: 48px;
+
+  --k-radius-sm: 4px;
+  --k-radius: 8px;
+  --k-radius-lg: 12px;
+
+  --k-control-sm: 32px;
+  --k-control-md: 40px;
+
+  --k-shadow-pop: 0 8px 28px rgba(0, 0, 0, 0.12);
+  --k-dim: rgba(0, 0, 0, 0.4);
+  --k-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  --k-page-max: 1040px;
+}
+
+/* 다크: 밝기 순서를 뒤집고 강조색은 흰색 하나 */
+:root[data-theme='dark'] {
+  --k-accent: #f1f1f1;
+  --k-accent-hover: #d1d1d1;
+  --k-on-accent: #111111;
+
+  --k-text: #f1f1f1;
+  --k-text-sub: #a3a3a3;
+  --k-text-weak: #7a7a7a;
+  --k-text-disabled: #555555;
+
+  --k-bg: #111111;
+  --k-bg-sub: #191919;
+  --k-bg-hover: #222222;
+  --k-bg-pop: #1c1c1c;
+  --k-line: #2a2a2a;
+  --k-line-strong: #3a3a3a;
+
+  --k-shadow-pop: 0 8px 28px rgba(0, 0, 0, 0.5);
+  --k-dim: rgba(0, 0, 0, 0.6);
+}
+
+/* 검색창이 열려 스크롤바가 사라져도 헤더가 옆으로 밀리지 않게 */
+html { scrollbar-gutter: stable; }
+
+@keyframes k-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes k-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .k-enter { animation: none !important; }
+}

@@ -1,427 +1,301 @@
 'use client';
 
-import { useCallback, useRef, useState, useEffect } from 'react';
-import React from 'react';
-import styled, { keyframes } from 'styled-components';
-import { useTheme } from '../contexts/ThemeContext';
+import { useState, type MouseEvent } from 'react';
+import styled from 'styled-components';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useProjects } from '../hooks/useProjects';
-import { ArrowLeft } from 'lucide-react';
-import { resolveIcon } from '../lib/techIcons';
+import type { Project } from '../data/projectsData';
 
-/* ── InView hook (toggles on every enter/leave so animations replay) ── */
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLElement>(null);
-  const [inView, setInView] = useState(false);
-  const [animKey, setAnimKey] = useState(0);
-  const prevVisible = useRef(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        const visible = entry.isIntersecting;
-        if (visible && !prevVisible.current) setAnimKey(k => k + 1);
-        prevVisible.current = visible;
-        setInView(visible);
-      },
-      { threshold, rootMargin: '-15% 0px -15% 0px' },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [threshold]);
-  return [ref, inView, animKey] as const;
-}
+/* 홈의 작업 카드와 같은 모양으로, 실무/개인을 밑줄 탭으로만 나눈다 */
 
-/* ── Character reveal animation ── */
-const charReveal = keyframes`
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-`;
-
-const CharSpan = styled.span<{ $delay: number }>`
-  display: inline-block;
-  opacity: 0;
-  animation: ${charReveal} 0.4s ease forwards;
-  animation-delay: ${p => p.$delay}ms;
-`;
-
-/* ── Keyframes ── */
-const shimmer = keyframes`
-  0% { background-position: -400% 0; }
-  100% { background-position: 400% 0; }
-`;
-
-/* ── Full-viewport section per group ── */
-const GroupSection = styled.section<{ $isDark: boolean }>`
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  background: ${p => p.$isDark ? '#000000' : '#ffffff'};
-  transition: background 0.3s ease;
-  padding: 80px 0;
-`;
-
-/* ── First section needs extra top padding for header ── */
-const FirstSection = styled(GroupSection)`
-  padding-top: 160px;
-
-  @media (max-width: 768px) {
-    padding-top: 120px;
-  }
-`;
-
-const Container = styled.div`
-  max-width: 1100px;
-  width: 100%;
+const Page = styled.main`
+  max-width: var(--k-page-max);
   margin: 0 auto;
-  padding: 0 40px;
+  padding: var(--k-space-10) var(--k-space-6) 96px;
+  color: var(--k-text);
+  animation: k-enter 0.25s var(--k-ease) both;
 
   @media (max-width: 768px) {
-    padding: 0 20px;
+    padding: var(--k-space-6) var(--k-space-4) 72px;
   }
 `;
 
-/* ── Group header ── */
-const GroupEyebrow = styled.span<{ $isDark: boolean }>`
-  display: block;
-  font-size: 13px;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
-  margin-bottom: 12px;
-  text-align: center;
-`;
+const PageHead = styled.div`
+  margin-bottom: var(--k-space-8);
 
-const GroupTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 40px;
-  font-weight: 700;
-  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 48px 0;
-  letter-spacing: -1px;
-  line-height: 1.15;
-  text-align: center;
+  h1 {
+    font-size: var(--k-text-2xl);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
 
-  @media (max-width: 768px) {
-    font-size: 30px;
-    margin-bottom: 36px;
+  p {
+    margin-top: 6px;
+    font-size: var(--k-text-md);
+    color: var(--k-text-weak);
   }
 `;
 
-/* ── Back button (fixed pill) ── */
-const BackButton = styled.button<{ $isDark: boolean }>`
-  position: fixed;
-  top: 24px;
-  left: 24px;
-  z-index: 100;
+const Tabs = styled.div`
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 22px;
-  background: ${p => p.$isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)'};
-  border-radius: 100px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  font-size: 14px;
-  font-weight: 500;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)'};
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
+  gap: var(--k-space-6);
+  border-bottom: 1px solid var(--k-line);
+  margin-bottom: var(--k-space-8);
+  overflow-x: auto;
+  scrollbar-width: none;
 
-  svg {
-    width: 16px;
-    height: 16px;
-    transition: transform 0.2s ease;
-  }
-
-  &:hover {
-    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    svg { transform: translateX(-3px); }
-  }
-
-  @media (max-width: 768px) {
-    top: 16px;
-    left: 16px;
-    padding: 8px 18px;
-    font-size: 13px;
-  }
+  &::-webkit-scrollbar { display: none; }
 `;
 
-/* ── Grid: 3 columns ── */
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+const Tab = styled.button<{ $active: boolean }>`
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--k-control-md);
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--k-text-md);
+  font-weight: ${p => (p.$active ? 700 : 500)};
+  color: ${p => (p.$active ? 'var(--k-text)' : 'var(--k-text-sub)')};
+  cursor: pointer;
+  transition: color 0.15s var(--k-ease);
 
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
+  .count {
+    font-weight: 500;
+    color: var(--k-text-weak);
+    font-variant-numeric: tabular-nums;
   }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--k-accent);
+    transform: scaleX(${p => (p.$active ? 1 : 0)});
+    transition: transform 0.2s var(--k-ease);
+  }
+
+  &:hover { color: var(--k-text); }
+`;
+
+const Grid = styled.ul`
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--k-space-10) var(--k-space-6);
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: var(--k-space-8);
   }
 `;
 
-/* ── Card ── */
-const CardWrapper = styled.div`
-  cursor: pointer;
-`;
+const Card = styled.li`
+  animation: k-enter 0.25s var(--k-ease) both;
 
-const ImageContainer = styled.div`
-  position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  aspect-ratio: 4 / 3;
+  a {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
 
-  img {
+  .shot {
+    aspect-ratio: 16 / 10;
+    border-radius: var(--k-radius-lg);
+    border: 1px solid var(--k-line);
+    background: var(--k-bg-sub);
+    overflow: hidden;
+  }
+
+  .shot img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s ease, filter 0.4s ease;
   }
 
-  ${CardWrapper}:hover & > img {
-    transform: scale(1.04);
-    filter: blur(3px) brightness(0.65);
+  .title {
+    margin-top: var(--k-space-3);
+    font-size: var(--k-text-lg);
+    font-weight: 600;
   }
-`;
 
-const ImageOverlay = styled.div`
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 20px;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-
-  ${CardWrapper}:hover & {
-    opacity: 1;
+  .meta {
+    margin-top: 2px;
+    font-size: var(--k-text-sm);
+    color: var(--k-text-weak);
+    font-variant-numeric: tabular-nums;
   }
-`;
 
-const OverlayDescription = styled.p`
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 12px 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-`;
+  .desc {
+    margin-top: var(--k-space-2);
+    font-size: var(--k-text-md);
+    line-height: 1.6;
+    color: var(--k-text-sub);
+    word-break: keep-all;
+    text-wrap: pretty;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
-const OverlayTechIcons = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-`;
-
-const TechIcon = styled.div`
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  img {
-    width: 18px;
-    height: 18px;
-    object-fit: contain;
-    filter: none;
-    transform: none;
+  a:hover .title {
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
 `;
 
-const CardMeta = styled.div`
-  padding: 12px 2px 0;
+/* 불러오는 동안 카드 자리만 잡아 둔다. 반짝이는 효과 없이 회색 칸만 */
+const Skeleton = styled.li`
+  .shot {
+    aspect-ratio: 16 / 10;
+    border-radius: var(--k-radius-lg);
+    border: 1px solid var(--k-line);
+    background: var(--k-bg-sub);
+  }
+
+  .line {
+    height: 14px;
+    margin-top: var(--k-space-3);
+    border-radius: var(--k-radius-sm);
+    background: var(--k-bg-sub);
+  }
 `;
 
-const ProjectTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 15px;
-  font-weight: 600;
-  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0;
-  letter-spacing: -0.2px;
+const Notice = styled.p`
+  padding: var(--k-space-12) 0;
+  font-size: var(--k-text-md);
+  color: var(--k-text-weak);
+  text-align: center;
 `;
 
-const ProjectMeta = styled.span<{ $isDark: boolean }>`
-  display: block;
-  font-size: 12px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'};
-  margin-top: 3px;
-  font-weight: 400;
-`;
-
-/* ── Skeleton ── */
-const SkeletonBox = styled.div<{ $isDark: boolean }>`
-  border-radius: 14px;
-  aspect-ratio: 4 / 3;
-  background: linear-gradient(
-    90deg,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
-  );
-  background-size: 400% 100%;
-  animation: ${shimmer} 1.4s ease infinite;
-`;
-
-const SkeletonLine = styled.div<{ $isDark: boolean; $width?: string }>`
-  height: 14px;
-  border-radius: 7px;
-  width: ${p => p.$width ?? '100%'};
-  background: linear-gradient(
-    90deg,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
-  );
-  background-size: 400% 100%;
-  animation: ${shimmer} 1.4s ease infinite;
-`;
-
-/* ── Component ── */
 interface ProjectsGalleryProps {
   onProjectClick: (projectId: string) => void;
   onBack: () => void;
 }
 
+type Filter = 'all' | 'freelance' | 'personal';
+
 const translations = {
   ko: {
-    back: '홈으로',
-    freelanceEyebrow: 'CLIENT WORK',
-    freelanceTitle: '외주 프로젝트',
-    personalEyebrow: 'PERSONAL',
-    personalTitle: '개인 프로젝트',
+    title: '프로젝트',
+    desc: '실무로 만든 서비스와 개인 작업이에요.',
+    all: '전체',
+    freelance: '실무',
+    personal: '개인',
+    empty: '아직 올린 프로젝트가 없어요.',
+    error: '프로젝트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.',
   },
   en: {
-    back: 'Back to Home',
-    freelanceEyebrow: 'CLIENT WORK',
-    freelanceTitle: 'Freelance Projects',
-    personalEyebrow: 'PERSONAL',
-    personalTitle: 'Personal Projects',
+    title: 'Projects',
+    desc: 'Client services I built at work, plus personal projects.',
+    all: 'All',
+    freelance: 'Client',
+    personal: 'Personal',
+    empty: 'No projects yet.',
+    error: 'Could not load projects. Please try again later.',
   },
 };
 
-export default function ProjectsGallery({ onProjectClick, onBack }: ProjectsGalleryProps) {
-  const { isDark } = useTheme();
+// "SnapClub - 포토부스 키오스크 시스템" → "SnapClub" (홈 카드와 같은 규칙)
+const shortName = (title: string) => title.split(/\s+[-—–]\s+/)[0].trim();
+const subtitle = (title: string) => title.split(/\s+[-—–]\s+/).slice(1).join(' · ').trim();
+const clean = (s: string) => s.replace(/\s*[—–]\s*/g, ' · ');
+const cleanYear = (s: string) => s.replace(/[–—]/g, '-');
+
+export default function ProjectsGallery({ onProjectClick }: ProjectsGalleryProps) {
   const { language } = useLanguage();
-  const { projects, loading } = useProjects();
+  const { projects, loading, error } = useProjects();
   const t = translations[language];
+  const [filter, setFilter] = useState<Filter>('all');
 
-  const [freelanceRef, freelanceInView, freelanceKey] = useInView(0.15);
-  const [personalRef, personalInView, personalKey] = useInView(0.15);
-
-  const renderAnimatedTitle = (text: string, inView: boolean) =>
-    inView
-      ? text.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 40}>{c}</CharSpan>)
-      : text;
-
+  // 실무를 먼저, 그 안에서는 DB 순서를 그대로 둔다
   const freelance = projects.filter(p => p.type === 'freelance');
-  const personal  = projects.filter(p => p.type !== 'freelance');
+  const personal = projects.filter(p => p.type !== 'freelance');
+  const groups: Record<Filter, Project[]> = {
+    all: [...freelance, ...personal],
+    freelance,
+    personal,
+  };
+  const list = groups[filter];
 
-  const handleCardClick = useCallback(
-    (projectId: string) => () => onProjectClick(projectId),
-    [onProjectClick],
-  );
-
-  const getTechNames = (project: typeof projects[0]) => {
-    const ts = project.techStack;
-    if (!ts) return [];
-    return [
-      ...(ts.frontend ?? []),
-      ...(ts.backend ?? []),
-      ...(ts.design ?? []),
-      ...(ts.others ?? []),
-    ];
+  // 진짜 링크로 두어 새 탭 열기도 되게 하고, 일반 클릭만 앱 안에서 이동시킨다
+  const handleClick = (id: string) => (e: MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    e.preventDefault();
+    onProjectClick(id);
   };
 
-  const renderCards = (list: typeof projects) =>
-    list.map((project) => {
-      const techNames = getTechNames(project);
-      return (
-        <CardWrapper key={project.id} onClick={handleCardClick(project.id)}>
-          <ImageContainer>
-            <ImageWithFallback src={project.image} alt={project.title[language]} />
-            <ImageOverlay>
-              <OverlayDescription>{project.description[language]}</OverlayDescription>
-              <OverlayTechIcons>
-                {techNames.slice(0, 8).map((tech, i) =>
-                  resolveIcon(tech) ? (
-                    <TechIcon key={i} title={tech}>
-                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" />
-                    </TechIcon>
-                  ) : null,
-                )}
-              </OverlayTechIcons>
-            </ImageOverlay>
-          </ImageContainer>
-          <CardMeta>
-            <ProjectTitle $isDark={isDark}>{project.title[language]}</ProjectTitle>
-            {(project.year || project.role) && (
-              <ProjectMeta $isDark={isDark}>
-                {[project.year, project.role?.[language]].filter(Boolean).join(' · ')}
-              </ProjectMeta>
-            )}
-          </CardMeta>
-        </CardWrapper>
-      );
-    });
-
-  const renderSkeletons = (count: number) =>
-    Array.from({ length: count }).map((_, i) => (
-      <div key={i}>
-        <SkeletonBox $isDark={isDark} />
-        <CardMeta>
-          <SkeletonLine $isDark={isDark} $width="50%" style={{ height: 14, marginBottom: 6 }} />
-          <SkeletonLine $isDark={isDark} $width="30%" style={{ height: 11 }} />
-        </CardMeta>
-      </div>
-    ));
+  const tabs: Filter[] = ['all', 'freelance', 'personal'];
 
   return (
-    <>
-      <BackButton $isDark={isDark} onClick={onBack}>
-        <ArrowLeft />
-        {t.back}
-      </BackButton>
+    <Page>
+      <PageHead>
+        <h1>{t.title}</h1>
+        <p>{t.desc}</p>
+      </PageHead>
 
-      {/* ── CLIENT WORK — full viewport ── */}
-      {(loading || freelance.length > 0) && (
-        <FirstSection $isDark={isDark} ref={freelanceRef as React.RefObject<HTMLElement>}>
-          <Container>
-            <GroupEyebrow $isDark={isDark}>{t.freelanceEyebrow}</GroupEyebrow>
-            <GroupTitle key={`fl-${freelanceKey}`} as="div" $isDark={isDark}>{renderAnimatedTitle(t.freelanceTitle, freelanceInView)}</GroupTitle>
-            <Grid>
-              {loading ? renderSkeletons(3) : renderCards(freelance)}
-            </Grid>
-          </Container>
-        </FirstSection>
-      )}
+      <Tabs role="tablist">
+        {tabs.map(key => (
+          <Tab
+            key={key}
+            role="tab"
+            aria-selected={filter === key}
+            $active={filter === key}
+            onClick={() => setFilter(key)}
+          >
+            {t[key]}
+            {!loading && <span className="count">{groups[key].length}</span>}
+          </Tab>
+        ))}
+      </Tabs>
 
-      {/* ── PERSONAL — full viewport ── */}
-      {!loading && personal.length > 0 && (
-        <GroupSection $isDark={isDark} ref={personalRef as React.RefObject<HTMLElement>}>
-          <Container>
-            <GroupEyebrow $isDark={isDark}>{t.personalEyebrow}</GroupEyebrow>
-            <GroupTitle key={`ps-${personalKey}`} as="div" $isDark={isDark}>{renderAnimatedTitle(t.personalTitle, personalInView)}</GroupTitle>
-            <Grid>
-              {renderCards(personal)}
-            </Grid>
-          </Container>
-        </GroupSection>
+      {loading ? (
+        <Grid aria-busy="true">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i}>
+              <div className="shot" />
+              <div className="line" style={{ width: '40%' }} />
+              <div className="line" style={{ width: '70%' }} />
+            </Skeleton>
+          ))}
+        </Grid>
+      ) : error ? (
+        <Notice>{t.error}</Notice>
+      ) : list.length === 0 ? (
+        <Notice>{t.empty}</Notice>
+      ) : (
+        <Grid key={filter}>
+          {list.map((p, i) => {
+            const title = p.title[language];
+            const desc = p.description[language] || subtitle(title);
+            const meta = [p.role?.[language] && clean(p.role[language]), p.year && cleanYear(p.year)]
+              .filter(Boolean)
+              .join(' · ');
+            return (
+              <Card key={p.id} style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}>
+                <a href={`/projects/${p.id}`} onClick={handleClick(p.id)} title={clean(title)}>
+                  <div className="shot">
+                    {p.image && <ImageWithFallback src={p.image} alt="" loading="lazy" />}
+                  </div>
+                  <div className="title">{shortName(title)}</div>
+                  {meta && <div className="meta">{meta}</div>}
+                  {desc && <div className="desc">{clean(desc)}</div>}
+                </a>
+              </Card>
+            );
+          })}
+        </Grid>
       )}
-    </>
+    </Page>
   );
 }

@@ -1,16 +1,14 @@
 'use client';
 
 import styled from 'styled-components';
+import Link from 'next/link';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { useBlogPosts, useBlogPost } from '../hooks/useBlogPosts';
+import { useBlogPosts, useBlogPost, type BlogPost } from '../hooks/useBlogPosts';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
-import { ArrowLeft } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
 import Footer from './Footer';
 import { useState } from 'react';
 
-import { FILLED_ICONS, DARK_INVERT_ICONS, resolveIcon } from '../lib/techIcons';
 import ReactMarkdown from 'react-markdown';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
@@ -48,457 +46,264 @@ SyntaxHighlighter.registerLanguage('md', markdown);
 SyntaxHighlighter.registerLanguage('html', xml);
 SyntaxHighlighter.registerLanguage('xml', xml);
 
-const DetailContainer = styled.div<{ $isDark: boolean }>`
-  min-height: 100vh;
-  background: ${props => props.$isDark ? '#000000' : '#ffffff'};
-  padding-top: 80px;
-  transition: background 0.3s ease;
-`;
+/* 읽기 화면: 1040px 페이지 안에 720px 읽기 칸 하나. 색과 크기는 전부 토큰 */
 
-const BackButton = styled.button<{ $isDark: boolean }>`
-  position: fixed;
-  top: 80px;
-  left: 40px;
-  background: ${props => props.$isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  padding: 10px 22px;
-  border-radius: 100px;
-  font-size: 14px;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-  z-index: 100;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  font-family: inherit;
-
-  &:hover {
-  }
-
-  @media (max-width: 768px) {
-    position: fixed;
-    top: auto;
-    bottom: 24px;
-    left: 20px;
-    padding: 10px 18px;
-    font-size: 13px;
-  }
-`;
-
-const Article = styled.article`
-  max-width: 800px;
+const Page = styled.main`
+  max-width: var(--k-page-max);
   margin: 0 auto;
-  padding: 60px 40px 120px;
+  padding: var(--k-space-10) var(--k-space-6) 96px;
+  color: var(--k-text);
+  animation: k-enter 0.25s var(--k-ease) both;
 
   @media (max-width: 768px) {
-    padding: 40px 20px 80px;
+    padding: var(--k-space-6) var(--k-space-4) 72px;
   }
 `;
 
-const HeaderImage = styled.div`
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 60px;
+const Column = styled.article`
+  max-width: 720px;
+  margin: 0 auto;
+  min-width: 0;
+`;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+const BackLink = styled(Link)`
+  display: inline-block;
+  margin-bottom: var(--k-space-8);
+  font-size: var(--k-text-sm);
+  color: var(--k-text-weak);
+  text-decoration: none;
+  transition: color 0.15s var(--k-ease);
 
-  @media (max-width: 768px) {
-    border-radius: 14px;
-    margin-bottom: 40px;
-  }
+  &:hover { color: var(--k-text); }
 `;
 
 const Meta = styled.div`
-  display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+  font-size: var(--k-text-sm);
+  color: var(--k-text-weak);
+  font-variant-numeric: tabular-nums;
 `;
 
-const Category = styled.span<{ $isDark: boolean }>`
-  font-size: 13px;
-  color: ${props => props.$isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)'};
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  font-weight: 600;
-`;
-
-const Date = styled.span`
-  font-size: 12px;
-  color: #86868b;
-  letter-spacing: 0.5px;
-`;
-
-const ReadTime = styled.span`
-  font-size: 12px;
-  color: #86868b;
-  letter-spacing: 0.5px;
-`;
-
-const Title = styled.h1<{ $isDark: boolean }>`
-  font-size: 40px;
+const Title = styled.h1`
+  margin-top: var(--k-space-2);
+  font-size: 28px;
   font-weight: 700;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 40px 0;
-  letter-spacing: -1px;
-  line-height: 1.2;
-  transition: color 0.3s ease;
+  line-height: 1.4;
+  letter-spacing: -0.03em;
+  word-break: keep-all;
+  text-wrap: balance;
 
   @media (max-width: 768px) {
-    font-size: 32px;
-    letter-spacing: -1px;
-    margin-bottom: 30px;
+    font-size: var(--k-text-2xl);
   }
 `;
 
-const Tags = styled.div`
-  display: flex;
-  gap: 10px;
-  margin-bottom: 60px;
-  flex-wrap: wrap;
-  align-items: center;
-`;
+/* 썸네일은 읽기 칸 폭 그대로, 원본 비율로 보여 준다 (잘리지 않게 height: auto) */
+const Cover = styled.figure`
+  margin: var(--k-space-8) 0 0;
+  border: 1px solid var(--k-line);
+  border-radius: var(--k-radius-lg);
+  background: var(--k-bg-sub);
+  overflow: hidden;
 
-const Tag = styled.span<{ $isDark: boolean }>`
-  background: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
-  color: ${props => props.$isDark ? '#a1a1a6' : '#1d1d1f'};
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-`;
-
-const TagIconWrapper = styled.div<{ $isDark: boolean }>`
-  width: 40px;
-  height: 40px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  cursor: default;
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : '#ffffff'};
-  box-shadow: ${p => p.$isDark
-    ? '0 2px 8px rgba(0,0,0,0.3)'
-    : '0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03)'};
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.15);
-    z-index: 10;
-  }
-
-  &:hover > span {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  img.icon-filled {
+  img {
+    display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 9px;
-  }
-
-  img.icon-plain {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-  }
-
-  img.icon-dark-invert {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-    filter: ${p => p.$isDark ? 'invert(1) brightness(2)' : 'none'};
-    transition: filter 0.3s ease;
+    height: auto;
   }
 `;
 
-const TagIconTooltip = styled.span<{ $isDark: boolean }>`
-  position: absolute;
-  bottom: -26px;
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  font-size: 11px;
-  font-weight: 500;
-  color: ${p => p.$isDark ? '#f5f5f7' : '#ffffff'};
-  background: ${p => p.$isDark ? '#333' : '#1d1d1f'};
-  padding: 4px 10px;
-  border-radius: 6px;
-  white-space: nowrap;
-  opacity: 0;
-  transition: all 0.15s ease;
-  pointer-events: none;
-`;
-
-const Content = styled.div<{ $isDark: boolean }>`
-  font-size: 17px;
+const Body = styled.div`
+  margin-top: var(--k-space-10);
+  font-size: var(--k-text-lg);
   line-height: 1.8;
-  color: ${props => props.$isDark ? '#a1a1a6' : '#1d1d1f'};
-  transition: color 0.3s ease;
+  color: var(--k-text);
+  word-break: keep-all;
+  overflow-wrap: break-word;
 
-  h1, h2, h3, h4, h5, h6 {
-    color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    font-weight: 600;
-    letter-spacing: -0.5px;
-    margin: 48px 0 24px 0;
-    line-height: 1.3;
+  > :first-child { margin-top: 0; }
 
-    &:first-child {
-      margin-top: 0;
-    }
-  }
+  p { margin: 0 0 var(--k-space-5); }
 
-  h1 {
-    font-size: 40px;
-    letter-spacing: -1.2px;
-  }
-
-  h2 {
-    font-size: 32px;
-    letter-spacing: -1px;
+  h1, h2 {
+    margin: var(--k-space-12) 0 var(--k-space-4);
+    font-size: var(--k-text-xl);
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: -0.02em;
   }
 
   h3 {
-    font-size: 24px;
-    letter-spacing: -0.7px;
+    margin: var(--k-space-8) 0 var(--k-space-3);
+    font-size: var(--k-text-lg);
+    font-weight: 700;
+    line-height: 1.5;
   }
 
-  p {
-    margin: 0 0 24px 0;
+  h4, h5, h6 {
+    margin: var(--k-space-6) 0 var(--k-space-2);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.5;
   }
 
   ul, ol {
-    margin: 24px 0;
-    padding-left: 24px;
-
-    li {
-      margin-bottom: 12px;
-    }
+    margin: 0 0 var(--k-space-5);
+    padding-left: var(--k-space-5);
   }
+
+  ul { list-style: disc; }
+  ol { list-style: decimal; }
+
+  li { margin: 6px 0; }
+  li::marker { color: var(--k-text-weak); }
+  li > ul, li > ol { margin: 6px 0 0; }
+  li > p { margin: 0; }
 
   blockquote {
-    border-left: 3px solid ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    padding-left: 24px;
-    margin: 32px 0;
-    color: #86868b;
-    font-style: italic;
+    margin: var(--k-space-6) 0;
+    padding: 2px 0 2px var(--k-space-4);
+    border-left: 2px solid var(--k-line-strong);
+    color: var(--k-text-sub);
+
+    p:last-child { margin-bottom: 0; }
   }
 
-  pre {
-    background: ${props => props.$isDark ? '#1a1a1a' : '#f5f5f7'};
-    border: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-    border-radius: 12px;
-    padding: 24px;
-    margin: 24px 0;
+  a {
+    color: var(--k-text);
+    text-decoration: underline;
+    text-decoration-color: var(--k-line-strong);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.15s var(--k-ease);
+  }
+
+  a:hover { text-decoration-color: var(--k-text); }
+
+  strong { font-weight: 700; }
+
+  hr {
+    margin: var(--k-space-10) 0;
+    border: none;
+    border-top: 1px solid var(--k-line);
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: var(--k-space-6) 0;
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius);
+  }
+
+  /* 표는 칸 폭을 넘으면 표 안에서만 가로로 넘긴다 */
+  table {
+    display: block;
+    max-width: 100%;
     overflow-x: auto;
-    font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
-    font-size: 14px;
-    line-height: 1.7;
-
-    /* Custom scrollbar */
-    &::-webkit-scrollbar {
-      height: 8px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: ${props => props.$isDark ? '#0a0a0a' : '#e5e5e7'};
-      border-radius: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: ${props => props.$isDark ? '#3d3d3d' : '#c5c5c7'};
-      border-radius: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-      background: ${props => props.$isDark ? '#4d4d4d' : '#b5b5b7'};
-    }
-
-    code {
-      background: transparent;
-      padding: 0;
-      border: none;
-      border-radius: 0;
-      font-size: inherit;
-      color: ${props => props.$isDark ? '#d4d4d8' : '#1d1d1f'};
-    }
+    margin: var(--k-space-6) 0;
+    border-collapse: collapse;
+    font-size: var(--k-text-md);
+    line-height: 1.6;
   }
 
-  code {
-    background: ${props => props.$isDark ? '#1a1a1a' : '#f0f0f2'};
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
-    font-size: 0.9em;
-    color: ${props => props.$isDark ? '#e879f9' : '#e879f9'};
-    border: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
+  th, td {
+    padding: 10px var(--k-space-3);
+    border-bottom: 1px solid var(--k-line);
+    text-align: left;
+    vertical-align: top;
   }
 
-  strong {
+  th {
     font-weight: 600;
-    color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  }
-
-  @media (max-width: 768px) {
-    font-size: 16px;
-
-    h1 {
-      font-size: 32px;
-    }
-
-    h2 {
-      font-size: 26px;
-    }
-
-    h3 {
-      font-size: 20px;
-    }
-
-    pre {
-      padding: 16px;
-      margin: 20px -20px;
-      border-radius: 0;
-      border-left: none;
-      border-right: none;
-      font-size: 13px;
-    }
-
-    code {
-      font-size: 0.85em;
-    }
+    color: var(--k-text-sub);
+    border-bottom-color: var(--k-line-strong);
+    white-space: nowrap;
   }
 `;
 
-const CodeBlock = styled.div<{ $isDark: boolean }>`
-  position: relative;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
-  border: 1px solid ${props => props.$isDark ? '#1d1d1f' : '#e5e5e7'};
-  border-radius: 12px;
+const CodeBlock = styled.div`
+  margin: var(--k-space-6) 0;
+  border-radius: var(--k-radius);
+  background: var(--k-bg-sub);
   overflow: hidden;
-  margin: 32px 0;
-
-  @media (max-width: 768px) {
-    margin: 24px -20px;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
 `;
 
-const CodeHeader = styled.div<{ $isDark: boolean }>`
+const CodeHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  background: ${props => props.$isDark ? '#1d1d1f' : '#ececf0'};
-  border-bottom: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#d2d2d7'};
-
-  @media (max-width: 768px) {
-    padding: 10px 20px;
-  }
+  height: 36px;
+  padding: 0 var(--k-space-2) 0 var(--k-space-4);
+  border-bottom: 1px solid var(--k-line);
 `;
 
 const CodeLanguage = styled.span`
-  font-size: 12px;
-  color: #86868b;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
-  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-family: var(--k-font-mono);
+  font-size: var(--k-text-xs);
+  color: var(--k-text-weak);
 `;
 
-const CopyButton = styled.button<{ $isDark: boolean }>`
-  background: ${props => props.$isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'};
+const CopyButton = styled.button`
+  height: 24px;
+  padding: 0 var(--k-space-2);
   border: none;
-  color: ${props => props.$isDark ? '#a1a1a6' : '#1d1d1f'};
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
+  border-radius: var(--k-radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: var(--k-text-xs);
+  font-weight: 600;
+  color: var(--k-text-sub);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-  font-weight: 500;
+  transition: background 0.15s var(--k-ease), color 0.15s var(--k-ease);
 
   &:hover {
-    background: ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-  }
-
-  svg {
-    width: 14px;
-    height: 14px;
+    background: var(--k-bg-hover);
+    color: var(--k-text);
   }
 `;
 
-const CodeContent = styled.pre<{ $isDark: boolean }>`
-  /* Content styled-component의 pre 규칙이 캐스케이드되지 않도록 높은 specificity로 리셋 */
-  && {
-    border: none;
-    background: transparent;
-    border-radius: 0;
-    margin: 0;
-  }
-  padding: 24px;
-  overflow-x: auto;
-  font-family: 'SF Mono', Monaco, Consolas, monospace;
-  font-size: 14px;
-  line-height: 1.7;
-  color: ${props => props.$isDark ? '#d4d4d8' : '#1d1d1f'};
+const InlineCode = styled.code`
+  padding: 2px 6px;
+  border-radius: var(--k-radius-sm);
+  background: var(--k-bg-hover);
+  font-family: var(--k-font-mono);
+  font-size: 0.875em;
+  color: var(--k-text);
+  word-break: break-word;
+`;
 
-  /* Custom scrollbar */
-  &::-webkit-scrollbar {
-    height: 8px;
-  }
+/* 태그: 본문 끝에 옅은 작은 태그로만 */
+const Tags = styled.ul`
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--k-space-12);
+  padding-top: var(--k-space-6);
+  border-top: 1px solid var(--k-line);
 
-  &::-webkit-scrollbar-track {
-    background: ${props => props.$isDark ? '#0a0a0a' : '#e5e5e7'};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: ${props => props.$isDark ? '#3d3d3d' : '#c5c5c7'};
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: ${props => props.$isDark ? '#4d4d4d' : '#b5b5b7'};
-  }
-
-  code {
-    background: transparent;
-    padding: 0;
-    font-size: inherit;
-    line-height: inherit;
-    color: inherit;
-  }
-
-  @media (max-width: 768px) {
-    padding: 16px 20px;
-    font-size: 13px;
+  li {
+    padding: 2px var(--k-space-2);
+    border-radius: var(--k-radius-sm);
+    background: var(--k-bg-hover);
+    font-size: var(--k-text-xs);
+    line-height: 1.6;
+    color: var(--k-text-sub);
   }
 `;
 
-const InlineCode = styled.code<{ $isDark: boolean }>`
-  background: ${props => props.$isDark ? '#1d1d1f' : '#f5f5f7'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-family: 'SF Mono', Monaco, Consolas, monospace;
-  font-size: 0.9em;
-  border: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
+const Notice = styled.p`
+  padding: var(--k-space-10) 0;
+  font-size: var(--k-text-md);
+  color: var(--k-text-weak);
+`;
+
+const SkeletonLine = styled.div<{ $w?: string; $h?: number }>`
+  width: ${p => p.$w ?? '100%'};
+  height: ${p => p.$h ?? 14}px;
+  margin-top: var(--k-space-3);
+  border-radius: var(--k-radius-sm);
+  background: var(--k-bg-sub);
 `;
 
 interface BlogDetailProps {
@@ -508,16 +313,37 @@ interface BlogDetailProps {
 
 const translations = {
   ko: {
-    back: '목록으로',
+    back: '← 블로그',
     copy: '복사',
-    copied: '복사됨!'
+    copied: '복사했어요',
+    notFound: '글을 찾을 수 없어요.',
+    empty: '아직 본문이 없어요.',
   },
   en: {
-    back: 'Back to list',
+    back: '← Blog',
     copy: 'Copy',
-    copied: 'Copied!'
-  }
+    copied: 'Copied',
+    notFound: 'Post not found.',
+    empty: 'No content yet.',
+  },
 };
+
+// 목록 쿼리가 늦거나 실패해도 단건 쿼리만으로 화면을 그릴 수 있게 같은 모양으로 맞춘다
+function fromDbRow(row: NonNullable<ReturnType<typeof useBlogPost>['post']>): BlogPost {
+  return {
+    id: row.id,
+    title: { ko: row.title_ko, en: row.title_en },
+    excerpt: { ko: row.excerpt_ko, en: row.excerpt_en },
+    category: { ko: row.category_ko, en: row.category_en },
+    date: row.date,
+    readTime: { ko: row.read_time_ko, en: row.read_time_en },
+    tags: row.tags ?? [],
+    thumbnail: row.thumbnail_url ?? '',
+  };
+}
+
+// DB 문자열의 줄표는 가운뎃점으로 바꿔 보여 준다
+const undash = (s: string) => s.replace(/\s*[—–]\s*/g, ' · ');
 
 // 언어 명시가 없을 때 코드 내용으로 언어 추측
 function detectLanguage(code: string, hint: string): string {
@@ -534,35 +360,37 @@ function detectLanguage(code: string, hint: string): string {
   return 'text';
 }
 
-function MarkdownCodeBlock({ children, className, isDark, onCopy, copyIndex, copiedIndex }: {
+function MarkdownCodeBlock({ children, className, isDark, onCopy, copyIndex, copiedIndex, labels }: {
   children: string;
   className?: string;
   isDark: boolean;
   onCopy: (code: string, idx: number) => void;
   copyIndex: number;
   copiedIndex: number | null;
+  labels: { copy: string; copied: string };
 }) {
   const rawLang = className?.replace('language-', '') ?? '';
   const lang = detectLanguage(children, rawLang);
   const isCopied = copiedIndex === copyIndex;
   return (
-    <CodeBlock $isDark={isDark}>
-      <CodeHeader $isDark={isDark}>
+    <CodeBlock>
+      <CodeHeader>
         <CodeLanguage>{rawLang || lang || 'code'}</CodeLanguage>
-        <CopyButton $isDark={isDark} onClick={() => onCopy(children, copyIndex)}>
-          {isCopied ? '복사됨!' : '복사'}
+        <CopyButton type="button" onClick={() => onCopy(children, copyIndex)}>
+          {isCopied ? labels.copied : labels.copy}
         </CopyButton>
       </CodeHeader>
+      {/* 구문 색만 테마별 팔레트를 쓰고, 배경과 글꼴은 토큰을 따른다 */}
       <SyntaxHighlighter
         language={lang}
         style={isDark ? atomOneDark : atomOneLight}
         customStyle={{
           margin: 0,
-          padding: '24px',
+          padding: '16px',
           background: 'transparent',
-          fontSize: '14px',
+          fontSize: '13px',
           lineHeight: '1.7',
-          fontFamily: "'SF Mono', Monaco, Consolas, monospace",
+          fontFamily: 'var(--k-font-mono)',
           border: 'none',
           borderRadius: 0,
           overflowX: 'auto',
@@ -575,14 +403,21 @@ function MarkdownCodeBlock({ children, className, isDark, onCopy, copyIndex, cop
   );
 }
 
-export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
+export default function BlogDetail({ blogId }: BlogDetailProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
-  const { posts: blogPosts } = useBlogPosts();
-  const post = blogPosts.find(p => p.id === blogId);
-  const { post: dbPost } = useBlogPost(blogId); // DB에서 full content 가져오기
+  const { posts: blogPosts, loading: listLoading } = useBlogPosts();
+  const { post: dbPost, loading: postLoading } = useBlogPost(blogId); // DB에서 full content 가져오기
   const t = translations[language];
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [failedCover, setFailedCover] = useState<string | null>(null);
+
+  // 목록에 있으면 그 값을, 아직 없으면 공개된 단건 값을 쓴다 (초안은 보여 주지 않는다)
+  const listPost = blogPosts.find(p => p.id === blogId);
+  const post = listPost ?? (dbPost && dbPost.status === 'published' ? fromDbRow(dbPost) : undefined);
+
+  // 썸네일은 단건 행의 thumbnail_url을 먼저 본다
+  const cover = dbPost?.thumbnail_url || post?.thumbnail || '';
 
   useDocumentMeta({
     title: post?.title[language],
@@ -591,7 +426,25 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
   });
 
   if (!post) {
-    return <div>Post not found</div>;
+    const stillLoading = listLoading || postLoading;
+    return (
+      <>
+        <Page>
+          <Column>
+            <BackLink href="/blog">{t.back}</BackLink>
+            {stillLoading ? (
+              <div aria-busy="true">
+                <SkeletonLine $w="30%" $h={13} />
+                <SkeletonLine $w="80%" $h={28} />
+              </div>
+            ) : (
+              <Notice>{t.notFound}</Notice>
+            )}
+          </Column>
+        </Page>
+        <Footer />
+      </>
+    );
   }
 
   const handleCopy = (code: string, index: number) => {
@@ -600,7 +453,6 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  // DB에 content가 있으면 react-markdown으로 렌더링, 없으면 React 컴포넌트 fallback
   let codeBlockCounter = 0;
 
   const renderPostContent = () => {
@@ -616,7 +468,7 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
             pre({ children }) {
               return <>{children}</>;
             },
-            code({ className, children, ...props }) {
+            code({ className, children }) {
               const match = /language-(\w+)/.exec(className || '');
               const codeStr = String(children).replace(/\n$/, '');
               // fenced code blocks: has language class or multiline
@@ -629,23 +481,18 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
                     onCopy={handleCopy}
                     copyIndex={idx}
                     copiedIndex={copiedIndex}
+                    labels={t}
                   >
                     {codeStr}
                   </MarkdownCodeBlock>
                 );
               }
               // inline code
-              return <InlineCode $isDark={isDark}>{children}</InlineCode>;
+              return <InlineCode>{children}</InlineCode>;
             },
             img({ src, alt }) {
               if (!src) return null;
-              return (
-                <img
-                  src={src}
-                  alt={alt ?? ''}
-                  style={{ maxWidth: '100%', borderRadius: 12, margin: '24px 0', display: 'block' }}
-                />
-              );
+              return <img src={src} alt={alt ?? ''} loading="lazy" />;
             },
           }}
         >
@@ -654,53 +501,57 @@ export default function BlogDetail({ blogId, onBack }: BlogDetailProps) {
       );
     }
 
-    // No markdown content in DB → show empty state
-    return (
-      <div style={{ padding: '40px 0', color: isDark ? '#86868b' : '#86868b', textAlign: 'center' }}>
-        {language === 'ko' ? '아직 본문이 작성되지 않았습니다.' : 'No content yet.'}
-      </div>
-    );
+    // 단건을 아직 불러오는 중이면 빈 안내 대신 자리만 잡아 둔다
+    if (postLoading) {
+      return (
+        <div aria-busy="true">
+          <SkeletonLine />
+          <SkeletonLine />
+          <SkeletonLine $w="60%" />
+        </div>
+      );
+    }
+
+    return <Notice>{t.empty}</Notice>;
   };
 
+  const date = post.date ? post.date.replace(/-/g, '.') : '';
+  const meta = [post.category[language], date, post.readTime[language]].filter(Boolean).join(' · ');
+
   return (
-    <DetailContainer $isDark={isDark}>
-      <BackButton $isDark={isDark} onClick={onBack}>
-        <ArrowLeft size={16} />
-        {t.back}
-      </BackButton>
+    <>
+      <Page>
+        <Column>
+          <BackLink href="/blog">{t.back}</BackLink>
 
-      <Article>
-        <HeaderImage>
-          <ImageWithFallback src={post.thumbnail} alt={post.title[language]} />
-        </HeaderImage>
+          <Meta>{meta}</Meta>
+          <Title>{undash(post.title[language])}</Title>
 
-        <Meta>
-          <Category $isDark={isDark}>{post.category[language]}</Category>
-          <Date>{post.date}</Date>
-          <ReadTime>{post.readTime[language]}</ReadTime>
-        </Meta>
-
-        <Title $isDark={isDark}>{post.title[language]}</Title>
-
-        <Tags>
-          {post.tags.map((tag, index) =>
-            resolveIcon(tag) ? (
-              <TagIconWrapper key={index} $isDark={isDark}>
-                <img src={resolveIcon(tag)} alt={tag} loading="lazy" className={FILLED_ICONS.has(tag) ? 'icon-filled' : DARK_INVERT_ICONS.has(tag) ? 'icon-dark-invert' : 'icon-plain'} />
-                <TagIconTooltip $isDark={isDark}>{tag}</TagIconTooltip>
-              </TagIconWrapper>
-            ) : (
-              <Tag key={index} $isDark={isDark}>{tag}</Tag>
-            )
+          {cover && failedCover !== cover && (
+            <Cover>
+              <img
+                src={cover}
+                alt=""
+                width={1600}
+                height={1200}
+                onError={() => setFailedCover(cover)}
+              />
+            </Cover>
           )}
-        </Tags>
 
-        <Content $isDark={isDark}>
-          {renderPostContent()}
-        </Content>
-      </Article>
+          <Body>{renderPostContent()}</Body>
+
+          {post.tags.length > 0 && (
+            <Tags>
+              {post.tags.map(tag => (
+                <li key={tag}>{tag}</li>
+              ))}
+            </Tags>
+          )}
+        </Column>
+      </Page>
 
       <Footer />
-    </DetailContainer>
+    </>
   );
 }

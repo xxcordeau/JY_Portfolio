@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import Link from 'next/link';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useProjects } from '../hooks/useProjects';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { supabase } from '../lib/supabase';
 import type { DbProjectImage } from '../lib/types/database';
-import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
+import { ExternalLink, Github } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import Footer from './Footer';
 import BookCollectionDemo from './interactive/BookCollectionDemo';
@@ -16,417 +17,217 @@ import DrawingToolDemo from './interactive/DrawingToolDemo';
 import TextHighlightDemo from './interactive/TextHighlightDemo';
 import TextHoverDemo from './interactive/TextHoverDemo';
 import MouseFollowTextDemo from './interactive/MouseFollowTextDemo';
-import { FILLED_ICONS, DARK_INVERT_ICONS, resolveIcon } from '../lib/techIcons';
 
-const DetailContainer = styled.div<{ $isDark: boolean }>`
-  min-height: 100vh;
-  background: ${props => props.$isDark ? '#000000' : '#ffffff'};
-  padding-top: 80px;
-  transition: background 0.3s ease;
-`;
+/* 제목과 대표 이미지는 페이지 폭을 쓰고, 긴 글은 720px 단으로 읽게 한다.
+   장식 없이 글자 크기와 간격만으로 위계를 만든다. */
 
-const BackButton = styled.button<{ $isDark: boolean }>`
-  position: fixed;
-  top: 100px;
-  left: 40px;
-  background: ${props => props.$isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  padding: 12px 24px;
-  border-radius: 100px;
-  font-size: 14px;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  backdrop-filter: blur(12px);
-  transition: all 0.3s ease;
-  z-index: 100;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  @media (max-width: 768px) {
-    position: fixed;
-    top: auto;
-    bottom: 24px;
-    left: 20px;
-    padding: 10px 18px;
-    font-size: 13px;
-  }
-`;
-
-const Hero = styled.div`
-  max-width: 1100px;
+const Page = styled.main`
+  max-width: var(--k-page-max);
   margin: 0 auto;
-  padding: 60px 40px;
+  padding: var(--k-space-10) var(--k-space-6) 96px;
+  color: var(--k-text);
+  animation: k-enter 0.25s var(--k-ease) both;
 
   @media (max-width: 768px) {
-    padding: 40px 20px;
+    padding: var(--k-space-6) var(--k-space-4) 72px;
   }
 `;
 
-const HeroImage = styled.div`
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 60px;
+const BackLink = styled(Link)`
+  display: inline-block;
+  margin-bottom: var(--k-space-6);
+  font-size: var(--k-text-sm);
+  color: var(--k-text-weak);
+  text-decoration: none;
+  transition: color 0.15s var(--k-ease);
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  &:hover { color: var(--k-text); }
+`;
+
+const TitleBlock = styled.header`
+  max-width: 720px;
+
+  h1 {
+    font-size: var(--k-text-2xl);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.35;
+    word-break: keep-all;
   }
 
-  @media (max-width: 768px) {
-    border-radius: 14px;
-    margin-bottom: 40px;
+  .desc {
+    margin-top: var(--k-space-2);
+    font-size: var(--k-text-lg);
+    line-height: 1.6;
+    color: var(--k-text-sub);
+    word-break: keep-all;
+    text-wrap: pretty;
   }
-`;
 
-const Title = styled.h1<{ $isDark: boolean }>`
-  font-size: 40px;
-  font-weight: 700;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 24px 0;
-  letter-spacing: -1px;
-  transition: color 0.3s ease;
-
-  @media (max-width: 768px) {
-    font-size: 30px;
-    letter-spacing: -0.5px;
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px var(--k-space-4);
+    margin-top: var(--k-space-3);
+    font-size: var(--k-text-sm);
+    color: var(--k-text-weak);
+    font-variant-numeric: tabular-nums;
   }
-`;
 
-const Metadata = styled.div`
-  display: flex;
-  gap: 40px;
-  margin-bottom: 40px;
-  flex-wrap: wrap;
-`;
-
-const MetaItem = styled.div``;
-
-const MetaLabel = styled.div`
-  font-size: 13px;
-  color: #86868b;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-bottom: 8px;
-  font-weight: 500;
-`;
-
-const MetaValue = styled.div<{ $isDark: boolean }>`
-  font-size: 16px;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  font-weight: 500;
-  transition: color 0.3s ease;
-`;
-
-const Description = styled.p<{ $isDark: boolean }>`
-  font-size: 16px;
-  color: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'};
-  line-height: 1.7;
-  margin: 0 0 40px 0;
-  white-space: pre-line;
-  transition: color 0.3s ease;
-
-  @media (max-width: 768px) {
-    font-size: 15px;
+  .meta b {
+    font-weight: 500;
+    color: var(--k-text-sub);
+    margin-right: 6px;
   }
 `;
 
 const Links = styled.div`
   display: flex;
-  gap: 16px;
-  margin-bottom: 80px;
+  flex-wrap: wrap;
+  gap: var(--k-space-2);
+  margin-top: var(--k-space-5);
 `;
 
-const LinkButton = styled.a<{ $isDark: boolean }>`
+const LinkButton = styled.a`
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'};
-  border: none;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  text-decoration: none;
-  border-radius: 100px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-`;
-
-const Section = styled.section<{ $isDark?: boolean }>`
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 80px 40px;
-  border-top: 1px solid ${props => props.$isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
-
-  @media (max-width: 768px) {
-    padding: 60px 20px;
-  }
-`;
-
-const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 13px;
+  gap: 6px;
+  height: var(--k-control-sm);
+  padding: 0 var(--k-space-3);
+  background: var(--k-bg);
+  border: 1px solid var(--k-line-strong);
+  border-radius: var(--k-radius);
+  color: var(--k-text);
+  font-size: var(--k-text-md);
   font-weight: 600;
-  color: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.35)' : 'rgba(0, 0, 0, 0.35)'};
-  margin: 0 0 40px 0;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  transition: color 0.3s ease;
+  text-decoration: none;
+  transition: background 0.15s var(--k-ease);
+
+  svg { width: 14px; height: 14px; }
+
+  &:hover { background: var(--k-bg-hover); }
+`;
+
+const Cover = styled.div`
+  margin-top: var(--k-space-8);
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--k-line);
+  border-radius: var(--k-radius-lg);
+  background: var(--k-bg-sub);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+`;
+
+const Section = styled.section<{ $wide?: boolean }>`
+  max-width: ${p => (p.$wide ? 'none' : '720px')};
+  margin-top: 56px;
+
+  h2 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: var(--k-space-4);
+  }
 
   @media (max-width: 768px) {
-    font-size: 13px;
+    margin-top: var(--k-space-10);
   }
 `;
 
-const ChallengeSolutionGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
-`;
-
-const ChallengeCard = styled.div<{ $isDark: boolean }>`
-  padding: 32px;
-  border-radius: 16px;
-  background: ${p => p.$isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.02)'};
-  border: 1px solid ${p => p.$isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'};
-  transition: all 0.3s ease;
-`;
-
-const ChallengeLabel = styled.div<{ $isDark: boolean; $type: 'challenge' | 'solution' }>`
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-  color: ${p => p.$type === 'challenge'
-    ? (p.$isDark ? '#ff6b6b' : '#e03131')
-    : (p.$isDark ? '#51cf66' : '#2f9e44')};
-  transition: color 0.3s ease;
-`;
-
-const ChallengeText = styled.p<{ $isDark: boolean }>`
-  font-size: 15px;
-  line-height: 1.75;
-  color: ${p => p.$isDark ? '#a1a1a6' : '#424245'};
-  margin: 0;
-  transition: color 0.3s ease;
-
-  @media (max-width: 768px) {
-    font-size: 14px;
-  }
-`;
-
-const HighlightsList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 16px;
-`;
-
-const HighlightItem = styled.li<{ $isDark: boolean }>`
-  font-size: 17px;
-  color: ${props => props.$isDark ? '#a1a1a6' : '#1d1d1f'};
-  padding-left: 28px;
-  position: relative;
-  line-height: 1.6;
-  transition: color 0.3s ease;
-
-  &:before {
-    content: '•';
-    position: absolute;
-    left: 0;
-    color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    font-size: 24px;
-  }
+const Body = styled.p`
+  font-size: var(--k-text-lg);
+  line-height: 1.8;
+  color: var(--k-text);
+  white-space: pre-line;
+  word-break: keep-all;
+  text-wrap: pretty;
 
   @media (max-width: 768px) {
     font-size: 15px;
   }
 `;
 
-const TechSectionHeader = styled.div`
-  text-align: center;
-  margin-bottom: 60px;
+/* 주요 작업: 점 대신 가는 선으로 항목을 나눈다 */
+const Highlights = styled.ul`
+  list-style: none;
+  border-top: 1px solid var(--k-line);
+
+  li {
+    padding: var(--k-space-3) 0;
+    border-bottom: 1px solid var(--k-line);
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--k-text);
+    word-break: keep-all;
+    text-wrap: pretty;
+  }
 `;
 
-const TechSectionEyebrow = styled.p<{ $isDark: boolean }>`
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
-  margin: 0 0 12px 0;
-  transition: color 0.3s ease;
+const SubBlock = styled.div`
+  & + & { margin-top: var(--k-space-6); }
+
+  h3 {
+    font-size: var(--k-text-md);
+    font-weight: 700;
+    color: var(--k-text-sub);
+    margin-bottom: 6px;
+  }
 `;
 
-const TechSectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: -1px;
-  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0;
-  transition: color 0.3s ease;
+/* 기술: 왼쪽 회색 분류 + 오른쪽 이름을 쉼표로 이어 쓴다 */
+const TechRows = styled.dl`
+  border-top: 1px solid var(--k-line);
+
+  div {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: var(--k-space-4);
+    padding: var(--k-space-3) 0;
+    border-bottom: 1px solid var(--k-line);
+    font-size: var(--k-text-md);
+    line-height: 1.6;
+  }
+
+  dt { color: var(--k-text-weak); }
+  dd { color: var(--k-text); }
+
+  @media (max-width: 480px) {
+    div { grid-template-columns: 76px minmax(0, 1fr); gap: var(--k-space-3); }
+  }
 `;
 
-const TechStackGrid = styled.div`
+const Shots = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 40px;
+  gap: var(--k-space-10);
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-`;
+  figure { margin: 0; }
 
-const TechCategory = styled.div``;
-
-const TechCategoryTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 13px;
-  font-weight: 600;
-  color: ${props => props.$isDark ? 'rgba(255, 255, 255, 0.35)' : 'rgba(0, 0, 0, 0.35)'};
-  margin: 0 0 16px 0;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  transition: color 0.3s ease;
-`;
-
-const TechList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-`;
-
-const TechIconWrapper = styled.div<{ $isDark: boolean }>`
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  cursor: default;
-  background: ${p => p.$isDark ? 'rgba(255,255,255,0.06)' : '#ffffff'};
-  box-shadow: ${p => p.$isDark
-    ? '0 2px 8px rgba(0,0,0,0.3)'
-    : '0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03)'};
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: scale(1.15);
-    z-index: 10;
-  }
-
-  &:hover > span {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  img.icon-filled {
+  img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 10px;
+    display: block;
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius-lg);
+    background: var(--k-bg-sub);
   }
 
-  img.icon-plain {
-    width: 30px;
-    height: 30px;
-    object-fit: contain;
-  }
-
-  img.icon-dark-invert {
-    width: 30px;
-    height: 30px;
-    object-fit: contain;
-    filter: ${p => p.$isDark ? 'invert(1) brightness(2)' : 'none'};
-    transition: filter 0.3s ease;
+  figcaption {
+    margin-top: var(--k-space-2);
+    font-size: var(--k-text-sm);
+    line-height: 1.5;
+    color: var(--k-text-weak);
   }
 `;
 
-const TechIconTooltip = styled.span<{ $isDark: boolean }>`
-  position: absolute;
-  bottom: -28px;
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  font-size: 11px;
-  font-weight: 500;
-  color: ${p => p.$isDark ? '#f5f5f7' : '#ffffff'};
-  background: ${p => p.$isDark ? '#333' : '#1d1d1f'};
-  padding: 4px 10px;
-  border-radius: 6px;
-  white-space: nowrap;
-  opacity: 0;
-  transition: all 0.15s ease;
-  pointer-events: none;
-`;
-
-const TechItem = styled.div<{ $isDark: boolean }>`
-  display: inline-block;
-  font-size: 12px;
-  color: ${p => p.$isDark ? '#86868b' : '#86868b'};
-  line-height: 1.6;
-  padding: 6px 14px;
-  border: 1px solid ${p => p.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
-  border-radius: 100px;
-`;
-
-const ImagesSection = styled.section`
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 80px 40px;
-
-  @media (max-width: 768px) {
-    padding: 60px 20px;
-  }
-`;
-
-const ProjectImageWrapper = styled.div`
-  margin-bottom: 48px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const ProjectImage = styled.img<{ $isDark: boolean }>`
-  width: 100%;
-  border-radius: 14px;
-  display: block;
-
-  @media (max-width: 768px) {
-    border-radius: 14px;
-  }
-`;
-
-const ImageCaption = styled.p<{ $isDark: boolean }>`
-  font-size: 14px;
-  color: ${p => p.$isDark ? '#86868b' : '#6e6e73'};
-  text-align: center;
-  margin-top: 12px;
-  line-height: 1.5;
+const Notice = styled.p`
+  padding: var(--k-space-12) 0;
+  font-size: var(--k-text-md);
+  color: var(--k-text-weak);
 `;
 
 interface ProjectDetailProps {
@@ -436,57 +237,57 @@ interface ProjectDetailProps {
 
 const translations = {
   ko: {
-    back: '뒤로가기',
-    year: '연도',
+    back: '← 프로젝트',
     role: '역할',
-    highlights: '주요 성과',
-    challenge: 'Challenge',
-    solution: 'Solution',
-    techStack: '기술 스택',
-    tryDemo: '인터랙티브 데모',
-    frontend: '프론트엔드',
-    backend: '백엔드',
-    design: '디자인',
-    others: '기타',
+    period: '기간',
+    overview: '개요',
+    screens: '화면',
+    tryDemo: '직접 써 보기',
+    highlights: '주요 작업',
+    problemSolution: '문제와 해결',
+    challenge: '문제',
+    solution: '해결',
+    techStack: '기술',
     viewDemo: '데모 보기',
     viewGithub: 'GitHub',
-    viewWebsite: '웹사이트'
+    viewWebsite: '웹사이트',
+    loading: '불러오는 중이에요.',
+    notFound: '프로젝트를 찾을 수 없어요.',
   },
   en: {
-    back: 'Back',
-    year: 'Year',
+    back: '← Projects',
     role: 'Role',
-    highlights: 'Highlights',
-    challenge: 'Challenge',
+    period: 'Period',
+    overview: 'Overview',
+    screens: 'Screens',
+    tryDemo: 'Try it',
+    highlights: 'What I did',
+    problemSolution: 'Problem and solution',
+    challenge: 'Problem',
     solution: 'Solution',
-    techStack: 'Tech Stack',
-    tryDemo: 'Interactive Demo',
-    frontend: 'Frontend',
-    backend: 'Backend',
-    design: 'Design',
-    others: 'Others',
-    viewDemo: 'View Demo',
+    techStack: 'Tech',
+    viewDemo: 'View demo',
     viewGithub: 'GitHub',
-    viewWebsite: 'Website'
-  }
+    viewWebsite: 'Website',
+    loading: 'Loading...',
+    notFound: 'Project not found.',
+  },
 };
 
 const categoryTranslations = {
-  ko: {
-    frontend: '프론트엔드',
-    backend: '백엔드',
-    design: '디자인',
-    others: '기타'
-  },
-  en: {
-    frontend: 'Frontend',
-    backend: 'Backend',
-    design: 'Design',
-    others: 'Others'
-  }
+  ko: { frontend: '프론트엔드', backend: '백엔드', design: '디자인', others: '기타' },
+  en: { frontend: 'Frontend', backend: 'Backend', design: 'Design', others: 'Others' },
 };
 
-export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps) {
+// 제목 뒤 " - 부제"는 설명 줄이 대신하므로 앞부분만 쓴다 (홈 카드와 같은 규칙)
+const shortName = (title: string) => title.split(/\s+[-—–]\s+/)[0].trim();
+const subtitle = (title: string) => title.split(/\s+[-—–]\s+/).slice(1).join(' · ').trim();
+const clean = (s: string) => s.replace(/\s*[—–]\s*/g, ' · ');
+const cleanYear = (s: string) => s.replace(/[–—]/g, '-');
+
+const TECH_KEYS = ['frontend', 'backend', 'design', 'others'] as const;
+
+export default function ProjectDetail({ projectId }: ProjectDetailProps) {
   const { isDark } = useTheme();
   const { language } = useLanguage();
   const { projects, loading: projectsLoading } = useProjects();
@@ -512,24 +313,32 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
       });
   }, [projectId]);
 
+  // 뒤로가기는 직접 들어온 경우에도 목록으로 가도록 경로 링크로 둔다
+  const back = <BackLink href="/projects">{t.back}</BackLink>;
+
   if (projectsLoading) {
     return (
-      <DetailContainer $isDark={isDark} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: '#86868b', fontSize: 16 }}>불러오는 중...</div>
-      </DetailContainer>
+      <Page>
+        {back}
+        <Notice>{t.loading}</Notice>
+      </Page>
     );
   }
 
   if (!project) {
-    return <div>Project not found</div>;
+    return (
+      <Page>
+        {back}
+        <Notice>{t.notFound}</Notice>
+      </Page>
+    );
   }
 
-  // Check if project has interactive demo
   const interactiveProjects = ['book-collection', 'drawing-tool', 'text-highlight', 'text-hover-highlight', 'mouse-follow-text'];
   const hasInteractiveDemo = interactiveProjects.includes(projectId);
 
   const renderInteractiveDemo = () => {
-    switch(projectId) {
+    switch (projectId) {
       case 'book-collection':
         return <BookCollectionDemo isDark={isDark} language={language} />;
       case 'drawing-tool':
@@ -545,181 +354,138 @@ export default function ProjectDetail({ projectId, onBack }: ProjectDetailProps)
     }
   };
 
+  const title = project.title[language];
+  const desc = project.description[language] || subtitle(title);
+  const role = project.role?.[language];
+  const highlights = project.highlights[language] ?? [];
+  const challenge = project.challenge?.[language];
+  const solution = project.solution?.[language];
+  const techRows = TECH_KEYS
+    .map(key => ({ key, names: project.techStack?.[key] ?? [] }))
+    .filter(row => row.names.length > 0);
+  const links = project.links;
+  const hasLinks = !!(links && (links.website || links.demo || links.github));
+
   return (
-    <DetailContainer $isDark={isDark}>
-      <BackButton $isDark={isDark} onClick={onBack}>
-        <ArrowLeft size={16} />
-        {t.back}
-      </BackButton>
+    <>
+      <Page>
+        {back}
 
-      <Hero>
-        <HeroImage>
-          <ImageWithFallback src={project.image} alt={project.title[language]} />
-        </HeroImage>
+        <TitleBlock>
+          <h1>{shortName(title)}</h1>
+          {desc && <p className="desc">{clean(desc)}</p>}
+          {(role || project.year) && (
+            <div className="meta">
+              {role && <span><b>{t.role}</b>{clean(role)}</span>}
+              {project.year && <span><b>{t.period}</b>{cleanYear(project.year)}</span>}
+            </div>
+          )}
+          {hasLinks && (
+            <Links>
+              {links?.website && (
+                <LinkButton href={links.website} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink />
+                  {t.viewWebsite}
+                </LinkButton>
+              )}
+              {links?.demo && (
+                <LinkButton href={links.demo} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink />
+                  {t.viewDemo}
+                </LinkButton>
+              )}
+              {links?.github && (
+                <LinkButton href={links.github} target="_blank" rel="noopener noreferrer">
+                  <Github />
+                  {t.viewGithub}
+                </LinkButton>
+              )}
+            </Links>
+          )}
+        </TitleBlock>
 
-        <Title $isDark={isDark}>{project.title[language]}</Title>
-        
-        <Metadata>
-          <MetaItem>
-            <MetaLabel>{t.year}</MetaLabel>
-            <MetaValue $isDark={isDark}>{project.year}</MetaValue>
-          </MetaItem>
-          <MetaItem>
-            <MetaLabel>{t.role}</MetaLabel>
-            <MetaValue $isDark={isDark}>{project.role[language]}</MetaValue>
-          </MetaItem>
-        </Metadata>
-
-        <Description $isDark={isDark}>{project.fullDescription[language]}</Description>
-
-        {project.links && (
-          <Links>
-            {project.links.github && (
-              <LinkButton $isDark={isDark} href={project.links.github} target="_blank" rel="noopener noreferrer">
-                <Github />
-                {t.viewGithub}
-              </LinkButton>
-            )}
-            {project.links.demo && (
-              <LinkButton $isDark={isDark} href={project.links.demo} target="_blank" rel="noopener noreferrer">
-                <ExternalLink />
-                {t.viewDemo}
-              </LinkButton>
-            )}
-            {project.links.website && (
-              <LinkButton $isDark={isDark} href={project.links.website} target="_blank" rel="noopener noreferrer">
-                <ExternalLink />
-                {t.viewWebsite}
-              </LinkButton>
-            )}
-          </Links>
+        {project.image && (
+          <Cover>
+            <ImageWithFallback src={project.image} alt={clean(title)} />
+          </Cover>
         )}
-      </Hero>
 
-      {projectImages.length > 0 && (
-        <ImagesSection>
-          {projectImages.map(img => {
-            const caption = language === 'ko' ? img.caption_ko : img.caption_en;
-            return (
-              <ProjectImageWrapper key={img.id}>
-                <ProjectImage $isDark={isDark} src={img.url} alt={caption || ''} loading="lazy" />
-                {caption && <ImageCaption $isDark={isDark}>{caption}</ImageCaption>}
-              </ProjectImageWrapper>
-            );
-          })}
-        </ImagesSection>
-      )}
+        {project.fullDescription[language] && (
+          <Section>
+            <h2>{t.overview}</h2>
+            <Body>{clean(project.fullDescription[language])}</Body>
+          </Section>
+        )}
 
-      {hasInteractiveDemo && (
-        <Section $isDark={isDark}>
-          <SectionTitle $isDark={isDark}>{t.tryDemo}</SectionTitle>
-          {renderInteractiveDemo()}
-        </Section>
-      )}
+        {projectImages.length > 0 && (
+          <Section $wide>
+            <h2>{t.screens}</h2>
+            <Shots>
+              {projectImages.map(img => {
+                const caption = language === 'ko' ? img.caption_ko : img.caption_en;
+                return (
+                  <figure key={img.id}>
+                    <img src={img.url} alt={caption ? clean(caption) : ''} loading="lazy" />
+                    {caption && <figcaption>{clean(caption)}</figcaption>}
+                  </figure>
+                );
+              })}
+            </Shots>
+          </Section>
+        )}
 
-      <Section $isDark={isDark}>
-        <SectionTitle $isDark={isDark}>{t.highlights}</SectionTitle>
-        <HighlightsList>
-          {project.highlights[language].map((highlight, index) => (
-            <HighlightItem key={index} $isDark={isDark}>{highlight}</HighlightItem>
-          ))}
-        </HighlightsList>
-      </Section>
+        {hasInteractiveDemo && (
+          <Section $wide>
+            <h2>{t.tryDemo}</h2>
+            {renderInteractiveDemo()}
+          </Section>
+        )}
 
-      {project.challenge && project.solution && (
-        <Section $isDark={isDark}>
-          <SectionTitle $isDark={isDark}>Challenge & Solution</SectionTitle>
-          <ChallengeSolutionGrid>
-            <ChallengeCard $isDark={isDark}>
-              <ChallengeLabel $isDark={isDark} $type="challenge">{t.challenge}</ChallengeLabel>
-              <ChallengeText $isDark={isDark}>{project.challenge[language]}</ChallengeText>
-            </ChallengeCard>
-            <ChallengeCard $isDark={isDark}>
-              <ChallengeLabel $isDark={isDark} $type="solution">{t.solution}</ChallengeLabel>
-              <ChallengeText $isDark={isDark}>{project.solution[language]}</ChallengeText>
-            </ChallengeCard>
-          </ChallengeSolutionGrid>
-        </Section>
-      )}
+        {highlights.length > 0 && (
+          <Section>
+            <h2>{t.highlights}</h2>
+            <Highlights>
+              {highlights.map((h, i) => (
+                <li key={i}>{clean(h)}</li>
+              ))}
+            </Highlights>
+          </Section>
+        )}
 
-      <Section $isDark={isDark}>
-        <TechSectionHeader>
-          <TechSectionEyebrow $isDark={isDark}>Built with</TechSectionEyebrow>
-          <TechSectionTitle $isDark={isDark}>{t.techStack}</TechSectionTitle>
-        </TechSectionHeader>
-        <TechStackGrid>
-          {project.techStack.frontend && (
-            <TechCategory>
-              <TechCategoryTitle $isDark={isDark}>{ct.frontend}</TechCategoryTitle>
-              <TechList>
-                {project.techStack.frontend.map((tech, index) =>
-                  resolveIcon(tech) ? (
-                    <TechIconWrapper key={index} $isDark={isDark}>
-                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : DARK_INVERT_ICONS.has(tech) ? 'icon-dark-invert' : 'icon-plain'} />
-                      <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
-                    </TechIconWrapper>
-                  ) : (
-                    <TechItem key={index} $isDark={isDark}>{tech}</TechItem>
-                  )
-                )}
-              </TechList>
-            </TechCategory>
-          )}
-          {project.techStack.backend && (
-            <TechCategory>
-              <TechCategoryTitle $isDark={isDark}>{ct.backend}</TechCategoryTitle>
-              <TechList>
-                {project.techStack.backend.map((tech, index) =>
-                  resolveIcon(tech) ? (
-                    <TechIconWrapper key={index} $isDark={isDark}>
-                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : DARK_INVERT_ICONS.has(tech) ? 'icon-dark-invert' : 'icon-plain'} />
-                      <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
-                    </TechIconWrapper>
-                  ) : (
-                    <TechItem key={index} $isDark={isDark}>{tech}</TechItem>
-                  )
-                )}
-              </TechList>
-            </TechCategory>
-          )}
-          {project.techStack.design && (
-            <TechCategory>
-              <TechCategoryTitle $isDark={isDark}>{ct.design}</TechCategoryTitle>
-              <TechList>
-                {project.techStack.design.map((tech, index) =>
-                  resolveIcon(tech) ? (
-                    <TechIconWrapper key={index} $isDark={isDark}>
-                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : DARK_INVERT_ICONS.has(tech) ? 'icon-dark-invert' : 'icon-plain'} />
-                      <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
-                    </TechIconWrapper>
-                  ) : (
-                    <TechItem key={index} $isDark={isDark}>{tech}</TechItem>
-                  )
-                )}
-              </TechList>
-            </TechCategory>
-          )}
-          {project.techStack.others && (
-            <TechCategory>
-              <TechCategoryTitle $isDark={isDark}>{ct.others}</TechCategoryTitle>
-              <TechList>
-                {project.techStack.others.map((tech, index) =>
-                  resolveIcon(tech) ? (
-                    <TechIconWrapper key={index} $isDark={isDark}>
-                      <img src={resolveIcon(tech)} alt={tech} loading="lazy" className={FILLED_ICONS.has(tech) ? 'icon-filled' : DARK_INVERT_ICONS.has(tech) ? 'icon-dark-invert' : 'icon-plain'} />
-                      <TechIconTooltip $isDark={isDark}>{tech}</TechIconTooltip>
-                    </TechIconWrapper>
-                  ) : (
-                    <TechItem key={index} $isDark={isDark}>{tech}</TechItem>
-                  )
-                )}
-              </TechList>
-            </TechCategory>
-          )}
-        </TechStackGrid>
-      </Section>
+        {(challenge || solution) && (
+          <Section>
+            <h2>{t.problemSolution}</h2>
+            {challenge && (
+              <SubBlock>
+                <h3>{t.challenge}</h3>
+                <Body>{clean(challenge)}</Body>
+              </SubBlock>
+            )}
+            {solution && (
+              <SubBlock>
+                <h3>{t.solution}</h3>
+                <Body>{clean(solution)}</Body>
+              </SubBlock>
+            )}
+          </Section>
+        )}
+
+        {techRows.length > 0 && (
+          <Section>
+            <h2>{t.techStack}</h2>
+            <TechRows>
+              {techRows.map(row => (
+                <div key={row.key}>
+                  <dt>{ct[row.key]}</dt>
+                  <dd>{row.names.join(', ')}</dd>
+                </div>
+              ))}
+            </TechRows>
+          </Section>
+        )}
+      </Page>
 
       <Footer />
-    </DetailContainer>
+    </>
   );
 }

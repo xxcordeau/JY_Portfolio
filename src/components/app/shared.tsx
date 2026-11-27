@@ -49,9 +49,10 @@ export const GlobalStyle = createGlobalStyle`
 export const AppContainer = styled.div<{ $isDark: boolean }>`
   width: 100%;
   min-height: 100vh;
-  background: ${props => props.$isDark ? '#000000' : '#ffffff'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  transition: background 0.3s ease, color 0.3s ease;
+  /* 색은 토큰에서만 가져온다 ($isDark는 기존 하위 페이지 호환용으로 남겨 둠) */
+  background: var(--k-bg);
+  color: var(--k-text);
+  font-family: var(--k-font);
   /* Do NOT set overflow-x here — any non-visible value
      (hidden/auto/clip) causes browsers to convert overflow-y:visible→auto,
      which creates a scroll container and breaks position:sticky in Hero. */

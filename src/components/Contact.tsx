@@ -1,279 +1,245 @@
 'use client';
 
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
-import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
 
-const Overlay = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9998;
-  opacity: ${props => props.$isOpen ? '1' : '0'};
-  pointer-events: ${props => props.$isOpen ? 'auto' : 'none'};
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(4px);
-`;
+const EMAIL = 'qazseeszaq3219@gmail.com';
 
-const ModalContainer = styled.div<{ $isOpen: boolean }>`
+/* 검색창(CommandPalette)과 같은 팝업 규칙: 어둡게 깐 배경 + 그림자 있는 패널 하나 */
+const Dim = styled.div`
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) ${props => props.$isOpen ? 'scale(1)' : 'scale(0.9)'};
-  z-index: 9999;
-  opacity: ${props => props.$isOpen ? '1' : '0'};
-  pointer-events: ${props => props.$isOpen ? 'auto' : 'none'};
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow: hidden;
+  inset: 0;
+  z-index: 9998;
+  background: var(--k-dim);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 10vh var(--k-space-4) var(--k-space-4);
+  overflow-y: auto;
+  animation: contact-fade 0.15s var(--k-ease);
+
+  @keyframes contact-fade { from { opacity: 0; } to { opacity: 1; } }
 
   @media (max-width: 768px) {
-    width: calc(100% - 40px);
-    max-height: 85vh;
+    padding-top: var(--k-space-6);
   }
 `;
 
-const ModalWindow = styled.div<{ $isDark: boolean }>`
-  background: ${props => props.$isDark ? '#1d1d1f' : '#ffffff'};
-  border-radius: 20px;
-  box-shadow: 0 8px 32px ${props => props.$isDark ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.12)'};
-  border: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+const Panel = styled.div`
+  width: 100%;
+  max-width: 480px;
+  background: var(--k-bg-pop);
+  border: 1px solid var(--k-line);
+  border-radius: var(--k-radius-lg);
+  box-shadow: var(--k-shadow-pop);
+  color: var(--k-text);
+  animation: k-enter 0.2s var(--k-ease);
 `;
 
-const ModalHeader = styled.div<{ $isDark: boolean }>`
-  padding: 20px 24px;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
-  border-bottom: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
+const PanelHead = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 56px;
+  padding: 0 var(--k-space-3) 0 var(--k-space-6);
+  border-bottom: 1px solid var(--k-line);
+
+  h2 {
+    font-size: var(--k-text-lg);
+    font-weight: 700;
+  }
 `;
 
-const ModalTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 17px;
-  font-weight: 600;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0;
-`;
-
-const CloseButton = styled.button<{ $isDark: boolean }>`
-  background: transparent;
-  border: none;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  cursor: pointer;
-  padding: 4px;
+const GhostIcon = styled.button`
+  width: var(--k-control-sm);
+  height: var(--k-control-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  border: none;
+  border-radius: var(--k-radius);
+  background: transparent;
+  color: var(--k-text-sub);
+  cursor: pointer;
+  transition: background 0.15s var(--k-ease), color 0.15s var(--k-ease);
 
-  &:hover {
-    background: ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
+  svg { width: 16px; height: 16px; }
+  &:hover { background: var(--k-bg-hover); color: var(--k-text); }
 `;
 
-const ModalBody = styled.div`
-  padding: 24px;
-  overflow-y: auto;
-  max-height: calc(90vh - 100px);
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #86868b;
-    border-radius: 3px;
-  }
+const Body = styled.div`
+  padding: var(--k-space-6);
 
   @media (max-width: 768px) {
-    max-height: calc(85vh - 100px);
+    padding: var(--k-space-5) var(--k-space-4);
   }
 `;
 
 const Description = styled.p`
-  font-size: 14px;
-  color: #86868b;
-  margin: 0 0 20px 0;
+  font-size: var(--k-text-md);
   line-height: 1.6;
-  font-weight: 400;
-  letter-spacing: -0.2px;
+  color: var(--k-text-sub);
+  margin-bottom: var(--k-space-5);
+  word-break: keep-all;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--k-space-4);
 `;
 
-const InputGroup = styled.div`
+const Field = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+
+  label {
+    font-size: var(--k-text-sm);
+    font-weight: 600;
+    color: var(--k-text);
+  }
 `;
 
-const Label = styled.label<{ $isDark: boolean }>`
-  font-size: 13px;
-  font-weight: 500;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  letter-spacing: -0.2px;
-`;
+const fieldBase = `
+  width: 100%;
+  border: 1px solid var(--k-line-strong);
+  border-radius: var(--k-radius);
+  background: var(--k-bg);
+  color: var(--k-text);
+  font: inherit;
+  font-size: var(--k-text-md);
+  transition: border-color 0.15s var(--k-ease), box-shadow 0.15s var(--k-ease);
 
-const Input = styled.input<{ $isDark: boolean }>`
-  padding: 12px 14px;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  border: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-  border-radius: 12px;
-  font-size: 14px;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-  transition: all 0.2s ease;
+  &::placeholder { color: var(--k-text-weak); }
 
   &:focus {
     outline: none;
-    border-color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    background: ${props => props.$isDark ? '#1a1a1a' : '#ffffff'};
+    border-color: var(--k-accent);
+    box-shadow: 0 0 0 1px var(--k-accent);
   }
 
-  &::placeholder {
-    color: #86868b;
-  }
+  &[aria-invalid='true'] { border-color: var(--k-text); }
 `;
 
-const TextArea = styled.textarea<{ $isDark: boolean }>`
-  padding: 12px 14px;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  border: 1px solid ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-  border-radius: 12px;
-  font-size: 14px;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+const Input = styled.input`
+  ${fieldBase}
+  height: var(--k-control-md);
+  padding: 0 var(--k-space-3);
+`;
+
+const TextArea = styled.textarea`
+  ${fieldBase}
   min-height: 120px;
+  padding: 10px var(--k-space-3);
+  line-height: 1.6;
   resize: vertical;
-  transition: all 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    background: ${props => props.$isDark ? '#1a1a1a' : '#ffffff'};
-  }
-
-  &::placeholder {
-    color: #86868b;
-  }
 `;
 
-const SubmitButton = styled.button<{ $isDark: boolean; disabled?: boolean }>`
-  padding: 14px 24px;
-  background: ${props => props.disabled ? '#86868b' : (props.$isDark ? '#f5f5f7' : '#1d1d1f')};
-  color: ${props => props.disabled ? '#f5f5f7' : (props.$isDark ? '#1d1d1f' : '#ffffff')};
+/* 따로 쓸 빨간 토큰이 없어서 글자색 대신 굵기로 눈에 띄게 한다 */
+const FieldError = styled.p`
+  font-size: var(--k-text-xs);
+  font-weight: 600;
+  color: var(--k-text);
+`;
+
+const PrimaryButton = styled.button`
+  height: var(--k-control-md);
+  padding: 0 var(--k-space-4);
   border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-  transition: all 0.2s ease;
-  letter-spacing: -0.2px;
+  border-radius: var(--k-radius);
+  background: var(--k-accent);
+  color: var(--k-on-accent);
+  font: inherit;
+  font-size: var(--k-text-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s var(--k-ease);
 
-  &:hover {
-    opacity: ${props => props.disabled ? 1 : 0.85};
-  }
-
-  &:active {
-    transform: ${props => props.disabled ? 'none' : 'scale(0.98)'};
-  }
+  &:hover:not(:disabled) { background: var(--k-accent-hover); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 `;
 
-const ErrorText = styled.p`
-  margin: 4px 0 0 0;
-  font-size: 12px;
-  color: #ff3b30;
-  letter-spacing: -0.1px;
-`;
-
-const Message = styled.div<{ $isDark: boolean; $isError?: boolean }>`
-  padding: 12px 16px;
-  background: ${props => props.$isError 
-    ? (props.$isDark ? '#3a1a1a' : '#fff0f0')
-    : (props.$isDark ? '#1a3a1a' : '#f0fff0')
-  };
-  color: ${props => props.$isError 
-    ? (props.$isDark ? '#ff6b6b' : '#d32f2f')
-    : (props.$isDark ? '#6bff6b' : '#2f8d2f')
-  };
-  border-radius: 12px;
-  font-size: 13px;
-  text-align: center;
-  letter-spacing: -0.2px;
+const Notice = styled.p`
+  padding: 10px var(--k-space-3);
+  border-radius: var(--k-radius);
+  background: var(--k-bg-sub);
+  font-size: var(--k-text-sm);
   line-height: 1.5;
+  color: var(--k-text);
 `;
 
-const Divider = styled.div<{ $isDark: boolean }>`
+const Alt = styled.div`
+  margin-top: var(--k-space-6);
+  padding-top: var(--k-space-5);
+  border-top: 1px solid var(--k-line);
+
+  .label {
+    font-size: var(--k-text-sm);
+    color: var(--k-text-weak);
+  }
+`;
+
+const EmailRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 20px 0;
-  
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-  }
-  
+  justify-content: space-between;
+  gap: var(--k-space-2);
+  margin-top: var(--k-space-2);
+
   span {
-    color: #86868b;
-    font-size: 13px;
-    font-weight: 400;
+    min-width: 0;
+    font-size: var(--k-text-md);
+    font-weight: 600;
+    overflow-wrap: anywhere;
   }
 `;
 
-const DirectEmailButton = styled.a<{ $isDark: boolean }>`
-  display: block;
-  width: 100%;
-  padding: 14px 24px;
-  background: ${props => props.$isDark ? '#0a0a0a' : '#f5f5f7'};
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
+const AltLinks = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--k-space-2);
+  margin-top: var(--k-space-3);
+`;
+
+const SecondaryButton = styled.a`
+  display: inline-flex;
+  align-items: center;
+  height: var(--k-control-sm);
+  padding: 0 var(--k-space-3);
+  border: 1px solid var(--k-line-strong);
+  border-radius: var(--k-radius);
+  background: var(--k-bg);
+  color: var(--k-text);
+  font: inherit;
+  font-size: var(--k-text-sm);
+  font-weight: 600;
   text-decoration: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  letter-spacing: -0.2px;
-  border: none;
+  white-space: nowrap;
   cursor: pointer;
-  text-align: center;
+  transition: background 0.15s var(--k-ease);
 
-  &:hover {
-    background: ${props => props.$isDark ? '#2d2d2d' : '#e5e5e7'};
-  }
+  &:hover { background: var(--k-bg-hover); }
+`;
 
-  &:active {
-    transform: scale(0.98);
-  }
+const GhostButton = styled.button`
+  flex: none;
+  height: var(--k-control-sm);
+  padding: 0 var(--k-space-3);
+  border: none;
+  border-radius: var(--k-radius);
+  background: transparent;
+  color: var(--k-text-sub);
+  font: inherit;
+  font-size: var(--k-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s var(--k-ease), color 0.15s var(--k-ease);
+
+  &:hover { background: var(--k-bg-hover); color: var(--k-text); }
 `;
 
 interface ContactProps {
@@ -284,43 +250,49 @@ interface ContactProps {
 const translations = {
   ko: {
     title: '연락하기',
-    description: '새로운 프로젝트나 협업 기회에 대해 이야기 나누고 싶으시다면 언제든 연락주세요.',
+    description: '새 프로젝트나 협업 이야기가 있으면 편하게 남겨 주세요.',
     nameLabel: '이름',
     namePlaceholder: '홍길동',
     emailLabel: '이메일',
     emailPlaceholder: 'your@email.com',
     messageLabel: '메시지',
-    messagePlaceholder: '문의하실 내용을 작성해주세요...',
+    messagePlaceholder: '하고 싶은 이야기를 적어 주세요',
     submit: '메시지 보내기',
-    sending: '전송 중...',
-    successMessage: '메시지가 성공적으로 전송되었습니다!',
-    errorMessage: '메시지 전송에 실패했습니다. 다시 시도해주세요.',
-    directEmail: '이메일 앱으로 보내기',
-    directGmail: 'Gmail 웹에서 보내기',
-    github: 'GitHub 방문하기',
-    or: '또는',
-    errName: '이름을 입력해주세요.',
-    errEmail: '이메일 주소를 입력해주세요.',
-    errEmailFmt: '올바른 이메일 형식이 아니에요.',
-    errMessage: '메시지를 입력해주세요.',
+    sending: '보내는 중',
+    successMessage: '메시지를 보냈어요.',
+    errorMessage: '보내지 못했어요. 잠시 후 다시 시도해 주세요.',
+    altLabel: '메일로 바로 보내도 돼요',
+    copy: '복사',
+    copied: '복사했어요',
+    directEmail: '메일 앱으로 보내기',
+    directGmail: 'Gmail에서 보내기',
+    github: 'GitHub 보기',
+    close: '닫기',
+    errName: '이름을 입력해 주세요.',
+    errEmail: '이메일 주소를 입력해 주세요.',
+    errEmailFmt: '이메일 형식이 맞지 않아요.',
+    errMessage: '메시지를 입력해 주세요.',
   },
   en: {
-    title: 'Get in Touch',
-    description: 'Feel free to reach out if you want to discuss new projects or collaboration opportunities.',
+    title: 'Get in touch',
+    description: 'Feel free to reach out about new projects or collaboration.',
     nameLabel: 'Name',
     namePlaceholder: 'John Doe',
     emailLabel: 'Email',
     emailPlaceholder: 'your@email.com',
     messageLabel: 'Message',
-    messagePlaceholder: 'Write your message here...',
-    submit: 'Send Message',
-    sending: 'Sending...',
-    successMessage: 'Message sent successfully!',
-    errorMessage: 'Failed to send message. Please try again.',
-    directEmail: 'Send via Email App',
-    directGmail: 'Send via Gmail Web',
-    github: 'Visit GitHub',
-    or: 'or',
+    messagePlaceholder: 'Write your message here',
+    submit: 'Send message',
+    sending: 'Sending',
+    successMessage: 'Your message was sent.',
+    errorMessage: 'Could not send the message. Please try again.',
+    altLabel: 'Or email me directly',
+    copy: 'Copy',
+    copied: 'Copied',
+    directEmail: 'Email app',
+    directGmail: 'Gmail',
+    github: 'GitHub',
+    close: 'Close',
     errName: 'Please enter your name.',
     errEmail: 'Please enter your email.',
     errEmailFmt: 'Please enter a valid email address.',
@@ -329,13 +301,14 @@ const translations = {
 };
 
 export default function Contact({ isOpen = false, onOpenChange }: ContactProps) {
-  const { isDark } = useTheme();
   const { language } = useLanguage();
   const t = translations[language];
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [errors, setErrors] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [copied, setCopied] = useState(false);
+  const copyTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const validate = () => {
     const next = { name: '', email: '', message: '' };
@@ -386,110 +359,125 @@ export default function Contact({ isOpen = false, onOpenChange }: ContactProps) 
     }
   };
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+      setCopied(true);
+      clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // 클립보드 권한이 없으면 메일 앱 링크로 대신한다
+      window.location.href = `mailto:${EMAIL}`;
+    }
+  };
+
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
+
+  // Esc로 닫기 + 열려 있는 동안 뒤 페이지 스크롤 막기
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onOpenChange?.(false); };
+    window.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen, onOpenChange]);
+
+  // 입력값은 이 컴포넌트 state에 남아 있어서 닫았다 열어도 그대로 보인다
+  if (!isOpen) return null;
+
   return (
-    <>
-      <Overlay $isOpen={isOpen} onClick={handleOverlayClick} />
-      <ModalContainer $isOpen={isOpen}>
-        <ModalWindow $isDark={isDark}>
-          <ModalHeader $isDark={isDark}>
-            <ModalTitle $isDark={isDark}>{t.title}</ModalTitle>
-            <CloseButton $isDark={isDark} onClick={handleClose}>
-              <X />
-            </CloseButton>
-          </ModalHeader>
-          
-          <ModalBody>
-            <Description>{t.description}</Description>
-            
-            <Form onSubmit={handleSubmit} noValidate>
-              <InputGroup>
-                <Label $isDark={isDark}>{t.nameLabel}</Label>
-                <Input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder={t.namePlaceholder}
-                  $isDark={isDark}
-                />
-                {errors.name && <ErrorText>{errors.name}</ErrorText>}
-              </InputGroup>
+    <Dim onClick={handleOverlayClick}>
+      <Panel role="dialog" aria-modal="true" aria-labelledby="k-contact-title">
+        <PanelHead>
+          <h2 id="k-contact-title">{t.title}</h2>
+          <GhostIcon type="button" onClick={handleClose} aria-label={t.close}>
+            <X />
+          </GhostIcon>
+        </PanelHead>
 
-              <InputGroup>
-                <Label $isDark={isDark}>{t.emailLabel}</Label>
-                <Input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder={t.emailPlaceholder}
-                  $isDark={isDark}
-                />
-                {errors.email && <ErrorText>{errors.email}</ErrorText>}
-              </InputGroup>
+        <Body>
+          <Description>{t.description}</Description>
 
-              <InputGroup>
-                <Label $isDark={isDark}>{t.messageLabel}</Label>
-                <TextArea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder={t.messagePlaceholder}
-                  $isDark={isDark}
-                />
-                {errors.message && <ErrorText>{errors.message}</ErrorText>}
-              </InputGroup>
+          <Form onSubmit={handleSubmit} noValidate>
+            <Field>
+              <label htmlFor="k-contact-name">{t.nameLabel}</label>
+              <Input
+                id="k-contact-name"
+                type="text"
+                name="name"
+                autoComplete="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder={t.namePlaceholder}
+                aria-invalid={!!errors.name}
+              />
+              {errors.name && <FieldError>{errors.name}</FieldError>}
+            </Field>
 
-              <SubmitButton 
-                type="submit" 
-                $isDark={isDark}
-                disabled={status === 'loading'}
+            <Field>
+              <label htmlFor="k-contact-email">{t.emailLabel}</label>
+              <Input
+                id="k-contact-email"
+                type="email"
+                name="email"
+                autoComplete="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder={t.emailPlaceholder}
+                aria-invalid={!!errors.email}
+              />
+              {errors.email && <FieldError>{errors.email}</FieldError>}
+            </Field>
+
+            <Field>
+              <label htmlFor="k-contact-message">{t.messageLabel}</label>
+              <TextArea
+                id="k-contact-message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                placeholder={t.messagePlaceholder}
+                aria-invalid={!!errors.message}
+              />
+              {errors.message && <FieldError>{errors.message}</FieldError>}
+            </Field>
+
+            <PrimaryButton type="submit" disabled={status === 'loading'}>
+              {status === 'loading' ? t.sending : t.submit}
+            </PrimaryButton>
+
+            {status === 'success' && <Notice role="status">{t.successMessage}</Notice>}
+            {status === 'error' && <Notice role="alert">{errorMessage || t.errorMessage}</Notice>}
+          </Form>
+
+          <Alt>
+            <div className="label">{t.altLabel}</div>
+            <EmailRow>
+              <span>{EMAIL}</span>
+              <GhostButton type="button" onClick={handleCopy}>
+                {copied ? t.copied : t.copy}
+              </GhostButton>
+            </EmailRow>
+            <AltLinks>
+              <SecondaryButton href={`mailto:${EMAIL}`}>{t.directEmail}</SecondaryButton>
+              <SecondaryButton
+                href={`https://mail.google.com/mail/?view=cm&fs=1&to=${EMAIL}`}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                {status === 'loading' ? t.sending : t.submit}
-              </SubmitButton>
-
-              {status === 'success' && (
-                <Message $isDark={isDark}>{t.successMessage}</Message>
-              )}
-              
-              {status === 'error' && (
-                <Message $isDark={isDark} $isError>{errorMessage || t.errorMessage}</Message>
-              )}
-            </Form>
-
-            <Divider $isDark={isDark}>
-              <span>{t.or}</span>
-            </Divider>
-
-            <DirectEmailButton
-              $isDark={isDark}
-              href="mailto:qazseeszaq3219@gmail.com"
-            >
-              {t.directEmail}
-            </DirectEmailButton>
-
-            <DirectEmailButton
-              $isDark={isDark}
-              href="https://mail.google.com/mail/?view=cm&fs=1&to=qazseeszaq3219@gmail.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ marginTop: '8px' }}
-            >
-              {t.directGmail}
-            </DirectEmailButton>
-
-            <DirectEmailButton
-              $isDark={isDark}
-              href="https://github.com/xxcordeau"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ marginTop: '8px' }}
-            >
-              {t.github}
-            </DirectEmailButton>
-          </ModalBody>
-        </ModalWindow>
-      </ModalContainer>
-    </>
+                {t.directGmail}
+              </SecondaryButton>
+              <SecondaryButton href="https://github.com/xxcordeau" target="_blank" rel="noopener noreferrer">
+                {t.github}
+              </SecondaryButton>
+            </AltLinks>
+          </Alt>
+        </Body>
+      </Panel>
+    </Dim>
   );
 }

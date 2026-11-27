@@ -1,304 +1,225 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { MessageCircle, X, ChevronLeft, Mail } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { useChatbot } from '../hooks/useChatbot';
 import type { ChatCategory, ChatQuestion } from '../data/chatbotData';
-import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const Overlay = styled.div<{ $isOpen: boolean }>`
+const EMAIL = 'qazseeszaq3219@gmail.com';
+
+/* 바깥을 누르면 닫히도록 깔아 두는 투명한 판. 채팅은 페이지를 가리지 않게 어둡게 하지 않는다 */
+const ClickAway = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 999;
-  opacity: ${props => props.$isOpen ? '1' : '0'};
-  pointer-events: ${props => props.$isOpen ? 'auto' : 'none'};
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(2px);
+  inset: 0;
+  z-index: 9998;
 `;
 
-const ChatbotContainer = styled.div<{ $isOpen: boolean }>`
+const Dock = styled.div`
   position: fixed;
-  bottom: 40px;
-  right: 40px;
+  right: var(--k-space-6);
+  bottom: var(--k-space-6);
   z-index: 9999;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 16px;
+  gap: 14px;
 
   @media (max-width: 768px) {
-    bottom: 20px;
-    right: 20px;
+    left: var(--k-space-4);
+    right: var(--k-space-4);
+    bottom: var(--k-space-4);
+    align-items: stretch;
+
+    & > button { align-self: flex-end; }
   }
 `;
 
-const ChatWindow = styled.div<{ $isDark: boolean; $isOpen: boolean }>`
+const Panel = styled.div`
   width: 360px;
-  max-height: 580px;
-  background: ${props => props.$isDark
-    ? 'rgba(22, 22, 24, 0.88)'
-    : 'rgba(255, 255, 255, 0.88)'};
-  backdrop-filter: blur(28px) saturate(1.6);
-  -webkit-backdrop-filter: blur(28px) saturate(1.6);
-  border-radius: 24px;
-  box-shadow: ${props => props.$isDark
-    ? '0 16px 48px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)'
-    : '0 16px 48px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05)'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)'};
+  max-height: min(520px, calc(100dvh - 120px));
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transform: ${props => props.$isOpen ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(12px)'};
-  opacity: ${props => props.$isOpen ? '1' : '0'};
-  visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
-  pointer-events: ${props => props.$isOpen ? 'auto' : 'none'};
-  position: ${props => props.$isOpen ? 'relative' : 'absolute'};
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  transform-origin: bottom right;
+  background: var(--k-bg-pop);
+  border: 1px solid var(--k-line);
+  border-radius: var(--k-radius-lg);
+  box-shadow: var(--k-shadow-pop);
+  color: var(--k-text);
 
   @media (max-width: 768px) {
-    width: calc(100vw - 40px);
-    max-width: 360px;
-    max-height: 70vh;
+    width: 100%;
+    max-height: min(480px, calc(100dvh - 140px));
   }
 `;
 
-const ChatHeader = styled.div<{ $isDark: boolean }>`
-  padding: 18px 20px;
-  background: transparent;
-  border-bottom: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)'};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
+/* 얼굴이 말하는 것처럼 보이게 패널 아래에 꼬리를 단다.
+   패널은 안쪽 스크롤 때문에 overflow: hidden이라 꼬리는 바깥 상자에 둔다 */
+const Speech = styled.div`
+  position: relative;
+  min-width: 0;
+  transform-origin: bottom right;
+  animation: k-enter 0.2s var(--k-ease);
 
-const ChatHeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-`;
-
-const BackButton = styled.button<{ $isDark: boolean }>`
-  background: transparent;
-  border: none;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: ${props => props.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
+  &::after {
+    content: '';
+    position: absolute;
+    right: 24px; /* 얼굴(64px) 가운데 */
+    bottom: -8px;
+    width: 16px;
+    height: 16px;
+    background: var(--k-bg-pop);
+    border-right: 1px solid var(--k-line);
+    border-bottom: 1px solid var(--k-line);
+    border-bottom-right-radius: 3px;
+    transform: rotate(45deg);
   }
 `;
 
-const ChatTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 17px;
-  font-weight: 600;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0;
+const PanelHead = styled.div`
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--k-space-1);
+  height: 52px;
+  padding: 0 var(--k-space-2) 0 var(--k-space-4);
+  border-bottom: 1px solid var(--k-line);
+
+  h3 {
+    flex: 1;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `;
 
-const CloseButton = styled.button<{ $isDark: boolean }>`
-  background: transparent;
-  border: none;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  cursor: pointer;
-  padding: 4px;
+const GhostIcon = styled.button`
+  flex: none;
+  width: var(--k-control-sm);
+  height: var(--k-control-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  border: none;
+  border-radius: var(--k-radius);
+  background: transparent;
+  color: var(--k-text-sub);
+  cursor: pointer;
+  transition: background 0.15s var(--k-ease), color 0.15s var(--k-ease);
 
-  &:hover {
-    background: ${props => props.$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'};
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
+  svg { width: 16px; height: 16px; }
+  &:hover { background: var(--k-bg-hover); color: var(--k-text); }
 `;
 
-const ChatBody = styled.div`
+const BackIcon = styled(GhostIcon)`
+  margin-left: calc(var(--k-space-2) * -1);
+`;
+
+const Thread = styled.div`
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 24px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: var(--k-space-4);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #86868b;
-    border-radius: 3px;
-  }
+  gap: var(--k-space-2);
 `;
 
-const CategoryButton = styled.button<{ $isDark: boolean }>`
-  width: 100%;
-  padding: 14px 18px;
-  background: ${props => props.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'};
-  border-radius: 16px;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  font-size: 14px;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-align: left;
-  font-family: inherit;
-
-  &:hover {
-    background: ${props => props.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-`;
-
-const CategoryIcon = styled.span`
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-`;
-
-const QuestionButton = styled.button<{ $isDark: boolean }>`
-  width: 100%;
-  padding: 12px 16px;
-  background: ${props => props.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'};
-  border-radius: 14px;
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  font-size: 13.5px;
-  font-weight: 400;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
-  line-height: 1.55;
-  font-family: inherit;
-  letter-spacing: -0.1px;
-
-  &:hover {
-    background: ${props => props.$isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};
-  }
-
-  &:active {
-    transform: scale(0.99);
-  }
-`;
-
-const AnswerBox = styled.div<{ $isDark: boolean }>`
-  width: 100%;
-  padding: 18px 20px;
-  background: ${props => props.$isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'};
-  border: 1px solid ${props => props.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.07)'};
-  border-radius: 16px;
-  color: ${props => props.$isDark ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.7)'};
-  font-size: 14px;
-  line-height: 1.75;
+const Bubble = styled.div<{ $from: 'bot' | 'user' }>`
+  max-width: 85%;
+  align-self: ${p => (p.$from === 'user' ? 'flex-end' : 'flex-start')};
+  padding: 10px 14px;
+  border-radius: var(--k-radius-lg);
+  background: ${p => (p.$from === 'user' ? 'var(--k-accent)' : 'var(--k-bg-sub)')};
+  color: ${p => (p.$from === 'user' ? 'var(--k-on-accent)' : 'var(--k-text)')};
+  font-size: var(--k-text-md);
+  line-height: 1.6;
   white-space: pre-line;
-  letter-spacing: -0.1px;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  animation: k-enter 0.2s var(--k-ease) both;
 `;
 
-const ToggleButton = styled.button<{ $isDark: boolean; $isOpen: boolean }>`
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border-radius: 100px;
-  background: ${props => props.$isDark
-    ? 'rgba(22, 22, 24, 0.85)'
-    : 'rgba(255, 255, 255, 0.85)'};
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  color: ${props => props.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  border: none;
-  cursor: pointer;
+const Chips = styled.div<{ $stack?: boolean }>`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: inherit;
-  box-shadow: ${props => props.$isDark
-    ? '0 4px 24px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3)'
-    : '0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05)'};
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: scale(1.02);
-  }
-
-  &:active {
-    transform: scale(0.97);
-  }
-
-  svg {
-    width: 18px;
-    height: 18px;
-  }
+  flex-wrap: wrap;
+  flex-direction: ${p => (p.$stack ? 'column' : 'row')};
+  align-items: flex-start;
+  gap: var(--k-space-2);
+  margin-top: var(--k-space-1);
 `;
 
-const WelcomeText = styled.div<{ $isDark: boolean }>`
-  padding: 0 0 16px 0;
-  color: ${props => props.$isDark ? '#d4d4d8' : '#1d1d1f'};
-  font-size: 14px;
-  line-height: 1.7;
-  margin-bottom: 12px;
-  text-align: center;
-`;
-
-const EmailLink = styled.button<{ $isDark: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: ${props => props.$isDark ? '#4ECDC4' : '#1d1d1f'};
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  background: transparent;
-  border: none;
+/* 빠른 답: 작은 보조 버튼. 질문 문장이 길면 줄바꿈되게 높이는 최소값만 둔다 */
+const Chip = styled.button`
+  max-width: 100%;
+  min-height: var(--k-control-sm);
+  padding: 6px var(--k-space-3);
+  border: 1px solid var(--k-line-strong);
+  border-radius: var(--k-radius);
+  background: var(--k-bg);
+  color: var(--k-text);
+  font: inherit;
+  font-size: var(--k-text-sm);
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: left;
+  word-break: keep-all;
   cursor: pointer;
+  transition: background 0.15s var(--k-ease);
+
+  &:hover { background: var(--k-bg-hover); }
+`;
+
+const EmailLink = styled.button`
+  display: inline;
   padding: 0;
-  font-size: 14px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--k-line-strong);
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
 
-  &:hover {
-    opacity: 0.8;
-    text-decoration: underline;
-  }
+  &:hover { text-decoration-color: var(--k-text); }
+`;
 
-  svg {
-    width: 14px;
-    height: 14px;
+/* 평소에는 동그라미 없이 얼굴만 떠 있고, 패널을 열면 검은 닫기 버튼이 된다 */
+const Launcher = styled.button`
+  position: relative;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.2s var(--k-ease);
+
+  &:hover { transform: scale(1.06); }
+  &:active { transform: scale(0.96); }
+`;
+
+/* 버튼 속 얼굴. 움직이지 않으니 3D 대신 같은 조명으로 찍어 둔 이미지를 쓴다(7KB).
+   패널을 열어도 그대로 있어서 얼굴이 말하는 것처럼 보인다 */
+const Face = styled.img<{ $theme: 'light' | 'dark' }>`
+  display: ${p => (p.$theme === 'light' ? 'block' : 'none')};
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+
+  :root[data-theme='dark'] & {
+    display: ${p => (p.$theme === 'dark' ? 'block' : 'none')};
   }
 `;
 
@@ -309,22 +230,30 @@ interface ChatbotProps {
 type ViewMode = 'categories' | 'questions' | 'answer';
 
 export default function Chatbot({ onContactClick }: ChatbotProps) {
-  const { isDark } = useTheme();
   const { language } = useLanguage();
   const { categories: chatbotData } = useChatbot();
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('categories');
   const [selectedCategory, setSelectedCategory] = useState<ChatCategory | null>(null);
   const [selectedQuestion, setSelectedQuestion] = useState<ChatQuestion | null>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
 
   const translations = {
     ko: {
-      welcome: '안녕하세요! 궁금한 것을 선택해주세요 😊',
-      chatTitle: '무엇이 궁금하신가요?'
+      welcome: '안녕하세요, 허정연이에요! 시각디자인을 전공한 프론트엔드 개발자예요. 궁금한 걸 골라 주시면 제가 답해 드릴게요.',
+      pickQuestion: '어떤 게 궁금하세요?',
+      chatTitle: '허정연',
+      open: '질문하기 열기',
+      close: '닫기',
+      back: '뒤로',
     },
     en: {
-      welcome: 'Hello! Please select what you\'re curious about 😊',
-      chatTitle: 'What are you curious about?'
+      welcome: "Hi, I'm JeongYeon! I'm a frontend developer with a visual design background. Pick anything you're curious about and I'll answer.",
+      pickQuestion: 'What would you like to know?',
+      chatTitle: 'Heo JeongYeon',
+      open: 'Open chat',
+      close: 'Close',
+      back: 'Back',
     }
   };
 
@@ -342,7 +271,7 @@ export default function Chatbot({ onContactClick }: ChatbotProps) {
       handleClose();
       return;
     }
-    
+
     setSelectedQuestion(question);
     setViewMode('answer');
   };
@@ -365,11 +294,22 @@ export default function Chatbot({ onContactClick }: ChatbotProps) {
     setSelectedQuestion(null);
   };
 
+  // 답이 바뀌면 처음부터 읽게 맨 위로
+  useEffect(() => {
+    threadRef.current?.scrollTo({ top: 0 });
+  }, [viewMode, selectedCategory, selectedQuestion]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  // 답을 보는 중에도 위에는 고른 주제를 보여 준다. 질문 문장은 말풍선으로 보인다
   const getHeaderTitle = () => {
-    if (viewMode === 'answer' && selectedQuestion) {
-      return selectedQuestion.question[language];
-    }
-    if (viewMode === 'questions' && selectedCategory) {
+    if (viewMode !== 'categories' && selectedCategory) {
       return selectedCategory.title[language];
     }
     return t.chatTitle;
@@ -379,19 +319,14 @@ export default function Chatbot({ onContactClick }: ChatbotProps) {
     if (viewMode === 'categories') {
       return (
         <>
-          <WelcomeText $isDark={isDark}>
-            {t.welcome}
-          </WelcomeText>
-          {chatbotData.map((category) => (
-            <CategoryButton
-              key={category.id}
-              $isDark={isDark}
-              onClick={() => handleCategoryClick(category)}
-            >
-              <CategoryIcon>{category.icon}</CategoryIcon>
-              <span>{category.title[language]}</span>
-            </CategoryButton>
-          ))}
+          <Bubble $from="bot">{t.welcome}</Bubble>
+          <Chips>
+            {chatbotData.map((category) => (
+              <Chip key={category.id} type="button" onClick={() => handleCategoryClick(category)}>
+                {category.title[language]}
+              </Chip>
+            ))}
+          </Chips>
         </>
       );
     }
@@ -399,22 +334,22 @@ export default function Chatbot({ onContactClick }: ChatbotProps) {
     if (viewMode === 'questions' && selectedCategory) {
       return (
         <>
-          {selectedCategory.questions.map((question, index) => (
-            <QuestionButton
-              key={index}
-              $isDark={isDark}
-              onClick={() => handleQuestionClick(question)}
-            >
-              Q. {question.question[language]}
-            </QuestionButton>
-          ))}
+          <Bubble $from="user">{selectedCategory.title[language]}</Bubble>
+          <Bubble $from="bot">{t.pickQuestion}</Bubble>
+          <Chips $stack>
+            {selectedCategory.questions.map((question, index) => (
+              <Chip key={index} type="button" onClick={() => handleQuestionClick(question)}>
+                {question.question[language]}
+              </Chip>
+            ))}
+          </Chips>
         </>
       );
     }
 
     if (viewMode === 'answer' && selectedQuestion) {
       const answer = selectedQuestion.answer[language];
-      const isContactAnswer = answer.includes('qazseeszaq3219@gmail.com');
+      const isContactAnswer = answer.includes(EMAIL);
 
       const handleEmailClick = () => {
         onContactClick();
@@ -422,22 +357,19 @@ export default function Chatbot({ onContactClick }: ChatbotProps) {
       };
 
       return (
-        <AnswerBox $isDark={isDark}>
-          {isContactAnswer ? (
-            <>
-              {answer.split('qazseeszaq3219@gmail.com')[0]}
-              <EmailLink 
-                $isDark={isDark} 
-                onClick={handleEmailClick}
-              >
-                <Mail />
-                qazseeszaq3219@gmail.com
-              </EmailLink>
-            </>
-          ) : (
-            answer
-          )}
-        </AnswerBox>
+        <>
+          <Bubble $from="user">{selectedQuestion.question[language]}</Bubble>
+          <Bubble $from="bot">
+            {isContactAnswer ? (
+              <>
+                {answer.split(EMAIL)[0]}
+                <EmailLink type="button" onClick={handleEmailClick}>{EMAIL}</EmailLink>
+              </>
+            ) : (
+              answer
+            )}
+          </Bubble>
+        </>
       );
     }
 
@@ -446,35 +378,36 @@ export default function Chatbot({ onContactClick }: ChatbotProps) {
 
   return (
     <>
-      {isOpen && <Overlay $isOpen={isOpen} onClick={handleClose} />}
-      <ChatbotContainer $isOpen={isOpen}>
-        <ChatWindow $isDark={isDark} $isOpen={isOpen}>
-        <ChatHeader $isDark={isDark}>
-          <ChatHeaderLeft>
-            {viewMode !== 'categories' && (
-              <BackButton $isDark={isDark} onClick={handleBack}>
-                <ChevronLeft />
-              </BackButton>
-            )}
-            <ChatTitle $isDark={isDark}>{getHeaderTitle()}</ChatTitle>
-          </ChatHeaderLeft>
-          <CloseButton $isDark={isDark} onClick={handleClose}>
-            <X />
-          </CloseButton>
-        </ChatHeader>
-        <ChatBody>
-          {renderContent()}
-        </ChatBody>
-      </ChatWindow>
-      
-        <ToggleButton
-          $isDark={isDark}
-          $isOpen={isOpen}
-          onClick={() => setIsOpen(!isOpen)}
+      {isOpen && <ClickAway onClick={handleClose} />}
+      <Dock>
+        {isOpen && (
+          <Speech>
+          <Panel role="dialog" aria-label={getHeaderTitle()}>
+            <PanelHead>
+              {viewMode !== 'categories' && (
+                <BackIcon type="button" onClick={handleBack} aria-label={t.back}>
+                  <ChevronLeft />
+                </BackIcon>
+              )}
+              <h3>{getHeaderTitle()}</h3>
+            </PanelHead>
+            <Thread ref={threadRef}>
+              {renderContent()}
+            </Thread>
+          </Panel>
+          </Speech>
+        )}
+
+        <Launcher
+          type="button"
+          onClick={() => (isOpen ? handleClose() : setIsOpen(true))}
+          aria-label={isOpen ? t.close : t.open}
+          aria-expanded={isOpen}
         >
-          {isOpen ? <X /> : <MessageCircle />}
-        </ToggleButton>
-      </ChatbotContainer>
+          <Face $theme="light" src="/models/posters/head-light.webp" alt="" width={64} height={64} loading="lazy" />
+          <Face $theme="dark" src="/models/posters/head-dark.webp" alt="" width={64} height={64} loading="lazy" />
+        </Launcher>
+      </Dock>
     </>
   );
 }

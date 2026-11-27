@@ -26,7 +26,7 @@ const useIsomorphicLayoutEffect =
 function applyDocumentTheme(dark: boolean) {
   const root = document.documentElement;
   root.dataset.theme = dark ? 'dark' : 'light';
-  root.style.backgroundColor = dark ? '#000' : '#fff';
+  root.style.backgroundColor = dark ? '#111' : '#fff';
 }
 
 type ViewTransitionLike = {

@@ -1,325 +1,167 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
-import React from 'react';
-import styled, { keyframes } from 'styled-components';
-import { useTheme } from '../contexts/ThemeContext';
+import type { MouseEvent } from 'react';
+import styled from 'styled-components';
+import Link from 'next/link';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useOpenSource } from '../hooks/useOpenSource';
-import { Github, Star, Download, ArrowRight, ArrowLeft } from 'lucide-react';
+import type { OpenSourceProject } from '../data/types';
 
-/* ── InView hook (toggles so animations replay) ── */
-function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLElement>(null);
-  const [inView, setInView] = useState(false);
-  const [animKey, setAnimKey] = useState(0);
-  const prevVisible = useRef(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        const visible = entry.isIntersecting;
-        if (visible && !prevVisible.current) setAnimKey(k => k + 1);
-        prevVisible.current = visible;
-        setInView(visible);
-      },
-      { threshold, rootMargin: '-15% 0px -15% 0px' },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [threshold]);
-  return [ref, inView, animKey] as const;
-}
+/* 오픈소스는 포트폴리오에서 비중이 작은 편이라 홍보 카드 대신 조용한 목록으로 둔다.
+   톤은 홈(HomeView)과 같은 PUUS 토큰만 쓴다. */
 
-/* ── Character reveal animation ── */
-const charReveal = keyframes`
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-`;
-
-const CharSpan = styled.span<{ $delay: number }>`
-  display: inline-block;
-  opacity: 0;
-  animation: ${charReveal} 0.4s ease forwards;
-  animation-delay: ${p => p.$delay}ms;
-`;
-
-/* ── Keyframes ── */
-const shimmer = keyframes`
-  0% { background-position: -400% 0; }
-  100% { background-position: 400% 0; }
-`;
-
-/* ── Layout (same as Projects) ── */
-const OpenSourceSection = styled.section<{ $isDark: boolean }>`
-  padding: 120px 0 80px;
-  background: ${p => p.$isDark ? '#000000' : '#ffffff'};
-  transition: background 0.3s ease;
-
-  @media (max-width: 768px) {
-    padding: 80px 0 60px;
-  }
-`;
-
-const Container = styled.div`
-  max-width: 1100px;
+const Page = styled.main`
+  max-width: var(--k-page-max);
   margin: 0 auto;
-  padding: 0 40px;
+  padding: var(--k-space-10) var(--k-space-6) 96px;
+  color: var(--k-text);
+  animation: k-enter 0.25s var(--k-ease) both;
 
   @media (max-width: 768px) {
-    padding: 0 20px;
+    padding: var(--k-space-6) var(--k-space-4) 72px;
   }
 `;
 
-/* ── Header (same as Projects) ── */
-const SectionEyebrow = styled.span<{ $isDark: boolean }>`
-  display: block;
-  font-size: 13px;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'};
-  margin-bottom: 12px;
-  text-align: center;
+// 다른 화면에 끼워 넣을 때는 페이지 여백 없이 섹션으로만 쓴다
+const Embedded = styled.section`
+  color: var(--k-text);
 `;
 
-const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: 40px;
-  font-weight: 700;
-  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0 0 16px 0;
-  letter-spacing: -1px;
-  line-height: 1.15;
-  text-align: center;
+const PageHead = styled.header`
+  margin-bottom: var(--k-space-8);
 
-  @media (max-width: 768px) {
-    font-size: 30px;
+  h1 {
+    font-size: var(--k-text-2xl);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  p {
+    margin-top: 6px;
+    font-size: var(--k-text-md);
+    color: var(--k-text-weak);
+    word-break: keep-all;
   }
 `;
 
-const SectionSubtitle = styled.p<{ $isDark: boolean }>`
-  font-size: 16px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
-  margin: 0 0 48px 0;
-  line-height: 1.5;
-  text-align: center;
-
-  @media (max-width: 768px) {
-    font-size: 14px;
-    margin-bottom: 36px;
-  }
-`;
-
-const BackButton = styled.button<{ $isDark: boolean }>`
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 14px;
-  font-weight: 500;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 32px;
-  transition: color 0.2s;
-  font-family: inherit;
-
-  &:hover {
-    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  }
-
-  svg { width: 16px; height: 16px; }
-`;
-
-/* ── Grid (same as Projects: 3 columns) ── */
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-`;
-
-/* ── Card (same hover pattern as Projects) ── */
-const CardWrapper = styled.div`
-  cursor: pointer;
-`;
-
-const ImageContainer = styled.div<{ $image: string }>`
-  position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  aspect-ratio: 4 / 3;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url(${p => p.$image});
-    background-size: cover;
-    background-position: center;
-    transition: transform 0.4s ease, filter 0.4s ease;
-  }
-
-  ${CardWrapper}:hover &::before {
-    transform: scale(1.04);
-    filter: blur(3px) brightness(0.65);
-  }
-`;
-
-const ImageOverlay = styled.div`
-  position: absolute;
-  inset: 0;
+const SectionHead = styled.div`
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  opacity: 0;
-  transition: opacity 0.35s ease;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--k-space-5);
 
-  ${CardWrapper}:hover & {
-    opacity: 1;
+  h2 {
+    font-size: var(--k-text-lg);
+    font-weight: 700;
+  }
+
+  button {
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: var(--k-text-sm);
+    color: var(--k-text-weak);
+    cursor: pointer;
+  }
+
+  button:hover { color: var(--k-text); }
+`;
+
+const List = styled.ul`
+  list-style: none;
+  border-top: 1px solid var(--k-line);
+`;
+
+const Row = styled.li`
+  border-bottom: 1px solid var(--k-line);
+  animation: k-enter 0.25s var(--k-ease) both;
+
+  a {
+    display: block;
+    padding: var(--k-space-5) 0;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .name {
+    font-size: var(--k-text-lg);
+    font-weight: 600;
+  }
+
+  .desc {
+    margin-top: var(--k-space-1);
+    font-size: var(--k-text-md);
+    line-height: 1.6;
+    color: var(--k-text-sub);
+    word-break: keep-all;
+    text-wrap: pretty;
+  }
+
+  .meta {
+    margin-top: 6px;
+    font-size: var(--k-text-sm);
+    color: var(--k-text-weak);
+    font-variant-numeric: tabular-nums;
+  }
+
+  a:hover .name {
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
 `;
 
-const OverlayText = styled.p`
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
-  text-align: center;
-  max-width: 280px;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-`;
+const SkeletonRow = styled.li`
+  padding: var(--k-space-5) 0;
+  border-bottom: 1px solid var(--k-line);
 
-const CardMeta = styled.div`
-  padding: 12px 2px 0;
-`;
-
-const ProjectName = styled.h3<{ $isDark: boolean }>`
-  font-size: 15px;
-  font-weight: 600;
-  color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-  margin: 0;
-  letter-spacing: -0.2px;
-`;
-
-const ProjectInfo = styled.div<{ $isDark: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 4px;
-`;
-
-const ProjectCategory = styled.span<{ $isDark: boolean }>`
-  font-size: 12px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)'};
-  font-weight: 400;
-`;
-
-const Stat = styled.span<{ $isDark: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 11px;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'};
-
-  svg { width: 11px; height: 11px; }
-`;
-
-/* ── View All (bottom, same as Projects) ── */
-const ViewAllBottom = styled.div`
-  text-align: center;
-  margin-top: 48px;
-`;
-
-const ViewAllButton = styled.button<{ $isDark: boolean }>`
-  background: none;
-  border: none;
-  padding: 12px 4px;
-  font-size: 14px;
-  font-weight: 500;
-  color: ${p => p.$isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)'};
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  font-family: inherit;
-
-  svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
-
-  &:hover {
-    color: ${p => p.$isDark ? '#f5f5f7' : '#1d1d1f'};
-    svg { transform: translateX(3px); }
+  span {
+    display: block;
+    height: 14px;
+    border-radius: var(--k-radius-sm);
+    background: var(--k-bg-sub);
   }
+
+  span + span { margin-top: var(--k-space-2); }
 `;
 
-/* ── Skeleton ── */
-const SkeletonBox = styled.div<{ $isDark: boolean }>`
-  border-radius: 14px;
-  aspect-ratio: 4 / 3;
-  background: linear-gradient(
-    90deg,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
-  );
-  background-size: 400% 100%;
-  animation: ${shimmer} 1.4s ease infinite;
+const Empty = styled.p`
+  padding: var(--k-space-10) 0;
+  font-size: var(--k-text-md);
+  color: var(--k-text-weak);
+  border-top: 1px solid var(--k-line);
+  border-bottom: 1px solid var(--k-line);
 `;
 
-const SkeletonLine = styled.div<{ $isDark: boolean; $width?: string }>`
-  height: 14px;
-  border-radius: 7px;
-  width: ${p => p.$width ?? '100%'};
-  background: linear-gradient(
-    90deg,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 25%,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.09)'} 50%,
-    ${p => p.$isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'} 75%
-  );
-  background-size: 400% 100%;
-  animation: ${shimmer} 1.4s ease infinite;
-`;
-
-/* ── Translations ── */
 const translations = {
   ko: {
-    back: '뒤로가기',
-    eyebrow: 'OPEN SOURCE',
-    title: '컴포넌트 라이브러리',
-    subtitle: '직접 만들고 공개한 라이브러리, 컴포넌트, 그리고 작은 실험들',
+    title: '오픈소스',
+    desc: '직접 만들어 npm에 공개한 React 컴포넌트 라이브러리예요.',
     viewAll: '전체 보기',
+    components: (n: string) => `${n}개 컴포넌트`,
+    empty: '아직 공개한 라이브러리가 없어요.',
   },
   en: {
-    back: 'Back',
-    eyebrow: 'OPEN SOURCE',
-    title: 'Component Library',
-    subtitle: "Libraries, components, and small experiments I've built and open-sourced",
-    viewAll: 'View All',
+    title: 'Open source',
+    desc: 'React component libraries I built and published on npm.',
+    viewAll: 'View all',
+    components: (n: string) => `${n} components`,
+    empty: 'No published libraries yet.',
   },
 };
 
-/* ── Component ── */
+// DB 문자열의 긴 대시는 가운뎃점으로 바꿔 보여 준다
+const undash = (s: string) => s.replace(/\s*[—–]\s*/g, ' · ');
+
+// '-', '0', 빈 값은 의미 없는 수치라 표시하지 않는다
+const hasValue = (v?: string) => !!v && !['-', '0'].includes(v.trim());
+
 interface OpenSourceProps {
   onProjectClick: (id: string) => void;
   compact?: boolean;
   limit?: number;
   onViewAll?: () => void;
+  // 목록 페이지는 헤더 메뉴로 돌아갈 수 있어 뒤로가기를 그리지 않는다. 호출 쪽 호환용으로만 남김
   onBack?: () => void;
 }
 
@@ -328,9 +170,7 @@ export default function OpenSource({
   compact = false,
   limit,
   onViewAll,
-  onBack,
 }: OpenSourceProps) {
-  const { isDark } = useTheme();
   const { language } = useLanguage();
   const { projects: openSourceProjects, loading } = useOpenSource();
   const t = translations[language];
@@ -340,74 +180,66 @@ export default function OpenSource({
       ? openSourceProjects.slice(0, limit)
       : openSourceProjects;
 
-  const skeletonCount = compact && typeof limit === 'number' ? limit : 3;
+  const skeletonCount = compact && typeof limit === 'number' ? limit : 2;
 
-  const [sectionRef, inView, animKey] = useInView(0.15);
+  const metaOf = (p: OpenSourceProject) =>
+    [
+      p.category[language],
+      hasValue(p.stats.components) ? t.components(p.stats.components!) : '',
+      p.year,
+    ]
+      .filter(Boolean)
+      .join(' · ');
 
-  const renderAnimatedTitle = (text: string) =>
-    inView
-      ? text.split('').map((c, i) => c === ' ' ? <span key={i}>&nbsp;</span> : <CharSpan key={i} $delay={i * 40}>{c}</CharSpan>)
-      : text;
+  // 진짜 링크로 두되(새 탭 열기 가능) 일반 클릭은 기존 onProjectClick 흐름을 탄다
+  const handleClick = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    onProjectClick(id);
+  };
+
+  const list = (
+    <List>
+      {loading
+        ? Array.from({ length: skeletonCount }).map((_, i) => (
+            <SkeletonRow key={i} aria-hidden>
+              <span style={{ width: '30%' }} />
+              <span style={{ width: '60%' }} />
+            </SkeletonRow>
+          ))
+        : displayProjects.map((project, i) => (
+            <Row key={project.id} style={{ animationDelay: `${i * 30}ms` }}>
+              <Link href={`/opensource/${project.id}`} onClick={e => handleClick(e, project.id)}>
+                <div className="name">{project.name}</div>
+                <div className="desc">{undash(project.description[language])}</div>
+                <div className="meta">{metaOf(project)}</div>
+              </Link>
+            </Row>
+          ))}
+    </List>
+  );
+
+  const empty = !loading && displayProjects.length === 0 ? <Empty>{t.empty}</Empty> : null;
+
+  if (compact) {
+    return (
+      <Embedded>
+        <SectionHead>
+          <h2 id="dot-opensource" data-dot-anchor>{t.title}</h2>
+          {onViewAll && <button onClick={onViewAll}>{t.viewAll}</button>}
+        </SectionHead>
+        {empty ?? list}
+      </Embedded>
+    );
+  }
 
   return (
-    <OpenSourceSection $isDark={isDark} ref={sectionRef as React.RefObject<HTMLElement>}>
-      <Container>
-        {/* Back button — full page only */}
-        {!compact && onBack && (
-          <BackButton $isDark={isDark} onClick={onBack}>
-            <ArrowLeft />
-            {t.back}
-          </BackButton>
-        )}
-
-        <SectionEyebrow id="dot-opensource" $isDark={isDark} data-dot-anchor>{t.eyebrow}</SectionEyebrow>
-        <SectionTitle key={`os-${animKey}`} as="div" $isDark={isDark}>{renderAnimatedTitle(t.title)}</SectionTitle>
-        {!compact && <SectionSubtitle $isDark={isDark}>{t.subtitle}</SectionSubtitle>}
-        {compact && <div style={{ marginBottom: 48 }} />}
-
-        <Grid>
-          {loading
-            ? Array.from({ length: skeletonCount }).map((_, i) => (
-                <div key={i}>
-                  <SkeletonBox $isDark={isDark} />
-                  <CardMeta>
-                    <SkeletonLine $isDark={isDark} $width="50%" style={{ height: 14, marginBottom: 6 }} />
-                    <SkeletonLine $isDark={isDark} $width="30%" style={{ height: 11 }} />
-                  </CardMeta>
-                </div>
-              ))
-            : displayProjects.map((project) => (
-                <CardWrapper key={project.id} onClick={() => onProjectClick(project.id)}>
-                  <ImageContainer $image={project.image}>
-                    <ImageOverlay>
-                      <OverlayText>{project.description[language]}</OverlayText>
-                    </ImageOverlay>
-                  </ImageContainer>
-                  <CardMeta>
-                    <ProjectName $isDark={isDark}>{project.name}</ProjectName>
-                    <ProjectInfo $isDark={isDark}>
-                      <ProjectCategory $isDark={isDark}>
-                        {project.category[language]}
-                      </ProjectCategory>
-                      <Stat $isDark={isDark}><Star /> {project.stats.stars}</Stat>
-                      <Stat $isDark={isDark}><Download /> {project.stats.downloads}</Stat>
-                      <Stat $isDark={isDark}><Github /> {project.stats.contributors}</Stat>
-                    </ProjectInfo>
-                  </CardMeta>
-                </CardWrapper>
-              ))
-          }
-        </Grid>
-
-        {compact && onViewAll && (
-          <ViewAllBottom>
-            <ViewAllButton $isDark={isDark} onClick={onViewAll}>
-              {t.viewAll}
-              <ArrowRight />
-            </ViewAllButton>
-          </ViewAllBottom>
-        )}
-      </Container>
-    </OpenSourceSection>
+    <Page>
+      <PageHead>
+        <h1 id="dot-opensource" data-dot-anchor>{t.title}</h1>
+        <p>{t.desc}</p>
+      </PageHead>
+      {empty ?? list}
+    </Page>
   );
 }

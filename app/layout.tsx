@@ -66,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             React 상태는 하이드레이션 직후 ThemeContext가 맞춘다. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var d=localStorage.getItem('portfolio_dark_mode')==='true';document.documentElement.dataset.theme=d?'dark':'light';document.documentElement.style.backgroundColor=d?'#000':'#fff';}catch(e){}})();`,
+            __html: `(function(){try{var d=localStorage.getItem('portfolio_dark_mode')==='true';document.documentElement.dataset.theme=d?'dark':'light';document.documentElement.style.backgroundColor=d?'#111':'#fff';}catch(e){}})();`,
           }}
         />
       </head>
