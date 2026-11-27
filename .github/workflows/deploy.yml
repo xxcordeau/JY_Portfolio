@@ -3,6 +3,8 @@ name: Build & Deploy
 on:
   push:
     branches: [main]
+  # 배포만 다시 돌리고 싶을 때 Actions 탭에서 직접 실행
+  workflow_dispatch:
 
 # GitHub Pages 배포 권한
 permissions:
